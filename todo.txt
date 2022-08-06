@@ -1,3 +1,2 @@
-logout
 tabela sporocil
 frontend - dva userja se pogovarjata

@@ -1,96 +1,165 @@
 import { User } from "../enitities/User";
 import argon2 from "argon2";
 import { MyContext } from "../types";
+import {
+  Arg,
+  Ctx,
+  Field,
+  FieldResolver,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+  Root,
+} from "type-graphql";
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { validateRegister } from "../utils/validateRegister";
+// import { getConnection } from "typeorm";
+import { AppDataSource } from "../DataSource";
+import { FieldError } from "./FieldError";
 
-export const UserResolver = {
-  Query: {
-    async user(_parent: any, args: { id: number }) {
-      const user = await User.findBy({ id: args.id });
-      return user;
-    },
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
 
-    me(_parent: any, _args: any, { req }: MyContext) {
-      // you are not logged in
-      if (!req.session.userId) {
-        return null;
-      }
+  @Field(() => User, { nullable: true })
+  user?: User;
+}
 
-      return User.findOneBy({ id: req.session.userId });
-    },
-  },
+@Resolver(User)
+export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    // this is the current user and its ok to show them their own email
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+    // current user wants to see someone elses email
+    return "";
+  }
 
-  Mutation: {
-    async register(
-      _parent: any,
-      args: { username: string; email: string; password: string },
-      { req }: MyContext
-    ) {
-      const user = new User();
-      user.username = args.username;
-      user.email = args.email;
+  @Query(() => [User])
+  async user(@Arg("id") id: number) {
+    const user = await User.findBy({ id });
+    return user;
+  }
 
-      const hashedPassword = await argon2.hash(args.password);
-      user.password = hashedPassword;
+  @Query(() => User, { nullable: true })
+  me(@Ctx() { req }: MyContext) {
+    // you are not logged in
+    if (!req.session.userId) {
+      return null;
+    }
 
-      req.session.userId = user.id;
+    return User.findOneBy({ id: req.session.userId });
+  }
 
-      return await user.save();
-    },
+  @Mutation(() => UserResponse)
+  async register(
+    @Arg("options") options: UsernamePasswordInput,
+    @Ctx() { req }: MyContext
+  ) {
+    const errors = validateRegister(options);
+    if (errors) {
+      return { errors };
+    }
 
-    async login(
-      _parent: any,
-      args: { usernameOrEmail: string; password: string },
-      { req }: MyContext
-    ) {
-      const user = await User.findOne(
-        args.usernameOrEmail.includes("@")
-          ? { where: { email: args.usernameOrEmail } }
-          : { where: { username: args.usernameOrEmail } }
-      );
+    const hashedPassword = await argon2.hash(options.password);
+    let user;
 
-      // no username in database
-      if (!user) {
-        return {
-          errors: [
-            {
-              field: "usernameOrEmail",
-              message: "That username doesn't exist.",
-            },
-          ],
-        };
-      }
-      const valid = await argon2.verify(user.password, args.password);
-      if (!valid) {
-        return {
-          errors: [
-            {
-              field: "password",
-              message: "Incorrect password.",
-            },
-          ],
-        };
-      }
-
-      req.session.userId = user.id;
-
-      return {
-        user,
-      };
-    },
-
-    logout(_parent: any, _args: any, { req, res }: MyContext) {
-      return new Promise((resolve) =>
-        req.session.destroy((err) => {
-          res.clearCookie("qid");
-          if (err) {
-            console.log(err);
-            resolve(false);
-            return;
-          }
-
-          resolve(true);
+    try {
+      // User.create({}).save()
+      const result = await AppDataSource.createQueryBuilder()
+        .insert()
+        .into(User)
+        .values({
+          username: options.username,
+          email: options.email,
+          password: hashedPassword,
         })
-      );
-    },
-  },
-};
+        .returning("*")
+        .execute();
+      user = result.raw[0];
+    } catch (err) {
+      console.log(err);
+      //|| err.detail.includes("already exists")) {
+      // duplicate username error
+      if (err.sqlMessage.includes("Duplicate entry")) {
+        return {
+          errors: [
+            {
+              field: "username",
+              message: "Username already taken.",
+            },
+          ],
+        };
+      }
+    }
+
+    // store user id session
+    // this will set a cookie on the user
+    // keep them logged in
+    req.session.userId = user.id;
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
+    @Ctx() { req }: MyContext
+  ) {
+    const user = await User.findOne(
+      usernameOrEmail.includes("@")
+        ? { where: { email: usernameOrEmail } }
+        : { where: { username: usernameOrEmail } }
+    );
+
+    // no username in database
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "usernameOrEmail",
+            message: "That username doesn't exist.",
+          },
+        ],
+      };
+    }
+    const valid = await argon2.verify(user.password, password);
+    if (!valid) {
+      return {
+        errors: [
+          {
+            field: "password",
+            message: "Incorrect password.",
+          },
+        ],
+      };
+    }
+
+    req.session.userId = user.id;
+
+    return {
+      user,
+    };
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        res.clearCookie("qid");
+        if (err) {
+          console.log(err);
+          resolve(false);
+          return;
+        }
+
+        resolve(true);
+      })
+    );
+  }
+}

@@ -1,17 +1,18 @@
 import "reflect-metadata";
-import { DataSource } from "typeorm";
-import { User } from "./enitities/User";
+// import { DataSource } from "typeorm";
+// import { User /*, UserTypeDefs*/ } from "./enitities/User";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
-import { typeDefs } from "./typeDefs";
-import { UserResolver } from "./resolvers/user";
+// import { typeDefs } from "./typeDefs";
+import { UserResolver, MessageResolver } from "./resolvers/user";
 import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { MyContext } from "./types";
 import { ApolloServerPluginLandingPageLocalDefault } from "apollo-server-core";
 import { __prod__ } from "./constants";
-// import { buildSchema } from "type-graphql";
+import { buildSchema } from "type-graphql";
+import { AppDataSource } from "./DataSource";
 
 declare module "express-session" {
   export interface SessionData {
@@ -20,17 +21,17 @@ declare module "express-session" {
 }
 
 const main = async () => {
-  const AppDataSource = new DataSource({
-    type: "mariadb",
-    host: "localhost",
-    port: 3306,
-    username: "mysql",
-    password: "mysql",
-    database: "discord_clone2",
-    entities: [User],
-    synchronize: true,
-    logging: true,
-  });
+  // const AppDataSource = new DataSource({
+  //   type: "mariadb",
+  //   host: "localhost",
+  //   port: 3306,
+  //   username: "mysql",
+  //   password: "mysql",
+  //   database: "discord_clone2",
+  //   entities: [User],
+  //   synchronize: true,
+  //   logging: true,
+  // });
 
   await AppDataSource.initialize();
 
@@ -60,12 +61,12 @@ const main = async () => {
   app.use(appSession);
 
   const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers: [UserResolver],
-    // schema: await buildSchema({
-    //   resolvers: [UserResolver],
-    //   validate: false,
-    // }),
+    // typeDefs: [UserTypeDefs],
+    // resolvers: [UserResolver],
+    schema: await buildSchema({
+      resolvers: [UserResolver, MessageResolver],
+      validate: false,
+    }),
     context: ({ req, res }): MyContext => ({
       req,
       res,
@@ -77,10 +78,10 @@ const main = async () => {
 
   apolloServer.applyMiddleware({
     app,
-    cors: {
-      origin: ["https://studio.apollographql.com"],
-      credentials: true,
-    },
+    // cors: {
+    //   origin: ["https://studio.apollographql.com"],
+    //   credentials: true,
+    // },
   });
 
   app.listen(4000, () => {
