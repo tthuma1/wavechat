@@ -77,5 +77,20 @@ export const UserResolver = {
         user,
       };
     },
+
+    logout(_parent: any, _args: any, { req, res }: MyContext) {
+      return new Promise((resolve) =>
+        req.session.destroy((err) => {
+          res.clearCookie("qid");
+          if (err) {
+            console.log(err);
+            resolve(false);
+            return;
+          }
+
+          resolve(true);
+        })
+      );
+    },
   },
 };
