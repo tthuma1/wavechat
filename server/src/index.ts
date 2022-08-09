@@ -4,7 +4,8 @@ import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 // import { typeDefs } from "./typeDefs";
-import { UserResolver, MessageResolver } from "./resolvers/user";
+import { UserResolver } from "./resolvers/user";
+import { MessageResolver } from "./resolvers/message";
 import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
@@ -78,10 +79,10 @@ const main = async () => {
 
   apolloServer.applyMiddleware({
     app,
-    // cors: {
-    //   origin: ["https://studio.apollographql.com"],
-    //   credentials: true,
-    // },
+    cors: {
+      origin: ["http://localhost:3000"],
+      credentials: true,
+    },
   });
 
   app.listen(4000, () => {

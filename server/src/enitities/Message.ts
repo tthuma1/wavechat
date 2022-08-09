@@ -1,18 +1,29 @@
 // import { Field, ObjectType } from "type-graphql";
-import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Field, ObjectType } from "type-graphql";
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  BaseEntity,
+} from "typeorm";
 import { User } from "./User";
 
+@ObjectType()
 @Entity()
-export class Message {
+export class Message extends BaseEntity {
   @PrimaryGeneratedColumn()
   messageId!: number;
 
+  @Field()
   @Column()
   public senderId!: number;
 
+  @Field()
   @Column()
   public receiverId!: number;
 
+  @Field()
   @Column("text")
   public msg: string;
 

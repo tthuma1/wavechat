@@ -4,34 +4,32 @@ import Head from "next/head";
 // import Image from 'next/image'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
-import { useRegisterMutation } from "../generated/graphql";
+import { useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 
 const Home: NextPage = () => {
-  const [register] = useRegisterMutation();
+  const [login] = useLoginMutation();
 
   return (
     <div>
       <Head>
-        <title>Discord Clone - Register</title>
+        <title>Discord Clone - Login</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <h3>Register</h3>
+        <h3>Login</h3>
 
         <Formik
-          initialValues={{ username: "", email: "", password: "" }}
+          initialValues={{ usernameOrEmail: "", password: "" }}
           onSubmit={async (values, { setErrors }) => {
-            const response = await register({
-              variables: { options: values },
-            });
-            if (response.data?.register.errors) {
-              console.log(response.data?.register.errors);
-              setErrors(toErrorMap(response.data.register.errors));
+            const response = await login({ variables: values });
+            if (response.data?.login.errors) {
+              console.log(response.data?.login.errors);
+              setErrors(toErrorMap(response.data.login.errors));
               // setErrors({ username: "hi" });
-            } else if (response.data?.register.user) {
+            } else if (response.data?.login.user) {
               // worked
               // router.push("/");
               console.log("worked");
@@ -42,14 +40,9 @@ const Home: NextPage = () => {
         >
           {({ handleSubmit, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
-              <label htmlFor="username">Username</label>
-              <Field name="username" />
-              <ErrorMessage name="username" />
-              <br />
-
-              <label htmlFor="email">Email (optional)</label>
-              <Field type="email" name="email" />
-              <ErrorMessage name="email" />
+              <label htmlFor="usernameOrEmail">Username or email</label>
+              <Field name="usernameOrEmail" />
+              <ErrorMessage name="usernameOrEmail" />
               <br />
 
               <label htmlFor="password">Password</label>
@@ -58,7 +51,7 @@ const Home: NextPage = () => {
               <br />
 
               <button type="submit" disabled={isSubmitting}>
-                Register
+                Login
               </button>
             </Form>
           )}

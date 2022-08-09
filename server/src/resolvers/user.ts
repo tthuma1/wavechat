@@ -65,6 +65,8 @@ export class UserResolver {
       return { errors };
     }
 
+    if (options.email === "") options.email = undefined;
+
     const hashedPassword = await argon2.hash(options.password);
     let user;
 
@@ -123,7 +125,7 @@ export class UserResolver {
         errors: [
           {
             field: "usernameOrEmail",
-            message: "That username doesn't exist.",
+            message: "This user doesn't exist.",
           },
         ],
       };
