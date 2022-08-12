@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import type { AppProps } from "next/app";
+import NavBar from "../components/NavBar";
 
 const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",
@@ -10,6 +11,7 @@ const client = new ApolloClient({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
+      <NavBar />
       <Component {...pageProps} />
     </ApolloProvider>
   );

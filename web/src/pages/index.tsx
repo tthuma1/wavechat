@@ -15,6 +15,7 @@ const Home: NextPage = () => {
     } else if (response.data?.logout) {
       // worked
       // router.push("/");
+      window.location.reload();
       console.log("worked");
     }
   };
@@ -36,6 +37,12 @@ const Home: NextPage = () => {
 
         <Link href="/register">
           <a>Register</a>
+        </Link>
+
+        <br />
+
+        <Link href="/send">
+          <a>Send</a>
         </Link>
 
         <br />

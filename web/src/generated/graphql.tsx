@@ -109,6 +109,14 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email?: string | null } | null } };
 
+export type SendMutationVariables = Exact<{
+  receiverId: Scalars['Float'];
+  msg: Scalars['String'];
+}>;
+
+
+export type SendMutation = { __typename?: 'Mutation', send: { __typename?: 'MessageResponse', errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null, message?: { __typename?: 'Message', msg: string, senderId: number, receiverId: number } | null } };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -228,6 +236,48 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const SendDocument = gql`
+    mutation Send($receiverId: Float!, $msg: String!) {
+  send(receiverId: $receiverId, msg: $msg) {
+    errors {
+      message
+      field
+    }
+    message {
+      msg
+      senderId
+      receiverId
+    }
+  }
+}
+    `;
+export type SendMutationFn = Apollo.MutationFunction<SendMutation, SendMutationVariables>;
+
+/**
+ * __useSendMutation__
+ *
+ * To run a mutation, you first call `useSendMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendMutation, { data, loading, error }] = useSendMutation({
+ *   variables: {
+ *      receiverId: // value for 'receiverId'
+ *      msg: // value for 'msg'
+ *   },
+ * });
+ */
+export function useSendMutation(baseOptions?: Apollo.MutationHookOptions<SendMutation, SendMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendMutation, SendMutationVariables>(SendDocument, options);
+      }
+export type SendMutationHookResult = ReturnType<typeof useSendMutation>;
+export type SendMutationResult = Apollo.MutationResult<SendMutation>;
+export type SendMutationOptions = Apollo.BaseMutationOptions<SendMutation, SendMutationVariables>;
 export const MeDocument = gql`
     query Me {
   me {

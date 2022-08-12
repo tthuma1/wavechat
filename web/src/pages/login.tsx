@@ -32,6 +32,7 @@ const Home: NextPage = () => {
             } else if (response.data?.login.user) {
               // worked
               // router.push("/");
+              window.location.reload();
               console.log("worked");
             }
 

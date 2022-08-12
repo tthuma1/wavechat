@@ -1,0 +1,13 @@
+mutation Send($receiverId: Float!, $msg: String!) {
+  send(receiverId: $receiverId, msg: $msg) {
+    errors {
+      message
+      field
+    }
+    message {
+      msg
+      senderId
+      receiverId
+    }
+  }
+}
