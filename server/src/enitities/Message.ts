@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   BaseEntity,
+  CreateDateColumn,
 } from "typeorm";
 import { User } from "./User";
 
@@ -17,7 +18,7 @@ export class Message extends BaseEntity {
 
   @Field()
   @Column()
-  public senderId!: number;
+  senderId!: number;
 
   @Field()
   @Column()
@@ -27,9 +28,13 @@ export class Message extends BaseEntity {
   @Column("text")
   public msg: string;
 
-  @ManyToOne(() => User, (sender) => sender.sentMessages)
+  @Field()
+  @CreateDateColumn()
+  public createdAt: string;
+
+  @ManyToOne(() => User, sender => sender.sentMessages)
   public sender!: User;
 
-  @ManyToOne(() => User, (receiver) => receiver.receivedMessages)
+  @ManyToOne(() => User, receiver => receiver.receivedMessages)
   public receiver!: User;
 }

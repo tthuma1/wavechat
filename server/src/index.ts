@@ -72,7 +72,12 @@ const main = async () => {
       req,
       res,
     }),
-    plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
+    plugins: [
+      ApolloServerPluginLandingPageLocalDefault({
+        embed: true,
+        includeCookies: true,
+      }),
+    ],
   });
 
   await apolloServer.start();

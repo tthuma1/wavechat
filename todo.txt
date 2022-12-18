@@ -1,2 +1,5 @@
-tabela sporocil
-frontend - dva userja se pogovarjata
+/username => pokaze sporocila med tabo in drugim uporabnikom (ce si loginan) -/
+date za message -/
+er model
+seznam friendov
+ce imas odprta dva taba in iz enega posljes v drugega se takoj vidi (event subscription)
