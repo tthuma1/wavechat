@@ -10,11 +10,23 @@ const client = new ApolloClient({
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ApolloProvider client={client}>
-      <NavBar />
-      <Component {...pageProps} />
-    </ApolloProvider>
+    <div style={styles.container}>
+      <ApolloProvider client={client}>
+        <NavBar />
+        <Component {...pageProps} />
+      </ApolloProvider>
+    </div>
   );
 }
+
+const styles = {
+  container: {
+    backgroundColor: "#222",
+    color: "#fff",
+    height: "100vh",
+    width: "100vw",
+    margin: "0",
+  },
+} as const;
 
 export default MyApp;

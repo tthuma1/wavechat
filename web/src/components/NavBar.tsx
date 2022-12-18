@@ -50,7 +50,12 @@ const NavBar: NextComponentType = () => {
     );
   }
 
-  return <div style={styles.container}>{body}</div>;
+  return (
+    <div style={styles.container}>
+      <Link href="/">Home</Link>
+      {body}
+    </div>
+  );
 };
 
 const styles = {

@@ -1,0 +1,10 @@
+query Retrieve($receiverId: Float!) {
+  retrieve(receiverId: $receiverId) {
+    messages {
+      msg
+      receiverId
+      senderId
+      createdAt
+    }
+  }
+}

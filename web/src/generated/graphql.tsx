@@ -23,6 +23,7 @@ export type FieldError = {
 
 export type Message = {
   __typename?: 'Message';
+  createdAt: Scalars['String'];
   msg: Scalars['String'];
   receiverId: Scalars['Float'];
   senderId: Scalars['Float'];
@@ -32,6 +33,12 @@ export type MessageResponse = {
   __typename?: 'MessageResponse';
   errors?: Maybe<Array<FieldError>>;
   message?: Maybe<Message>;
+};
+
+export type MessagesResponse = {
+  __typename?: 'MessagesResponse';
+  errors?: Maybe<Array<FieldError>>;
+  messages?: Maybe<Array<Message>>;
 };
 
 export type Mutation = {
@@ -62,7 +69,13 @@ export type MutationSendArgs = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
+  retrieve?: Maybe<MessagesResponse>;
   user: Array<User>;
+};
+
+
+export type QueryRetrieveArgs = {
+  receiverId: Scalars['Float'];
 };
 
 
@@ -121,6 +134,13 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email?: string | null } | null };
+
+export type RetrieveQueryVariables = Exact<{
+  receiverId: Scalars['Float'];
+}>;
+
+
+export type RetrieveQuery = { __typename?: 'Query', retrieve?: { __typename?: 'MessagesResponse', messages?: Array<{ __typename?: 'Message', msg: string, receiverId: number, senderId: number, createdAt: string }> | null } | null };
 
 
 export const LoginDocument = gql`
@@ -314,3 +334,43 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const RetrieveDocument = gql`
+    query Retrieve($receiverId: Float!) {
+  retrieve(receiverId: $receiverId) {
+    messages {
+      msg
+      receiverId
+      senderId
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useRetrieveQuery__
+ *
+ * To run a query within a React component, call `useRetrieveQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRetrieveQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRetrieveQuery({
+ *   variables: {
+ *      receiverId: // value for 'receiverId'
+ *   },
+ * });
+ */
+export function useRetrieveQuery(baseOptions: Apollo.QueryHookOptions<RetrieveQuery, RetrieveQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RetrieveQuery, RetrieveQueryVariables>(RetrieveDocument, options);
+      }
+export function useRetrieveLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RetrieveQuery, RetrieveQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RetrieveQuery, RetrieveQueryVariables>(RetrieveDocument, options);
+        }
+export type RetrieveQueryHookResult = ReturnType<typeof useRetrieveQuery>;
+export type RetrieveLazyQueryHookResult = ReturnType<typeof useRetrieveLazyQuery>;
+export type RetrieveQueryResult = Apollo.QueryResult<RetrieveQuery, RetrieveQueryVariables>;
