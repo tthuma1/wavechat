@@ -14,6 +14,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from "apollo-server-core";
 import { __prod__ } from "./constants";
 import { buildSchema } from "type-graphql";
 import { AppDataSource } from "./DataSource";
+import { Server } from "socket.io";
 
 declare module "express-session" {
   export interface SessionData {
@@ -90,8 +91,28 @@ const main = async () => {
     },
   });
 
-  app.listen(4000, () => {
+  const server = app.listen(4000, () => {
     console.log("server started on localhost:4000");
+  });
+
+  const io = new Server(server, {
+    cors: {
+      origin: ["http://localhost:3000"],
+      credentials: true,
+    },
+  });
+
+  io.on("connection", socket => {
+    console.log("a user connected");
+
+    socket.on("disconnect", () => {
+      console.log("user disconnected");
+    });
+
+    socket.on("received", () => {
+      console.log("received a message in index.ts");
+      io.sockets.emit("received");
+    });
   });
 
   /*

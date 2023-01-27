@@ -1,4 +1,3 @@
-// import { Field, ObjectType } from "type-graphql";
 import { Field, ObjectType } from "type-graphql";
 import {
   Entity,

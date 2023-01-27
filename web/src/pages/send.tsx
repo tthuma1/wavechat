@@ -6,6 +6,9 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
 import { useSendMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:4000");
 
 const Home: NextPage = () => {
   const [send] = useSendMutation();
@@ -19,7 +22,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <h3>Register</h3>
+        <h3>Send Message</h3>
 
         <Formik
           initialValues={{ receiverId: 0, msg: "" }}
@@ -33,6 +36,7 @@ const Home: NextPage = () => {
               // worked
               // router.push("/");
               console.log("worked");
+              socket.emit("received");
             }
 
             // actions.setSubmitting(false);

@@ -33,7 +33,7 @@ const Home: NextPage = () => {
               // worked
               // router.push("/");
               window.location.reload();
-              console.log("worked");
+              // console.log("worked");
             }
 
             // actions.setSubmitting(false);

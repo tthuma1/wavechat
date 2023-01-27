@@ -1,0 +1,6 @@
+query GetFriends($userId: Float!) {
+  getFriends(userId: $userId) {
+    user1Id
+    user2Id
+  }
+}

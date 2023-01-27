@@ -5,9 +5,12 @@ import {
   PrimaryGeneratedColumn,
   BaseEntity,
   OneToMany,
+  // ManyToMany,
+  // JoinTable,
   // ManyToOne,
 } from "typeorm";
 import { Message } from "./Message";
+import { Friendship } from "./Friendship";
 // import { gql } from "apollo-server-express";
 
 @ObjectType()
@@ -24,18 +27,28 @@ export class User extends BaseEntity {
   })
   username!: string;
 
-  @Column("text")
+  @Column("char", { length: 96 })
   password!: string;
 
   @Field({ nullable: true })
-  @Column("text", { nullable: true })
+  @Column({ length: 320, nullable: true })
   email?: string;
 
-  @OneToMany(() => Message, (message) => message.sender)
+  @OneToMany(() => Message, message => message.sender)
   public sentMessages!: Message[];
 
-  @OneToMany(() => Message, (message) => message.receiver)
+  @OneToMany(() => Message, message => message.receiver)
   public receivedMessages!: Message[];
+
+  @OneToMany(() => Friendship, friendship => friendship.user1Id)
+  public friends1!: Friendship[];
+
+  @OneToMany(() => Friendship, friendship => friendship.user2Id)
+  public friends2!: Friendship[];
+
+  // @ManyToMany(() => User, user => user.friends)
+  // @JoinTable({ name: "friendship" })
+  // public friends: User[];
 }
 
 /*

@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 // import Image from 'next/image'
 import { useLogoutMutation } from "../generated/graphql";
+import FriendList from "../components/FriendList";
 
 const Home: NextPage = () => {
   const [logout] = useLogoutMutation();
@@ -16,7 +17,7 @@ const Home: NextPage = () => {
       // worked
       // router.push("/");
       window.location.reload();
-      console.log("worked");
+      // console.log("worked");
     }
   };
 
@@ -32,21 +33,19 @@ const Home: NextPage = () => {
         <Link href="/login">
           <a>Log in</a>
         </Link>
-
         <br />
-
         <Link href="/register">
           <a>Register</a>
         </Link>
-
         <br />
-
         <Link href="/send">
           <a>Send</a>
         </Link>
-
         <br />
         <button onClick={handleLogout}>Log out</button>
+        <br /> <br />
+        Friends:
+        <FriendList />
       </main>
 
       <footer></footer>

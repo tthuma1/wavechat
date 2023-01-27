@@ -29,6 +29,7 @@
     "mysql2": "^2.3.3",
     "redis": "^4.2.0",
     "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.5.4",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.3.7"
   }

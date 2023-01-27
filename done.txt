@@ -1,0 +1,15 @@
+entitete:
+-user
+-message
+-friendship
+
+user login, register,
+uporaba piškotkov,
+šifriranje gesel,
+preprečitev SQL injection, XSS
+
+posiljanje sporocil 1 na 1
+
+todo:
+-design (Figma), najprej dokončati funkcionalnost
+-ostale entitete (skupinski pogovori)

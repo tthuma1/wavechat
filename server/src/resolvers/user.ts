@@ -1,4 +1,5 @@
 import { User } from "../enitities/User";
+import { Friendship } from "../enitities/Friendship";
 import argon2 from "argon2";
 import { MyContext } from "../types";
 import {
@@ -25,6 +26,15 @@ class UserResponse {
 
   @Field(() => User, { nullable: true })
   user?: User;
+}
+
+@ObjectType()
+class FriendshipResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => Friendship, { nullable: true })
+  friendship?: Friendship;
 }
 
 @Resolver(User)
@@ -163,5 +173,112 @@ export class UserResolver {
         resolve(true);
       })
     );
+  }
+
+  @Query(() => [Friendship])
+  async getFriends(@Arg("userId") userId: number) {
+    // const user = await User.find({
+    //   where: {
+    //     id: userId,
+    //   },
+    //   relations: { friends1: true, friends2: true },
+    // });
+
+    // select f.user2Id from user inner join friendship f on user.id = f.user1Id where user.id = 1
+    // union
+    // select f.user1Id from user inner join friendship f on user.id = f.user2Id where user.id = 1;
+
+    // const user = await User.createQueryBuilder("user")
+    //   .leftJoinAndSelect("user.friends1", "friendship")
+    //   .getMany();
+
+    let friends = await Friendship.find({
+      where: [
+        {
+          user1Id: userId,
+        },
+        {
+          user2Id: userId,
+        },
+      ],
+    });
+
+    return friends;
+  }
+
+  @Mutation(() => FriendshipResponse) // Boolean) //UserResponse)
+  async addFriend(
+    @Ctx() { req }: MyContext,
+    @Arg("friendId") friendId: number
+  ) {
+    if ((await User.findBy({ id: friendId })).length === 0) {
+      return {
+        errors: [
+          {
+            field: "friendId",
+            message: "Friend ID doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (
+      await Friendship.findBy({
+        user1Id: req.session.userId,
+        user2Id: friendId,
+      })
+    ) {
+      return {
+        errors: [
+          {
+            field: "friendId",
+            message: "Friend already added.",
+          },
+        ],
+      };
+    }
+
+    // let user = (
+    //   await User.find({
+    //     where: {
+    //       id: req.session.userId,
+    //     },
+    //     relations: { friends: true },
+    //   })
+    // )[0];
+
+    // let friend = (await User.find({ where: { id: friendId } }))[0];
+
+    let friendship = new Friendship();
+    friendship.user1Id = req.session.userId;
+    friendship.user2Id = friendId;
+
+    await friendship.save();
+
+    // let user = new User();
+    // user.id = req.session.userId;
+
+    // let friend = new User();
+    // friend.id = friendId;
+
+    // user.friends = [friend];
+
+    // user.friends.push(friend);
+
+    // await user.save();
+
+    return { friendship: friendship };
+    // return true;
   }
 }
