@@ -4,14 +4,14 @@ import Head from "next/head";
 // import Image from 'next/image'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
-import { useSendMutation } from "../generated/graphql";
+import { useSendDmMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:4000");
 
 const Home: NextPage = () => {
-  const [send] = useSendMutation();
+  const [sendDM] = useSendDmMutation();
 
   return (
     <div>
@@ -27,12 +27,12 @@ const Home: NextPage = () => {
         <Formik
           initialValues={{ receiverId: 0, msg: "" }}
           onSubmit={async (values, { setErrors }) => {
-            const response = await send({ variables: values });
-            if (response.data?.send.errors) {
-              console.log(response.data?.send.errors);
-              setErrors(toErrorMap(response.data.send.errors));
+            const response = await sendDM({ variables: values });
+            if (response.data?.sendDM.errors) {
+              console.log(response.data?.sendDM.errors);
+              setErrors(toErrorMap(response.data.sendDM.errors));
               // setErrors({ username: "hi" });
-            } else if (response.data?.send.message) {
+            } else if (response.data?.sendDM.message) {
               // worked
               // router.push("/");
               console.log("worked");

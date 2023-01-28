@@ -2,7 +2,7 @@ import { create } from "domain";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useMeQuery, useRetrieveQuery } from "../generated/graphql";
+import { useMeQuery, useRetrieveDmQuery } from "../generated/graphql";
 import { io } from "socket.io-client";
 import { useState } from "react";
 
@@ -15,16 +15,16 @@ const User = () => {
   // const [messages, setMessages] = useState<any[]>([]);
 
   // if (typeof user === "string") {
-  const { data, loading, refetch } = useRetrieveQuery({
+  const { data, loading, refetch } = useRetrieveDmQuery({
     variables: { receiverId: parseFloat(user as string) },
   });
   //   }
 
   if (!loading && typeof data !== "undefined") {
-    if (data!.retrieve!.messages !== null) {
-      for (let i = 0; i < data!.retrieve!.messages!.length; i++) {
+    if (data!.retrieveDM!.messages !== null) {
+      for (let i = 0; i < data!.retrieveDM!.messages!.length; i++) {
         let createdAt = new Date(
-          parseInt(data!.retrieve!.messages![i].createdAt)
+          parseInt(data!.retrieveDM!.messages![i].createdAt)
         );
         // setMessages([
         //   ...messages,
@@ -45,7 +45,7 @@ const User = () => {
         messages.push(
           <div key={i}>
             <span>{createdAt.toLocaleString()}</span>
-            <p>{data!.retrieve!.messages![i].msg}</p>
+            <p>{data!.retrieveDM!.messages![i].msg}</p>
           </div>
         );
       }

@@ -1,10 +1,14 @@
-query Retrieve($receiverId: Float!) {
-  retrieve(receiverId: $receiverId) {
+query RetrieveDM($receiverId: Float!) {
+  retrieveDM(receiverId: $receiverId) {
     messages {
       msg
-      receiverId
       senderId
+      channelId
       createdAt
+    }
+    errors {
+      field
+      message
     }
   }
 }

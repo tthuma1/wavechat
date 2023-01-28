@@ -8,6 +8,7 @@ import {
   CreateDateColumn,
 } from "typeorm";
 import { User } from "./User";
+import { Channel } from "./Channel";
 
 @ObjectType()
 @Entity()
@@ -21,7 +22,7 @@ export class Message extends BaseEntity {
 
   @Field()
   @Column()
-  public receiverId!: number;
+  public channelId!: number;
 
   @Field()
   @Column("text")
@@ -34,6 +35,6 @@ export class Message extends BaseEntity {
   @ManyToOne(() => User /*, sender => sender.sentMessages*/)
   public sender!: User;
 
-  @ManyToOne(() => User /*, receiver => receiver.receivedMessages*/)
-  public receiver!: User;
+  @ManyToOne(() => Channel /*, receiver => receiver.receivedMessages*/)
+  public channel!: Channel;
 }

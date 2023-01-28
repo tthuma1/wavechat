@@ -15,6 +15,18 @@ export type Scalars = {
   Float: number;
 };
 
+export type Channel = {
+  __typename?: 'Channel';
+  groupId: Scalars['Float'];
+  name: Scalars['String'];
+};
+
+export type ChannelResponse = {
+  __typename?: 'ChannelResponse';
+  channel?: Maybe<Channel>;
+  errors?: Maybe<Array<FieldError>>;
+};
+
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
@@ -33,11 +45,37 @@ export type FriendshipResponse = {
   friendship?: Maybe<Friendship>;
 };
 
+export type GhuResponse = {
+  __typename?: 'GHUResponse';
+  errors?: Maybe<Array<FieldError>>;
+  ghu?: Maybe<Group_Has_User>;
+};
+
+export type Group = {
+  __typename?: 'Group';
+  createdAt: Scalars['String'];
+  name: Scalars['String'];
+  type: Scalars['String'];
+};
+
+export type GroupResponse = {
+  __typename?: 'GroupResponse';
+  errors?: Maybe<Array<FieldError>>;
+  group?: Maybe<Group>;
+};
+
+export type Group_Has_User = {
+  __typename?: 'Group_Has_User';
+  groupId: Scalars['Float'];
+  joinedAt: Scalars['String'];
+  userId: Scalars['Float'];
+};
+
 export type Message = {
   __typename?: 'Message';
+  channelId: Scalars['Float'];
   createdAt: Scalars['String'];
   msg: Scalars['String'];
-  receiverId: Scalars['Float'];
   senderId: Scalars['Float'];
 };
 
@@ -56,15 +94,34 @@ export type MessagesResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   addFriend: FriendshipResponse;
+  createChannel: ChannelResponse;
+  createGroup: GroupResponse;
+  joinGroup: GhuResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
-  send: MessageResponse;
+  sendDM: MessageResponse;
 };
 
 
 export type MutationAddFriendArgs = {
   friendId: Scalars['Float'];
+};
+
+
+export type MutationCreateChannelArgs = {
+  groupId: Scalars['Float'];
+  name: Scalars['String'];
+};
+
+
+export type MutationCreateGroupArgs = {
+  name: Scalars['String'];
+};
+
+
+export type MutationJoinGroupArgs = {
+  groupId: Scalars['Float'];
 };
 
 
@@ -79,7 +136,7 @@ export type MutationRegisterArgs = {
 };
 
 
-export type MutationSendArgs = {
+export type MutationSendDmArgs = {
   msg: Scalars['String'];
   receiverId: Scalars['Float'];
 };
@@ -88,7 +145,7 @@ export type Query = {
   __typename?: 'Query';
   getFriends: Array<Friendship>;
   me?: Maybe<User>;
-  retrieve?: Maybe<MessagesResponse>;
+  retrieveDM?: Maybe<MessagesResponse>;
   user: Array<User>;
 };
 
@@ -98,7 +155,7 @@ export type QueryGetFriendsArgs = {
 };
 
 
-export type QueryRetrieveArgs = {
+export type QueryRetrieveDmArgs = {
   receiverId: Scalars['Float'];
 };
 
@@ -146,13 +203,13 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email?: string | null } | null } };
 
-export type SendMutationVariables = Exact<{
+export type SendDmMutationVariables = Exact<{
   receiverId: Scalars['Float'];
   msg: Scalars['String'];
 }>;
 
 
-export type SendMutation = { __typename?: 'Mutation', send: { __typename?: 'MessageResponse', errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null, message?: { __typename?: 'Message', msg: string, senderId: number, receiverId: number } | null } };
+export type SendDmMutation = { __typename?: 'Mutation', sendDM: { __typename?: 'MessageResponse', message?: { __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
 export type GetFriendsQueryVariables = Exact<{
   userId: Scalars['Float'];
@@ -166,12 +223,12 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email?: string | null } | null };
 
-export type RetrieveQueryVariables = Exact<{
+export type RetrieveDmQueryVariables = Exact<{
   receiverId: Scalars['Float'];
 }>;
 
 
-export type RetrieveQuery = { __typename?: 'Query', retrieve?: { __typename?: 'MessagesResponse', messages?: Array<{ __typename?: 'Message', msg: string, receiverId: number, senderId: number, createdAt: string }> | null } | null };
+export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } | null };
 
 
 export const LoginDocument = gql`
@@ -287,48 +344,49 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
-export const SendDocument = gql`
-    mutation Send($receiverId: Float!, $msg: String!) {
-  send(receiverId: $receiverId, msg: $msg) {
-    errors {
-      message
-      field
-    }
+export const SendDmDocument = gql`
+    mutation SendDM($receiverId: Float!, $msg: String!) {
+  sendDM(receiverId: $receiverId, msg: $msg) {
     message {
       msg
       senderId
-      receiverId
+      channelId
+      createdAt
+    }
+    errors {
+      field
+      message
     }
   }
 }
     `;
-export type SendMutationFn = Apollo.MutationFunction<SendMutation, SendMutationVariables>;
+export type SendDmMutationFn = Apollo.MutationFunction<SendDmMutation, SendDmMutationVariables>;
 
 /**
- * __useSendMutation__
+ * __useSendDmMutation__
  *
- * To run a mutation, you first call `useSendMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSendMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useSendDmMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendDmMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [sendMutation, { data, loading, error }] = useSendMutation({
+ * const [sendDmMutation, { data, loading, error }] = useSendDmMutation({
  *   variables: {
  *      receiverId: // value for 'receiverId'
  *      msg: // value for 'msg'
  *   },
  * });
  */
-export function useSendMutation(baseOptions?: Apollo.MutationHookOptions<SendMutation, SendMutationVariables>) {
+export function useSendDmMutation(baseOptions?: Apollo.MutationHookOptions<SendDmMutation, SendDmMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SendMutation, SendMutationVariables>(SendDocument, options);
+        return Apollo.useMutation<SendDmMutation, SendDmMutationVariables>(SendDmDocument, options);
       }
-export type SendMutationHookResult = ReturnType<typeof useSendMutation>;
-export type SendMutationResult = Apollo.MutationResult<SendMutation>;
-export type SendMutationOptions = Apollo.BaseMutationOptions<SendMutation, SendMutationVariables>;
+export type SendDmMutationHookResult = ReturnType<typeof useSendDmMutation>;
+export type SendDmMutationResult = Apollo.MutationResult<SendDmMutation>;
+export type SendDmMutationOptions = Apollo.BaseMutationOptions<SendDmMutation, SendDmMutationVariables>;
 export const GetFriendsDocument = gql`
     query GetFriends($userId: Float!) {
   getFriends(userId: $userId) {
@@ -401,43 +459,47 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
-export const RetrieveDocument = gql`
-    query Retrieve($receiverId: Float!) {
-  retrieve(receiverId: $receiverId) {
+export const RetrieveDmDocument = gql`
+    query RetrieveDM($receiverId: Float!) {
+  retrieveDM(receiverId: $receiverId) {
     messages {
       msg
-      receiverId
       senderId
+      channelId
       createdAt
+    }
+    errors {
+      field
+      message
     }
   }
 }
     `;
 
 /**
- * __useRetrieveQuery__
+ * __useRetrieveDmQuery__
  *
- * To run a query within a React component, call `useRetrieveQuery` and pass it any options that fit your needs.
- * When your component renders, `useRetrieveQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useRetrieveDmQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRetrieveDmQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useRetrieveQuery({
+ * const { data, loading, error } = useRetrieveDmQuery({
  *   variables: {
  *      receiverId: // value for 'receiverId'
  *   },
  * });
  */
-export function useRetrieveQuery(baseOptions: Apollo.QueryHookOptions<RetrieveQuery, RetrieveQueryVariables>) {
+export function useRetrieveDmQuery(baseOptions: Apollo.QueryHookOptions<RetrieveDmQuery, RetrieveDmQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<RetrieveQuery, RetrieveQueryVariables>(RetrieveDocument, options);
+        return Apollo.useQuery<RetrieveDmQuery, RetrieveDmQueryVariables>(RetrieveDmDocument, options);
       }
-export function useRetrieveLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RetrieveQuery, RetrieveQueryVariables>) {
+export function useRetrieveDmLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RetrieveDmQuery, RetrieveDmQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<RetrieveQuery, RetrieveQueryVariables>(RetrieveDocument, options);
+          return Apollo.useLazyQuery<RetrieveDmQuery, RetrieveDmQueryVariables>(RetrieveDmDocument, options);
         }
-export type RetrieveQueryHookResult = ReturnType<typeof useRetrieveQuery>;
-export type RetrieveLazyQueryHookResult = ReturnType<typeof useRetrieveLazyQuery>;
-export type RetrieveQueryResult = Apollo.QueryResult<RetrieveQuery, RetrieveQueryVariables>;
+export type RetrieveDmQueryHookResult = ReturnType<typeof useRetrieveDmQuery>;
+export type RetrieveDmLazyQueryHookResult = ReturnType<typeof useRetrieveDmLazyQuery>;
+export type RetrieveDmQueryResult = Apollo.QueryResult<RetrieveDmQuery, RetrieveDmQueryVariables>;

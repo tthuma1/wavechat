@@ -20,4 +20,8 @@ export class Group extends BaseEntity {
   @Field()
   @CreateDateColumn()
   public createdAt!: string;
+
+  @Field()
+  @Column({ type: "set", enum: ["dm", "group"] })
+  public type: string;
 }

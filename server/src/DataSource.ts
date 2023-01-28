@@ -6,7 +6,6 @@ import { Group } from "./enitities/Group";
 import { Group_Has_User } from "./enitities/Group_Has_User";
 import { FriendshipCheck1674906699226 } from "./migrations/1674906699226-FriendshipCheck";
 import { Channel } from "./enitities/Channel";
-import { Channel_Has_Message } from "./enitities/Channel_Has_Messages";
 
 export const AppDataSource = new DataSource({
   type: "mariadb",
@@ -15,15 +14,7 @@ export const AppDataSource = new DataSource({
   username: "mysql",
   password: "mysql",
   database: "discord_clone2",
-  entities: [
-    User,
-    Message,
-    Friendship,
-    Group,
-    Group_Has_User,
-    Channel,
-    Channel_Has_Message,
-  ],
+  entities: [User, Message, Friendship, Group, Group_Has_User, Channel],
   migrations: [FriendshipCheck1674906699226],
   synchronize: true,
   logging: true,

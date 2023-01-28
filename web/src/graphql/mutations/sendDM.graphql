@@ -1,0 +1,14 @@
+mutation SendDM($receiverId: Float!, $msg: String!) {
+  sendDM(receiverId: $receiverId, msg: $msg) {
+    message {
+      msg
+      senderId
+      channelId
+      createdAt
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
