@@ -4,13 +4,14 @@ import {
   Column,
   PrimaryGeneratedColumn,
   BaseEntity,
-  OneToMany,
+  // OneToMany,
   // ManyToMany,
   // JoinTable,
   // ManyToOne,
 } from "typeorm";
-import { Message } from "./Message";
-import { Friendship } from "./Friendship";
+// import { Message } from "./Message";
+// import { Friendship } from "./Friendship";
+// import { Group_Has_User } from "./Group_Has_User";
 // import { gql } from "apollo-server-express";
 
 @ObjectType()
@@ -34,17 +35,20 @@ export class User extends BaseEntity {
   @Column({ length: 320, nullable: true })
   email?: string;
 
-  @OneToMany(() => Message, message => message.sender)
-  public sentMessages!: Message[];
+  // @OneToMany(() => Message, message => message.sender)
+  // public sentMessages!: Message[];
 
-  @OneToMany(() => Message, message => message.receiver)
-  public receivedMessages!: Message[];
+  // @OneToMany(() => Message, message => message.receiver)
+  // public receivedMessages!: Message[];
 
-  @OneToMany(() => Friendship, friendship => friendship.user1Id)
-  public friends1!: Friendship[];
+  // @OneToMany(() => Friendship, friendship => friendship.user1Id)
+  // public friends1!: Friendship[];
 
-  @OneToMany(() => Friendship, friendship => friendship.user2Id)
-  public friends2!: Friendship[];
+  // @OneToMany(() => Friendship, friendship => friendship.user2Id)
+  // public friends2!: Friendship[];
+
+  // @OneToMany(() => Group_Has_User, group => group.user)
+  // public groups!: Group_Has_User[];
 
   // @ManyToMany(() => User, user => user.friends)
   // @JoinTable({ name: "friendship" })

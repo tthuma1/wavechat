@@ -5,6 +5,7 @@ seznam friendov na frontend -/
 ce imas odprta dva taba in iz enega posljes v drugega se takoj vidi (event subscription, web sockets) -/
 dokoncej implementacijo baze
 frontend
+razlicne pravice (roles, admin)
 pove ti, ce je uporabnik "typing..."
 spremeni iz funkcijskih komponent v class
 

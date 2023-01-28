@@ -15,6 +15,8 @@ import { __prod__ } from "./constants";
 import { buildSchema } from "type-graphql";
 import { AppDataSource } from "./DataSource";
 import { Server } from "socket.io";
+import { GroupResolver } from "./resolvers/group";
+import { ChannelResolver } from "./resolvers/channel";
 
 declare module "express-session" {
   export interface SessionData {
@@ -66,7 +68,12 @@ const main = async () => {
     // typeDefs: [UserTypeDefs],
     // resolvers: [UserResolver],
     schema: await buildSchema({
-      resolvers: [UserResolver, MessageResolver],
+      resolvers: [
+        UserResolver,
+        MessageResolver,
+        GroupResolver,
+        ChannelResolver,
+      ],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({

@@ -13,7 +13,7 @@ import { User } from "./User";
 @Entity()
 export class Message extends BaseEntity {
   @PrimaryGeneratedColumn()
-  messageId!: number;
+  id!: number;
 
   @Field()
   @Column()
@@ -25,15 +25,15 @@ export class Message extends BaseEntity {
 
   @Field()
   @Column("text")
-  public msg: string;
+  public msg!: string;
 
   @Field()
   @CreateDateColumn()
-  public createdAt: string;
+  public createdAt!: string;
 
-  @ManyToOne(() => User, sender => sender.sentMessages)
+  @ManyToOne(() => User /*, sender => sender.sentMessages*/)
   public sender!: User;
 
-  @ManyToOne(() => User, receiver => receiver.receivedMessages)
+  @ManyToOne(() => User /*, receiver => receiver.receivedMessages*/)
   public receiver!: User;
 }

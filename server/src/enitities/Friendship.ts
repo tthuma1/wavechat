@@ -4,18 +4,19 @@ import { User } from "./User";
 
 @ObjectType()
 @Entity()
+// @Check(`"user1Id" < "user2Id"`) // typeorm doesn't support check with mysql
 export class Friendship extends BaseEntity {
   @Field()
   @PrimaryColumn()
-  public user1Id: number;
+  public user1Id!: number;
 
   @Field()
   @PrimaryColumn()
-  public user2Id: number;
+  public user2Id!: number;
 
-  @ManyToOne(() => User, user1 => user1.friends1)
+  @ManyToOne(() => User /*, user => user.friends1*/)
   public user1!: User;
 
-  @ManyToOne(() => User, user2 => user2.friends2)
+  @ManyToOne(() => User /*, user => user.friends2*/)
   public user2!: User;
 }
