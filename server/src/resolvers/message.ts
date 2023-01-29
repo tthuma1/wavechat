@@ -15,7 +15,6 @@ import { AppDataSource } from "../DataSource";
 import { Group } from "../enitities/Group";
 import { Group_Has_User } from "../enitities/Group_Has_User";
 import { Channel } from "../enitities/Channel";
-import { channel } from "diagnostics_channel";
 
 @ObjectType()
 class MessageResponse {

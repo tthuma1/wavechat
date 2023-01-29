@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input {
+  @apply rounded-3xl border-gray-600 bg-gray-800 px-4 py-2 outline-none focus:border shadow;
+}

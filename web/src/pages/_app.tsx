@@ -1,6 +1,7 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import type { AppProps } from "next/app";
 import NavBar from "../components/NavBar";
+import "../styles/globals.css";
 
 const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",
@@ -10,23 +11,13 @@ const client = new ApolloClient({
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <div style={styles.container}>
+    <div className="w-screen h-screen bg-gray-900 text-gray-100">
       <ApolloProvider client={client}>
-        <NavBar />
+        {/* <NavBar /> */}
         <Component {...pageProps} />
       </ApolloProvider>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    backgroundColor: "#222",
-    color: "#fff",
-    height: "100vh",
-    width: "100vw",
-    margin: "0",
-  },
-} as const;
 
 export default MyApp;

@@ -1,5 +1,9 @@
 import type { NextComponentType } from "next";
-import { useGetFriendsQuery, useMeQuery } from "../generated/graphql";
+import {
+  useGetFriendsQuery,
+  useGetUserLazyQuery,
+  useMeQuery,
+} from "../generated/graphql";
 
 const FriendList: NextComponentType = () => {
   const { data: meData, loading: meLoading } = useMeQuery();
@@ -7,30 +11,37 @@ const FriendList: NextComponentType = () => {
     variables: { userId: meData?.me?.id! }, //parseFloat(meData.me.id) },
   });
 
+  const [getUser, { data: getUserData, loading: getUserLoading }] =
+    useGetUserLazyQuery();
+
   let friends: any = [];
 
   if (!meLoading && meData?.me) {
     if (!friendsLoading && friendsData) {
       // console.log(friendsData.getFriends);
-      friendsData.getFriends.forEach(friendship => {
-        let friend;
-        if (friendship.user1Id == meData!.me!.id) {
-          friend = friendship.user2Id;
-        } else {
-          friend = friendship.user1Id;
-        }
-
+      for (const friend of friendsData.getFriends) {
         friends.push(
-          <div key={friend}>
-            <a href={"/" + friend}>{friend}</a>
-            <br />
-          </div>
+          <a
+            href={"/" + friend.id}
+            key={friend.username}
+            className="text-lg bg-gray-700 p-4 rounded-md hover:bg-gray-750"
+          >
+            <img
+              src="/avatar.jpg"
+              className="w-10 h-10 inline rounded-full mr-4"
+            />
+            {friend.username}
+          </a>
         );
-      });
+      }
     }
   }
 
-  return <div>{friends}</div>;
+  return (
+    <div className="bg-gray-800 grid gap-8 grid-rows-4 grid-cols-4 w-[80vw] px-16 py-16 mx-10">
+      {friends}
+    </div>
+  );
 };
 
 export default FriendList;

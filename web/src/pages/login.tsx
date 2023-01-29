@@ -7,19 +7,19 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 
-const Home: NextPage = () => {
+const Login: NextPage = () => {
   const [login] = useLoginMutation();
 
   return (
-    <div>
+    <div className="h-screen flex justify-center">
       <Head>
         <title>Discord Clone - Login</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h3>Login</h3>
+      <main className="flex items-center flex-col px-28 text-center bg-gray-850 my-28 rounded-lg shadow-lg">
+        <h2 className="text-4xl font-medium mt-16 mb-16">Log In</h2>
 
         <Formik
           initialValues={{ usernameOrEmail: "", password: "" }}
@@ -41,18 +41,31 @@ const Home: NextPage = () => {
         >
           {({ handleSubmit, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
-              <label htmlFor="usernameOrEmail">Username or email</label>
-              <Field name="usernameOrEmail" />
+              {/* <label htmlFor="usernameOrEmail">Username or email</label> */}
+              <Field
+                name="usernameOrEmail"
+                placeholder="Username or email"
+                className="input"
+              />
               <ErrorMessage name="usernameOrEmail" />
               <br />
 
-              <label htmlFor="password">Password</label>
-              <Field type="password" name="password" />
+              {/* <label htmlFor="password">Password</label> */}
+              <Field
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="mt-4 input"
+              />
               <ErrorMessage name="password" />
               <br />
 
-              <button type="submit" disabled={isSubmitting}>
-                Login
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="mt-8 bg-blue-600 py-4 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
+              >
+                Log In
               </button>
             </Form>
           )}
@@ -64,4 +77,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Login;

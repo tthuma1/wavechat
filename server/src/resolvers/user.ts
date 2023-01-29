@@ -186,7 +186,7 @@ export class UserResolver {
     );
   }
 
-  @Query(() => [Friendship])
+  @Query(() => [User])
   async getFriends(@Arg("userId") userId: number) {
     // const user = await User.find({
     //   where: {
@@ -205,7 +205,7 @@ export class UserResolver {
     //   .leftJoinAndSelect("user.friends1", "friendship")
     //   .getMany();
 
-    let friends = await Friendship.find({
+    let friendIds = await Friendship.find({
       where: [
         {
           user1Id: userId,
@@ -215,6 +215,18 @@ export class UserResolver {
         },
       ],
     });
+
+    let friends: User[] = [];
+
+    for (const friendship of friendIds) {
+      if (friendship.user1Id == userId) {
+        const friend = await User.findOneBy({ id: friendship.user2Id });
+        if (friend != null) friends.push(friend);
+      } else {
+        const friend = await User.findOneBy({ id: friendship.user1Id });
+        if (friend != null) friends.push(friend);
+      }
+    }
 
     return friends;
   }
@@ -376,5 +388,23 @@ export class UserResolver {
     await ghu.save();
 
     return { ghu };
+  }
+
+  @Query(() => UserResponse)
+  async getUser(@Arg("id") id: number) {
+    const user = await User.findOneBy({ id });
+
+    if (user) {
+      return { user };
+    } else {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "User id doesn't exist.",
+          },
+        ],
+      };
+    }
   }
 }

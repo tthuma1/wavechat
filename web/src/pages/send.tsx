@@ -10,7 +10,7 @@ import { io } from "socket.io-client";
 
 const socket = io("http://localhost:4000");
 
-const Home: NextPage = () => {
+const Send: NextPage = () => {
   const [sendDM] = useSendDmMutation();
 
   return (
@@ -65,4 +65,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Send;

@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useMeQuery, useRetrieveDmQuery } from "../generated/graphql";
 import { io } from "socket.io-client";
 import { useState } from "react";
+import { formatDate } from "../utils/formatDate";
 
 const socket = io("http://localhost:4000");
 
@@ -42,10 +43,15 @@ const User = () => {
         //     </div>,
         //   ]);
 
+        const dateOut = formatDate(new Date(createdAt));
+
         messages.push(
-          <div key={i}>
-            <span>{createdAt.toLocaleString()}</span>
-            <p>{data!.retrieveDM!.messages![i].msg}</p>
+          <div key={i} className="flex my-4">
+            <img src="/avatar.jpg" className="w-8 h-8 rounded-full mr-4" />
+            <div>
+              <p className="text-gray-400 text-sm">{dateOut}</p>
+              <p>{data!.retrieveDM!.messages![i].msg}</p>
+            </div>
           </div>
         );
       }
@@ -58,14 +64,16 @@ const User = () => {
   });
 
   return (
-    <div>
+    <div className="w-screen flex justify-center">
       <Head>
         <title>{}</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {messages}
+      <div className="h-[80vh] w-9/12 bg-gray-800 px-20 py-20 my-20 rounded-md overflow-scroll">
+        {messages}
+      </div>
 
       {/* {messages.map((message, i) => {
         return (

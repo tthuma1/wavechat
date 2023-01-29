@@ -3,11 +3,13 @@ date za message -/
 er model -/
 seznam friendov na frontend -/
 ce imas odprta dva taba in iz enega posljes v drugega se takoj vidi (event subscription, web sockets) -/
-dokoncej implementacijo baze
+dokoncej implementacijo baze -/
 frontend
 razlicne pravice (roles, admin)
 pove ti, ce je uporabnik "typing..."
 spremeni iz funkcijskih komponent v class
+
+login with google?
 
 locena obdelava podatkov iz pb in pogledi (view, nacin kako prikazati obdelane podatke)
 (parser)

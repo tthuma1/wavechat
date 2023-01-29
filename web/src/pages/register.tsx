@@ -7,19 +7,19 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 
-const Home: NextPage = () => {
+const Register: NextPage = () => {
   const [register] = useRegisterMutation();
 
   return (
-    <div>
+    <div className="h-screen flex justify-center">
       <Head>
         <title>Discord Clone - Register</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h3>Register</h3>
+      <main className="flex items-center flex-col px-28 text-center bg-gray-850 my-28 rounded-lg shadow-lg">
+        <h2 className="text-4xl font-medium mt-16 mb-16">Register</h2>
 
         <Formik
           initialValues={{ username: "", email: "", password: "" }}
@@ -42,22 +42,36 @@ const Home: NextPage = () => {
         >
           {({ handleSubmit, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
-              <label htmlFor="username">Username</label>
-              <Field name="username" />
+              {/* <label htmlFor="username">Username</label> */}
+              <Field name="username" placeholder="Username" className="input" />
               <ErrorMessage name="username" />
               <br />
 
-              <label htmlFor="email">Email (optional)</label>
-              <Field type="email" name="email" />
+              {/* <label htmlFor="email">Email (optional)</label> */}
+              <Field
+                type="email"
+                name="email"
+                placeholder="Email (optional)"
+                className="input mt-4"
+              />
               <ErrorMessage name="email" />
               <br />
 
-              <label htmlFor="password">Password</label>
-              <Field type="password" name="password" />
+              {/* <label htmlFor="password">Password</label> */}
+              <Field
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="input mt-4"
+              />
               <ErrorMessage name="password" />
               <br />
 
-              <button type="submit" disabled={isSubmitting}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="mt-8 bg-blue-600 py-4 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
+              >
                 Register
               </button>
             </Form>
@@ -70,4 +84,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Register;
