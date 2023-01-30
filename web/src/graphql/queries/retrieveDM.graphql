@@ -10,5 +10,9 @@ query RetrieveDM($receiverId: Float!) {
       field
       message
     }
+    users {
+      username
+      id
+    }
   }
 }

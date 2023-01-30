@@ -89,6 +89,7 @@ export type MessagesResponse = {
   __typename?: 'MessagesResponse';
   errors?: Maybe<Array<FieldError>>;
   messages?: Maybe<Array<Message>>;
+  users?: Maybe<Array<User>>;
 };
 
 export type Mutation = {
@@ -241,7 +242,7 @@ export type RetrieveDmQueryVariables = Exact<{
 }>;
 
 
-export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } | null };
+export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number }> | null } | null };
 
 
 export const LoginDocument = gql`
@@ -521,6 +522,10 @@ export const RetrieveDmDocument = gql`
     errors {
       field
       message
+    }
+    users {
+      username
+      id
     }
   }
 }

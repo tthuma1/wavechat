@@ -32,6 +32,9 @@ class MessagesResponse {
 
   @Field(() => [Message], { nullable: true })
   messages?: Message[];
+
+  @Field(() => [User], { nullable: true })
+  users: User[];
 }
 
 @Resolver(Message)
@@ -203,6 +206,20 @@ WHERE userId = ${req.session.userId} AND g.id IN (
 `
     );
 
-    return { messages };
+    let users: User[] = [];
+    let userIds: number[] = [];
+
+    for (const message of messages) {
+      if (!userIds.includes(message.senderId)) {
+        const sender = await User.findOneBy({ id: message.senderId });
+        if (sender != null) {
+          users.push(sender);
+          userIds.push(sender.id);
+          if (userIds.length == 2) break;
+        }
+      }
+    }
+
+    return { messages, users };
   }
 }
