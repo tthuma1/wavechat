@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
 import { useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
+import router from "next/router";
 
 const Login: NextPage = () => {
   const [login] = useLoginMutation();
@@ -31,8 +32,8 @@ const Login: NextPage = () => {
               // setErrors({ username: "hi" });
             } else if (response.data?.login.user) {
               // worked
-              // router.push("/");
-              window.location.reload();
+              router.push("/app");
+              // window.location.reload();
               // console.log("worked");
             }
 

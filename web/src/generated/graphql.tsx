@@ -88,6 +88,7 @@ export type MessageResponse = {
 export type MessagesResponse = {
   __typename?: 'MessagesResponse';
   errors?: Maybe<Array<FieldError>>;
+  hasMore?: Maybe<Scalars['Boolean']>;
   messages?: Maybe<Array<Message>>;
   users?: Maybe<Array<User>>;
 };
@@ -163,6 +164,8 @@ export type QueryGetUserArgs = {
 
 
 export type QueryRetrieveDmArgs = {
+  limit: Scalars['Float'];
+  offset: Scalars['Float'];
   receiverId: Scalars['Float'];
 };
 
@@ -173,7 +176,7 @@ export type QueryUserArgs = {
 
 export type User = {
   __typename?: 'User';
-  email?: Maybe<Scalars['String']>;
+  email: Scalars['String'];
   id: Scalars['Float'];
   username: Scalars['String'];
 };
@@ -196,7 +199,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email?: string | null } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string } | null } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -208,7 +211,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email?: string | null } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, email: string } | null } };
 
 export type SendDmMutationVariables = Exact<{
   receiverId: Scalars['Float'];
@@ -235,14 +238,16 @@ export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email?: string | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email: string } | null };
 
 export type RetrieveDmQueryVariables = Exact<{
   receiverId: Scalars['Float'];
+  offset: Scalars['Float'];
+  limit: Scalars['Float'];
 }>;
 
 
-export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number }> | null } | null };
+export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number }> | null } | null };
 
 
 export const LoginDocument = gql`
@@ -511,8 +516,8 @@ export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const RetrieveDmDocument = gql`
-    query RetrieveDM($receiverId: Float!) {
-  retrieveDM(receiverId: $receiverId) {
+    query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
+  retrieveDM(receiverId: $receiverId, offset: $offset, limit: $limit) {
     messages {
       msg
       senderId
@@ -527,6 +532,7 @@ export const RetrieveDmDocument = gql`
       username
       id
     }
+    hasMore
   }
 }
     `;
@@ -544,6 +550,8 @@ export const RetrieveDmDocument = gql`
  * const { data, loading, error } = useRetrieveDmQuery({
  *   variables: {
  *      receiverId: // value for 'receiverId'
+ *      offset: // value for 'offset'
+ *      limit: // value for 'limit'
  *   },
  * });
  */

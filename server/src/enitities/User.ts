@@ -31,9 +31,9 @@ export class User extends BaseEntity {
   @Column("char", { length: 96 })
   password!: string;
 
-  @Field({ nullable: true })
-  @Column({ length: 320, nullable: true })
-  email?: string;
+  @Field()
+  @Column({ length: 320 })
+  email!: string;
 
   // @OneToMany(() => Message, message => message.sender)
   // public sentMessages!: Message[];

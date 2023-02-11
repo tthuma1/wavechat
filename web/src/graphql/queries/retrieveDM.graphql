@@ -1,5 +1,5 @@
-query RetrieveDM($receiverId: Float!) {
-  retrieveDM(receiverId: $receiverId) {
+query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
+  retrieveDM(receiverId: $receiverId, offset: $offset, limit: $limit) {
     messages {
       msg
       senderId
@@ -14,5 +14,6 @@ query RetrieveDM($receiverId: Float!) {
       username
       id
     }
+    hasMore
   }
 }

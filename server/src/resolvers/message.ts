@@ -35,6 +35,9 @@ class MessagesResponse {
 
   @Field(() => [User], { nullable: true })
   users: User[];
+
+  @Field(() => Boolean, { nullable: true })
+  hasMore: Boolean;
 }
 
 @Resolver(Message)
@@ -144,6 +147,8 @@ WHERE userId = ${req.session.userId} AND g.id IN (
   @Query(() => MessagesResponse, { nullable: true })
   async retrieveDM(
     @Arg("receiverId") receiverId: number,
+    @Arg("offset") offset: number,
+    @Arg("limit") limit: number,
     @Ctx() { req }: MyContext
   ) {
     if ((await User.findBy({ id: receiverId })).length === 0) {
@@ -202,9 +207,14 @@ WHERE userId = ${req.session.userId} AND g.id IN (
     SELECT g.id FROM \`group\` g
     INNER JOIN group_has_user ghu ON ghu.groupId = g.id
     WHERE userId = ${receiverId}
-) AND g.type = 'dm';
+) AND g.type = 'dm'
+ORDER BY m.createdAt DESC
+LIMIT ${offset}, ${limit + 1};
 `
     );
+
+    let hasMore = messages.length == limit + 1;
+    if (hasMore) messages.pop();
 
     let users: User[] = [];
     let userIds: number[] = [];
@@ -220,6 +230,6 @@ WHERE userId = ${req.session.userId} AND g.id IN (
       }
     }
 
-    return { messages, users };
+    return { messages, users, hasMore };
   }
 }

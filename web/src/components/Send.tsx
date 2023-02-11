@@ -20,7 +20,7 @@ const Send: NextPage<{ receiverId: string | string[] | undefined }> = props => {
           receiverId: parseInt(props.receiverId as string),
           msg: "",
         }}
-        onSubmit={async (values, { setErrors }) => {
+        onSubmit={async (values, { setErrors, resetForm }) => {
           const response = await sendDM({ variables: values });
           if (response.data?.sendDM.errors) {
             console.log(response.data?.sendDM.errors);
@@ -31,6 +31,7 @@ const Send: NextPage<{ receiverId: string | string[] | undefined }> = props => {
             // router.push("/");
             console.log("worked");
             socket.emit("received");
+            resetForm();
           }
 
           // actions.setSubmitting(false);
@@ -51,6 +52,7 @@ const Send: NextPage<{ receiverId: string | string[] | undefined }> = props => {
               name="msg"
               placeholder="Start typing..."
               className="bg-gray-750 outline-none w-full"
+              autoFocus
             />
 
             <button

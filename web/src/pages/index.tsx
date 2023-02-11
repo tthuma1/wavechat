@@ -1,56 +1,26 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Link from "next/link";
-// import Image from 'next/image'
-import { useLogoutMutation } from "../generated/graphql";
-import FriendList from "../components/FriendList";
+import { NextPage } from "next";
 
-const Home: NextPage = () => {
-  const [logout] = useLogoutMutation();
-
-  const handleLogout = async () => {
-    const response = await logout();
-    if (response.errors) {
-      console.log(response.errors);
-      // setErrors({ username: "hi" });
-    } else if (response.data?.logout) {
-      // worked
-      // router.push("/");
-      window.location.reload();
-      // console.log("worked");
-    }
-  };
-
+const Landing: NextPage = () => {
   return (
-    <div>
-      <Head>
-        <title>Discord Clone</title>
-        <meta name="description" content="" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>
-        <Link href="/login">
-          <a>Log in</a>
-        </Link>
-        <br />
-        <Link href="/register">
-          <a>Register</a>
-        </Link>
-        <br />
-        <Link href="/send">
-          <a>Send</a>
-        </Link>
-        <br />
-        <button onClick={handleLogout}>Log out</button>
-        <br /> <br />
-        Friends:
-        <FriendList />
-      </main>
-
-      <footer></footer>
+    <div className="flex items-center flex-col px-40 text-center">
+      <h1 className="text-6xl font-semibold mt-48">Welcome to WaveChat</h1>
+      <div className="mt-8 text-xl">Start chatting now!</div>
+      <div className="mt-10 w-full grid gap-x-20 grid-cols-2 grid-rows-1">
+        <a
+          href="/register"
+          className="ml-auto w-40 bg-blue-600 p-4 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer"
+        >
+          Register
+        </a>
+        <a
+          href="/login"
+          className="mr-auto w-40 p-4 text-lg rounded-lg font-medium border-2 border-violet-500 hover:bg-gray-800 hover:border-violet-600 cursor-pointer"
+        >
+          Log In
+        </a>
+      </div>
     </div>
   );
 };
 
-export default Home;
+export default Landing;
