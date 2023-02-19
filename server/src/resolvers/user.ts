@@ -18,8 +18,8 @@ import { validateRegister } from "../utils/validateRegister";
 // import { getConnection } from "typeorm";
 import { AppDataSource } from "../DataSource";
 import { FieldError } from "./FieldError";
-import { Group } from "../enitities/Group";
-import { Group_Has_User } from "../enitities/Group_Has_User";
+// import { Group } from "../enitities/Group";
+// import { Group_Has_User } from "../enitities/Group_Has_User";
 
 @ObjectType()
 class UserResponse {
@@ -37,15 +37,6 @@ class FriendshipResponse {
 
   @Field(() => Friendship, { nullable: true })
   friendship?: Friendship;
-}
-
-@ObjectType()
-class GHUResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-
-  @Field(() => Group_Has_User, { nullable: true })
-  ghu?: Group_Has_User;
 }
 
 @Resolver(User)
@@ -85,8 +76,6 @@ export class UserResolver {
     if (errors) {
       return { errors };
     }
-
-    if (options.email === "") options.email = undefined;
 
     const hashedPassword = await argon2.hash(options.password);
     let user;
@@ -331,63 +320,6 @@ export class UserResolver {
 
     return { friendship: friendship };
     // return true;
-  }
-
-  @Mutation(() => GHUResponse)
-  async joinGroup(@Ctx() { req }: MyContext, @Arg("groupId") groupId: number) {
-    if (
-      (
-        await Group.findBy({
-          id: groupId,
-        })
-      ).length == 0
-    ) {
-      return {
-        errors: [
-          {
-            field: "groupId",
-            message: "Group doesn't exist.",
-          },
-        ],
-      };
-    }
-
-    if (
-      (
-        await Group_Has_User.findBy({
-          groupId,
-          userId: req.session.userId,
-        })
-      ).length > 0
-    ) {
-      return {
-        errors: [
-          {
-            field: "groupId",
-            message: "User is already in group.",
-          },
-        ],
-      };
-    }
-
-    if (typeof req.session.userId === "undefined") {
-      return {
-        errors: [
-          {
-            field: "userId",
-            message: "User is not logged in.",
-          },
-        ],
-      };
-    }
-
-    let ghu = new Group_Has_User();
-    ghu.userId = req.session.userId;
-    ghu.groupId = groupId;
-
-    await ghu.save();
-
-    return { ghu };
   }
 
   @Query(() => UserResponse)

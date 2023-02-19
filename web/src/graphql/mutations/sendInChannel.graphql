@@ -1,0 +1,14 @@
+mutation SendInChannel($channelId: Float!, $msg: String!) {
+  sendInChannel(channelId: $channelId, msg: $msg) {
+    message {
+      msg
+      createdAt
+      channelId
+      senderId
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

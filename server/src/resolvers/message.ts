@@ -109,6 +109,7 @@ WHERE userId = ${req.session.userId} AND g.id IN (
       const dm = new Group();
       dm.name = req.session.userId + "_" + receiverId;
       dm.type = "dm";
+      dm.adminId = req.session.userId;
 
       await dm.save();
 
@@ -133,6 +134,64 @@ WHERE userId = ${req.session.userId} AND g.id IN (
     } else {
       // retrive channelId of dm
       channelId = (await Channel.findBy({ groupId: dmId.id }))[0].id;
+    }
+
+    let message = new Message();
+    message.channelId = channelId;
+    message.msg = msg;
+    message.senderId = req.session.userId;
+    await message.save();
+
+    return { message };
+  }
+
+  @Mutation(() => MessageResponse)
+  async sendInChannel(
+    @Arg("msg") msg: string,
+    @Arg("channelId") channelId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if ((await Channel.findBy({ id: channelId })).length === 0) {
+      return {
+        errors: [
+          {
+            field: "channelId",
+            message: "Channel ID doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Sender is not logged in.",
+          },
+        ],
+      };
+    }
+
+    let isUserInChannel = !!(
+      await AppDataSource.query(
+        `
+SELECT ghu.userId FROM channel c
+INNER JOIN group_has_user ghu ON ghu.groupId = c.groupId
+WHERE c.id = ${channelId} AND ghu.userId = ${req.session.userId};
+`
+      )
+    ).length;
+
+    if (!isUserInChannel) {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Sender is not in group.",
+          },
+        ],
+      };
     }
 
     let message = new Message();
@@ -226,6 +285,84 @@ LIMIT ${offset}, ${limit + 1};
           users.push(sender);
           userIds.push(sender.id);
           if (userIds.length == 2) break;
+        }
+      }
+    }
+
+    return { messages, users, hasMore };
+  }
+
+  @Query(() => MessagesResponse, { nullable: true })
+  async retrieveInChannel(
+    @Arg("channelId") channelId: number,
+    @Arg("offset") offset: number,
+    @Arg("limit") limit: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if ((await Channel.findBy({ id: channelId })).length === 0) {
+      return {
+        errors: [
+          {
+            field: "channelId",
+            message: "Channel ID doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Sender is not logged in.",
+          },
+        ],
+      };
+    }
+
+    let isUserInChannel = !!(
+      await AppDataSource.query(
+        `
+SELECT ghu.userId FROM channel c
+INNER JOIN group_has_user ghu ON ghu.groupId = c.groupId
+WHERE c.id = ${channelId} AND ghu.userId = ${req.session.userId};
+`
+      )
+    ).length;
+
+    if (!isUserInChannel) {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Sender is not in group.",
+          },
+        ],
+      };
+    }
+
+    let messages = await AppDataSource.query(
+      `
+SELECT m.* FROM message m
+WHERE m.channelId = ${channelId}
+ORDER BY m.createdAt DESC
+LIMIT ${offset}, ${limit + 1};
+`
+    );
+
+    let hasMore = messages.length == limit + 1;
+    if (hasMore) messages.pop();
+
+    let users: User[] = [];
+    let userIds: number[] = [];
+
+    for (const message of messages) {
+      if (!userIds.includes(message.senderId)) {
+        const sender = await User.findOneBy({ id: message.senderId });
+        if (sender != null) {
+          users.push(sender);
+          userIds.push(sender.id);
         }
       }
     }

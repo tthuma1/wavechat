@@ -5,13 +5,20 @@ import {
   PrimaryGeneratedColumn,
   BaseEntity,
   CreateDateColumn,
+  ManyToOne,
 } from "typeorm";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
 export class Group extends BaseEntity {
   @PrimaryGeneratedColumn()
+  @Field()
   id!: number;
+
+  @Field()
+  @Column()
+  public adminId!: number;
 
   @Field()
   @Column()
@@ -24,4 +31,7 @@ export class Group extends BaseEntity {
   @Field()
   @Column({ type: "set", enum: ["dm", "group"] })
   public type: string;
+
+  @ManyToOne(() => User)
+  public admin!: User;
 }

@@ -28,7 +28,7 @@ const User: NextPage = () => {
   // let currOffset = 0;
   // let firstLoad = true;
   const [firstLoad, setFirstLoad] = useState(true);
-  const [firstItemIndex, setFirstItemIndex] = useState(1e7);
+  const [firstItemIndex, setFirstItemIndex] = useState(1e9);
   const [currOffset, setCurrOffset] = useState(5);
   // const [messages, setMessages] = useState<any[]>([]);
 
@@ -216,7 +216,7 @@ const User: NextPage = () => {
             </button> */}
           </div>
           <div className="bg-gray-800 px-6 py-3 rounded-b-md">
-            <Send receiverId={quser} />
+            <Send receiverId={quser} type="dm" />
           </div>
           {/* {messages.map((message, i) => {
         return (

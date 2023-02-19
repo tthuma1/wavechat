@@ -18,12 +18,19 @@ export type Scalars = {
 export type Channel = {
   __typename?: 'Channel';
   groupId: Scalars['Float'];
+  id: Scalars['Float'];
   name: Scalars['String'];
 };
 
 export type ChannelResponse = {
   __typename?: 'ChannelResponse';
   channel?: Maybe<Channel>;
+  errors?: Maybe<Array<FieldError>>;
+};
+
+export type ChannelsResponse = {
+  __typename?: 'ChannelsResponse';
+  channels?: Maybe<Array<Channel>>;
   errors?: Maybe<Array<FieldError>>;
 };
 
@@ -53,7 +60,9 @@ export type GhuResponse = {
 
 export type Group = {
   __typename?: 'Group';
+  adminId: Scalars['Float'];
   createdAt: Scalars['String'];
+  id: Scalars['Float'];
   name: Scalars['String'];
   type: Scalars['String'];
 };
@@ -69,6 +78,12 @@ export type Group_Has_User = {
   groupId: Scalars['Float'];
   joinedAt: Scalars['String'];
   userId: Scalars['Float'];
+};
+
+export type GroupsResponse = {
+  __typename?: 'GroupsResponse';
+  errors?: Maybe<Array<FieldError>>;
+  groups?: Maybe<Array<Group>>;
 };
 
 export type Message = {
@@ -103,6 +118,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   register: UserResponse;
   sendDM: MessageResponse;
+  sendInChannel: MessageResponse;
 };
 
 
@@ -143,13 +159,34 @@ export type MutationSendDmArgs = {
   receiverId: Scalars['Float'];
 };
 
+
+export type MutationSendInChannelArgs = {
+  channelId: Scalars['Float'];
+  msg: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  channelToGroup: GroupResponse;
+  getChannelsInGroup: ChannelsResponse;
   getFriends: Array<User>;
+  getGroupUsers: UsersResponse;
   getUser: UserResponse;
+  getUserGroups: GroupsResponse;
   me?: Maybe<User>;
   retrieveDM?: Maybe<MessagesResponse>;
+  retrieveInChannel?: Maybe<MessagesResponse>;
   user: Array<User>;
+};
+
+
+export type QueryChannelToGroupArgs = {
+  channelId: Scalars['Float'];
+};
+
+
+export type QueryGetChannelsInGroupArgs = {
+  groupId: Scalars['Float'];
 };
 
 
@@ -158,8 +195,18 @@ export type QueryGetFriendsArgs = {
 };
 
 
+export type QueryGetGroupUsersArgs = {
+  groupId: Scalars['Float'];
+};
+
+
 export type QueryGetUserArgs = {
   id: Scalars['Float'];
+};
+
+
+export type QueryGetUserGroupsArgs = {
+  userId: Scalars['Float'];
 };
 
 
@@ -167,6 +214,13 @@ export type QueryRetrieveDmArgs = {
   limit: Scalars['Float'];
   offset: Scalars['Float'];
   receiverId: Scalars['Float'];
+};
+
+
+export type QueryRetrieveInChannelArgs = {
+  channelId: Scalars['Float'];
+  limit: Scalars['Float'];
+  offset: Scalars['Float'];
 };
 
 
@@ -188,9 +242,15 @@ export type UserResponse = {
 };
 
 export type UsernamePasswordInput = {
-  email?: InputMaybe<Scalars['String']>;
+  email: Scalars['String'];
   password: Scalars['String'];
   username: Scalars['String'];
+};
+
+export type UsersResponse = {
+  __typename?: 'UsersResponse';
+  errors?: Maybe<Array<FieldError>>;
+  users?: Maybe<Array<User>>;
 };
 
 export type LoginMutationVariables = Exact<{
@@ -221,6 +281,28 @@ export type SendDmMutationVariables = Exact<{
 
 export type SendDmMutation = { __typename?: 'Mutation', sendDM: { __typename?: 'MessageResponse', message?: { __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type SendInChannelMutationVariables = Exact<{
+  channelId: Scalars['Float'];
+  msg: Scalars['String'];
+}>;
+
+
+export type SendInChannelMutation = { __typename?: 'Mutation', sendInChannel: { __typename?: 'MessageResponse', message?: { __typename?: 'Message', msg: string, createdAt: string, channelId: number, senderId: number } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type ChannelToGroupQueryVariables = Exact<{
+  channelId: Scalars['Float'];
+}>;
+
+
+export type ChannelToGroupQuery = { __typename?: 'Query', channelToGroup: { __typename?: 'GroupResponse', group?: { __typename?: 'Group', id: number, name: string } | null } };
+
+export type GetChannelsInGroupQueryVariables = Exact<{
+  groupId: Scalars['Float'];
+}>;
+
+
+export type GetChannelsInGroupQuery = { __typename?: 'Query', getChannelsInGroup: { __typename?: 'ChannelsResponse', channels?: Array<{ __typename?: 'Channel', id: number, groupId: number, name: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
 export type GetFriendsQueryVariables = Exact<{
   userId: Scalars['Float'];
 }>;
@@ -248,6 +330,15 @@ export type RetrieveDmQueryVariables = Exact<{
 
 
 export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number }> | null } | null };
+
+export type RetrieveInChannelQueryVariables = Exact<{
+  limit: Scalars['Float'];
+  offset: Scalars['Float'];
+  channelId: Scalars['Float'];
+}>;
+
+
+export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number }> | null, users?: Array<{ __typename?: 'User', id: number, username: string }> | null } | null };
 
 
 export const LoginDocument = gql`
@@ -406,6 +497,130 @@ export function useSendDmMutation(baseOptions?: Apollo.MutationHookOptions<SendD
 export type SendDmMutationHookResult = ReturnType<typeof useSendDmMutation>;
 export type SendDmMutationResult = Apollo.MutationResult<SendDmMutation>;
 export type SendDmMutationOptions = Apollo.BaseMutationOptions<SendDmMutation, SendDmMutationVariables>;
+export const SendInChannelDocument = gql`
+    mutation SendInChannel($channelId: Float!, $msg: String!) {
+  sendInChannel(channelId: $channelId, msg: $msg) {
+    message {
+      msg
+      createdAt
+      channelId
+      senderId
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type SendInChannelMutationFn = Apollo.MutationFunction<SendInChannelMutation, SendInChannelMutationVariables>;
+
+/**
+ * __useSendInChannelMutation__
+ *
+ * To run a mutation, you first call `useSendInChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendInChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendInChannelMutation, { data, loading, error }] = useSendInChannelMutation({
+ *   variables: {
+ *      channelId: // value for 'channelId'
+ *      msg: // value for 'msg'
+ *   },
+ * });
+ */
+export function useSendInChannelMutation(baseOptions?: Apollo.MutationHookOptions<SendInChannelMutation, SendInChannelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendInChannelMutation, SendInChannelMutationVariables>(SendInChannelDocument, options);
+      }
+export type SendInChannelMutationHookResult = ReturnType<typeof useSendInChannelMutation>;
+export type SendInChannelMutationResult = Apollo.MutationResult<SendInChannelMutation>;
+export type SendInChannelMutationOptions = Apollo.BaseMutationOptions<SendInChannelMutation, SendInChannelMutationVariables>;
+export const ChannelToGroupDocument = gql`
+    query ChannelToGroup($channelId: Float!) {
+  channelToGroup(channelId: $channelId) {
+    group {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useChannelToGroupQuery__
+ *
+ * To run a query within a React component, call `useChannelToGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelToGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelToGroupQuery({
+ *   variables: {
+ *      channelId: // value for 'channelId'
+ *   },
+ * });
+ */
+export function useChannelToGroupQuery(baseOptions: Apollo.QueryHookOptions<ChannelToGroupQuery, ChannelToGroupQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ChannelToGroupQuery, ChannelToGroupQueryVariables>(ChannelToGroupDocument, options);
+      }
+export function useChannelToGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ChannelToGroupQuery, ChannelToGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ChannelToGroupQuery, ChannelToGroupQueryVariables>(ChannelToGroupDocument, options);
+        }
+export type ChannelToGroupQueryHookResult = ReturnType<typeof useChannelToGroupQuery>;
+export type ChannelToGroupLazyQueryHookResult = ReturnType<typeof useChannelToGroupLazyQuery>;
+export type ChannelToGroupQueryResult = Apollo.QueryResult<ChannelToGroupQuery, ChannelToGroupQueryVariables>;
+export const GetChannelsInGroupDocument = gql`
+    query GetChannelsInGroup($groupId: Float!) {
+  getChannelsInGroup(groupId: $groupId) {
+    channels {
+      id
+      groupId
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetChannelsInGroupQuery__
+ *
+ * To run a query within a React component, call `useGetChannelsInGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelsInGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelsInGroupQuery({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useGetChannelsInGroupQuery(baseOptions: Apollo.QueryHookOptions<GetChannelsInGroupQuery, GetChannelsInGroupQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetChannelsInGroupQuery, GetChannelsInGroupQueryVariables>(GetChannelsInGroupDocument, options);
+      }
+export function useGetChannelsInGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetChannelsInGroupQuery, GetChannelsInGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetChannelsInGroupQuery, GetChannelsInGroupQueryVariables>(GetChannelsInGroupDocument, options);
+        }
+export type GetChannelsInGroupQueryHookResult = ReturnType<typeof useGetChannelsInGroupQuery>;
+export type GetChannelsInGroupLazyQueryHookResult = ReturnType<typeof useGetChannelsInGroupLazyQuery>;
+export type GetChannelsInGroupQueryResult = Apollo.QueryResult<GetChannelsInGroupQuery, GetChannelsInGroupQueryVariables>;
 export const GetFriendsDocument = gql`
     query GetFriends($userId: Float!) {
   getFriends(userId: $userId) {
@@ -566,3 +781,54 @@ export function useRetrieveDmLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type RetrieveDmQueryHookResult = ReturnType<typeof useRetrieveDmQuery>;
 export type RetrieveDmLazyQueryHookResult = ReturnType<typeof useRetrieveDmLazyQuery>;
 export type RetrieveDmQueryResult = Apollo.QueryResult<RetrieveDmQuery, RetrieveDmQueryVariables>;
+export const RetrieveInChannelDocument = gql`
+    query RetrieveInChannel($limit: Float!, $offset: Float!, $channelId: Float!) {
+  retrieveInChannel(limit: $limit, offset: $offset, channelId: $channelId) {
+    hasMore
+    errors {
+      field
+      message
+    }
+    messages {
+      msg
+      createdAt
+      senderId
+      channelId
+    }
+    users {
+      id
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useRetrieveInChannelQuery__
+ *
+ * To run a query within a React component, call `useRetrieveInChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRetrieveInChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRetrieveInChannelQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *      channelId: // value for 'channelId'
+ *   },
+ * });
+ */
+export function useRetrieveInChannelQuery(baseOptions: Apollo.QueryHookOptions<RetrieveInChannelQuery, RetrieveInChannelQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RetrieveInChannelQuery, RetrieveInChannelQueryVariables>(RetrieveInChannelDocument, options);
+      }
+export function useRetrieveInChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RetrieveInChannelQuery, RetrieveInChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RetrieveInChannelQuery, RetrieveInChannelQueryVariables>(RetrieveInChannelDocument, options);
+        }
+export type RetrieveInChannelQueryHookResult = ReturnType<typeof useRetrieveInChannelQuery>;
+export type RetrieveInChannelLazyQueryHookResult = ReturnType<typeof useRetrieveInChannelLazyQuery>;
+export type RetrieveInChannelQueryResult = Apollo.QueryResult<RetrieveInChannelQuery, RetrieveInChannelQueryVariables>;

@@ -1,0 +1,8 @@
+query ChannelToGroup($channelId: Float!) {
+  channelToGroup(channelId: $channelId) {
+    group {
+      id
+      name
+    }
+  }
+}

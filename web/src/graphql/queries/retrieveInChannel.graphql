@@ -1,0 +1,19 @@
+query RetrieveInChannel($limit: Float!, $offset: Float!, $channelId: Float!) {
+  retrieveInChannel(limit: $limit, offset: $offset, channelId: $channelId) {
+    hasMore
+    errors {
+      field
+      message
+    }
+    messages {
+      msg
+      createdAt
+      senderId
+      channelId
+    }
+    users {
+      id
+      username
+    }
+  }
+}

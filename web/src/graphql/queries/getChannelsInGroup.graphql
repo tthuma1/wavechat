@@ -1,0 +1,13 @@
+query GetChannelsInGroup($groupId: Float!) {
+  getChannelsInGroup(groupId: $groupId) {
+    channels {
+      id
+      groupId
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

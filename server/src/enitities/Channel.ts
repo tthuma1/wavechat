@@ -12,6 +12,7 @@ import { Group } from "./Group";
 @Entity()
 export class Channel extends BaseEntity {
   @PrimaryGeneratedColumn()
+  @Field()
   id!: number;
 
   @Field()

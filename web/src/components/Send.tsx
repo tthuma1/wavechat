@@ -4,14 +4,21 @@ import Head from "next/head";
 // import Image from 'next/image'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
-import { useSendDmMutation } from "../generated/graphql";
+import {
+  useSendDmMutation,
+  useSendInChannelMutation,
+} from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:4000");
 
-const Send: NextPage<{ receiverId: string | string[] | undefined }> = props => {
+const Send: NextPage<{
+  receiverId: string | string[] | undefined;
+  type: string;
+}> = props => {
   const [sendDM] = useSendDmMutation();
+  const [sendInChannel] = useSendInChannelMutation();
 
   return (
     <div className="sticky">
@@ -21,20 +28,40 @@ const Send: NextPage<{ receiverId: string | string[] | undefined }> = props => {
           msg: "",
         }}
         onSubmit={async (values, { setErrors, resetForm }) => {
-          const response = await sendDM({ variables: values });
-          if (response.data?.sendDM.errors) {
-            console.log(response.data?.sendDM.errors);
-            setErrors(toErrorMap(response.data.sendDM.errors));
-            // setErrors({ username: "hi" });
-          } else if (response.data?.sendDM.message) {
-            // worked
-            // router.push("/");
-            console.log("worked");
-            socket.emit("received");
-            resetForm();
-          }
+          if (props.type == "dm") {
+            const response = await sendDM({ variables: values });
+            if (response.data?.sendDM.errors) {
+              console.log(response.data?.sendDM.errors);
+              setErrors(toErrorMap(response.data.sendDM.errors));
+              // setErrors({ username: "hi" });
+            } else if (response.data?.sendDM.message) {
+              // worked
+              // router.push("/");
+              console.log("worked");
+              socket.emit("received");
+              resetForm();
+            }
 
-          // actions.setSubmitting(false);
+            // actions.setSubmitting(false);
+          } else if (props.type == "group") {
+            const response = await sendInChannel({
+              variables: {
+                channelId: values.receiverId,
+                msg: values.msg,
+              },
+            });
+            if (response.data?.sendInChannel.errors) {
+              console.log(response.data?.sendInChannel.errors);
+              setErrors(toErrorMap(response.data.sendInChannel.errors));
+              // setErrors({ username: "hi" });
+            } else if (response.data?.sendInChannel.message) {
+              // worked
+              // router.push("/");
+              console.log("worked");
+              socket.emit("received");
+              resetForm();
+            }
+          }
         }}
       >
         {({ handleSubmit, isSubmitting }) => (
