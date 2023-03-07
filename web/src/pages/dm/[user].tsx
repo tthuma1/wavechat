@@ -78,11 +78,9 @@ const User: NextPage = () => {
 
         const senders = data!.retrieveDM!.users!;
         const message = data!.retrieveDM!.messages![i];
-        let sender: string | undefined = senders.find(
-          el => el.id == message.senderId
-        )!.username;
+        let sender = senders.find(el => el.id == message.senderId)!;
 
-        if (sender)
+        if (sender && message.type == "text") {
           messages.unshift(
             // {
             //   sender,
@@ -90,14 +88,50 @@ const User: NextPage = () => {
             //   msg: message.msg,
             // }
             <div key={i} className="flex my-4">
-              <img src="/avatar.jpg" className="w-8 h-8 rounded-full mr-4" />
+              <img
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  sender.avatar
+                }
+                className="w-8 h-8 rounded-full mr-4"
+              />
               <div>
-                <span className="font-semibold py-2 pr-2">{sender}</span>
-                <span className="text-gray-400 text-sm py-2">{dateOut}</span>
+                <span className="font-semibold pr-2">{sender.username}</span>
+                <span className="text-gray-400 text-sm">{dateOut}</span>
                 <p>{message.msg}</p>
               </div>
             </div>
           );
+        } else if (sender && message.type == "image") {
+          console.log(
+            "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+              sender.avatar
+          );
+          messages.unshift(
+            <div key={i} className="flex my-4">
+              <img
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  sender.avatar
+                }
+                className="w-8 h-8 rounded-full mr-4"
+              />
+              <div>
+                <span className="font-semibold pr-2">{sender.username}</span>
+                <span className="text-gray-400 text-sm">{dateOut}</span>
+                <div className="pt-2">
+                  <img
+                    src={
+                      "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
+                      message.msg
+                    }
+                    className="max-h-32 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        }
       }
     }
 
@@ -153,7 +187,7 @@ const User: NextPage = () => {
 
   if (allLoaded) {
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center overflow-hidden w-screen h-screen">
         <Head>
           <title>{}</title>
           <meta name="description" content="" />
@@ -161,13 +195,13 @@ const User: NextPage = () => {
         </Head>
         <div className="ml-10 mt-10 flex flex-col justify-between">
           <FriendList type={2} />
-          <div className="flex mt-8 justify-start items-start w-full">
+          <div className="flex mt-8 mb-10 justify-start items-start w-full">
             <img src="/avatar.jpg" className="w-8 h-8 rounded-full mr-4" />
             <span className="font-semibold pr-2">{meData!.me!.username}</span>
           </div>
         </div>
-        <div className="mt-10 w-full mr-20 ml-10">
-          <div className="h-[80vh] bg-gray-800 rounded-t-md scrollbar-colored">
+        <div className="mt-10 w-full mx-10 flex flex-col h-[90vh]">
+          <div className="flex-auto bg-gray-800 rounded-t-md scrollbar-colored">
             {/* {messages} */}
             {/* pt-8 pb-2 */}
             <Virtuoso
@@ -254,6 +288,12 @@ const User: NextPage = () => {
             </div>
           )}
         /> */}
+
+        <div className="h-10 mr-10 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center">
+          <a href="/settings" className="m-4 text-lg">
+            <i className="fa-solid fa-gear"></i>
+          </a>
+        </div>
       </div>
     );
   } else {

@@ -2,6 +2,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import type { AppProps } from "next/app";
 import NavBar from "../components/NavBar";
 import "../styles/globals.css";
+import Script from "next/script";
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -50,6 +51,12 @@ const client = new ApolloClient({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <div className="w-screen h-screen bg-gray-900 text-gray-100">
+      <Script
+        src="https://kit.fontawesome.com/c5fdb8664c.js"
+        crossOrigin="anonymous"
+      />
+      <Script src="https://sdk.amazonaws.com/js/aws-sdk-2.619.0.min.js" />
+
       <ApolloProvider client={client}>
         {/* <NavBar /> */}
         <Component {...pageProps} />

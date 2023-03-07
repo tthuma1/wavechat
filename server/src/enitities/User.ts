@@ -35,6 +35,10 @@ export class User extends BaseEntity {
   @Column({ length: 320 })
   email!: string;
 
+  @Field()
+  @Column()
+  avatar!: string;
+
   // @OneToMany(() => Message, message => message.sender)
   // public sentMessages!: Message[];
 

@@ -14,7 +14,7 @@ import {
   Root,
 } from "type-graphql";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
-import { validateRegister } from "../utils/validateRegister";
+import { validateRegister, validateEmail } from "../utils/validateRegister";
 // import { getConnection } from "typeorm";
 import { AppDataSource } from "../DataSource";
 import { FieldError } from "./FieldError";
@@ -338,5 +338,169 @@ export class UserResolver {
         ],
       };
     }
+  }
+
+  @Mutation(() => UserResponse)
+  async changeEmail(
+    @Arg("newEmail") newEmail: string,
+    @Ctx() { req }: MyContext
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const errors = validateEmail(newEmail);
+    if (errors) {
+      return { errors };
+    }
+
+    AppDataSource.createQueryBuilder()
+      .update(User)
+      .set({
+        email: newEmail,
+      })
+      .where("id = :id", { id: req.session.userId })
+      .execute();
+
+    const user = await User.findOneBy({ id: req.session.userId });
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg("oldPassword") oldPassword: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { req, res }: MyContext
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    let user = await User.findOneBy({ id: req.session.userId });
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "Cannot find user.",
+          },
+        ],
+      };
+    }
+
+    const valid = await argon2.verify(user.password, oldPassword);
+    if (!valid) {
+      return {
+        errors: [
+          {
+            field: "oldPassword",
+            message: "Incorrect password.",
+          },
+        ],
+      };
+    }
+
+    await User.update(
+      { id: req.session.userId },
+      {
+        password: await argon2.hash(newPassword),
+      }
+    );
+
+    user = await User.findOneBy({ id: req.session.userId });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "Cannot find user.",
+          },
+        ],
+      };
+    }
+
+    // await new Promise(resolve =>
+    //   req.session.destroy(err => {
+    //     res.clearCookie("qid");
+    //     if (err) {
+    //       console.log(err);
+    //       resolve(false);
+    //       return;
+    //     }
+
+    //     resolve(true);
+    //   })
+    // );
+
+    // req.session.userId = user.id;
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async changeAvatar(
+    @Arg("filename") filename: string,
+    @Ctx() { req, res }: MyContext
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    let user = await User.findOneBy({ id: req.session.userId });
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "Cannot find user.",
+          },
+        ],
+      };
+    }
+
+    await User.update(
+      { id: req.session.userId },
+      {
+        avatar: filename,
+      }
+    );
+
+    user = await User.findOneBy({ id: req.session.userId });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "Cannot find user.",
+          },
+        ],
+      };
+    }
+
+    return { user };
   }
 }

@@ -46,6 +46,7 @@ export class MessageResolver {
   async sendDM(
     @Arg("msg") msg: string,
     @Arg("receiverId") receiverId: number,
+    @Arg("type") type: string,
     @Ctx() { req }: MyContext
   ) {
     if ((await User.findBy({ id: receiverId })).length === 0) {
@@ -91,15 +92,18 @@ export class MessageResolver {
     // ) AND g.type = 'dm';
 
     // sql injection secure - ids can only be numbers
-    const dmId = await AppDataSource.manager.query(`
+    const dmId = await AppDataSource.manager.query(
+      `
 SELECT g.id FROM \`group\` g
 INNER JOIN group_has_user ghu ON ghu.groupId = g.id
-WHERE userId = ${req.session.userId} AND g.id IN (
+WHERE userId = ? AND g.id IN (
     SELECT g.id FROM \`group\` g
     INNER JOIN group_has_user ghu ON ghu.groupId = g.id
-    WHERE userId = ${receiverId}
+    WHERE userId = ?
 ) AND g.type = 'dm';
-    `);
+    `,
+      [req.session.userId, receiverId]
+    );
 
     let channelId = 0;
 
@@ -140,6 +144,7 @@ WHERE userId = ${req.session.userId} AND g.id IN (
     message.channelId = channelId;
     message.msg = msg;
     message.senderId = req.session.userId;
+    message.type = type;
     await message.save();
 
     return { message };
@@ -178,8 +183,9 @@ WHERE userId = ${req.session.userId} AND g.id IN (
         `
 SELECT ghu.userId FROM channel c
 INNER JOIN group_has_user ghu ON ghu.groupId = c.groupId
-WHERE c.id = ${channelId} AND ghu.userId = ${req.session.userId};
-`
+WHERE c.id = ? AND ghu.userId = ?;
+`,
+        [channelId, req.session.userId]
       )
     ).length;
 
@@ -262,14 +268,15 @@ SELECT m.* FROM message m
 INNER JOIN channel c ON m.channelId = c.id
 INNER JOIN \`group\` g ON c.groupId = g.id
 INNER JOIN group_has_user ghu ON ghu.groupId = g.id
-WHERE userId = ${req.session.userId} AND g.id IN (
+WHERE userId = ? AND g.id IN (
     SELECT g.id FROM \`group\` g
     INNER JOIN group_has_user ghu ON ghu.groupId = g.id
-    WHERE userId = ${receiverId}
+    WHERE userId = ?
 ) AND g.type = 'dm'
 ORDER BY m.createdAt DESC
-LIMIT ${offset}, ${limit + 1};
-`
+LIMIT ?, ?;
+`,
+      [req.session.userId, receiverId, offset, limit + 1]
     );
 
     let hasMore = messages.length == limit + 1;
@@ -326,8 +333,9 @@ LIMIT ${offset}, ${limit + 1};
         `
 SELECT ghu.userId FROM channel c
 INNER JOIN group_has_user ghu ON ghu.groupId = c.groupId
-WHERE c.id = ${channelId} AND ghu.userId = ${req.session.userId};
-`
+WHERE c.id = ? AND ghu.userId = ?;
+`,
+        [channelId, req.session.userId]
       )
     ).length;
 
@@ -345,10 +353,11 @@ WHERE c.id = ${channelId} AND ghu.userId = ${req.session.userId};
     let messages = await AppDataSource.query(
       `
 SELECT m.* FROM message m
-WHERE m.channelId = ${channelId}
+WHERE m.channelId = ?
 ORDER BY m.createdAt DESC
-LIMIT ${offset}, ${limit + 1};
-`
+LIMIT ?, ?;
+`,
+      [channelId, offset, limit + 1]
     );
 
     let hasMore = messages.length == limit + 1;

@@ -32,6 +32,10 @@ export class Message extends BaseEntity {
   @CreateDateColumn()
   public createdAt!: string;
 
+  @Field()
+  @Column({ type: "set", enum: ["text", "image", "file"] })
+  public type: string;
+
   @ManyToOne(() => User /*, sender => sender.sentMessages*/)
   public sender!: User;
 

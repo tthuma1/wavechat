@@ -92,6 +92,7 @@ export type Message = {
   createdAt: Scalars['String'];
   msg: Scalars['String'];
   senderId: Scalars['Float'];
+  type: Scalars['String'];
 };
 
 export type MessageResponse = {
@@ -111,6 +112,9 @@ export type MessagesResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   addFriend: FriendshipResponse;
+  changeAvatar: UserResponse;
+  changeEmail: UserResponse;
+  changePassword: UserResponse;
   createChannel: ChannelResponse;
   createGroup: GroupResponse;
   joinGroup: GhuResponse;
@@ -124,6 +128,22 @@ export type Mutation = {
 
 export type MutationAddFriendArgs = {
   friendId: Scalars['Float'];
+};
+
+
+export type MutationChangeAvatarArgs = {
+  filename: Scalars['String'];
+};
+
+
+export type MutationChangeEmailArgs = {
+  newEmail: Scalars['String'];
+};
+
+
+export type MutationChangePasswordArgs = {
+  newPassword: Scalars['String'];
+  oldPassword: Scalars['String'];
 };
 
 
@@ -157,6 +177,7 @@ export type MutationRegisterArgs = {
 export type MutationSendDmArgs = {
   msg: Scalars['String'];
   receiverId: Scalars['Float'];
+  type: Scalars['String'];
 };
 
 
@@ -230,6 +251,7 @@ export type QueryUserArgs = {
 
 export type User = {
   __typename?: 'User';
+  avatar: Scalars['String'];
   email: Scalars['String'];
   id: Scalars['Float'];
   username: Scalars['String'];
@@ -252,6 +274,28 @@ export type UsersResponse = {
   errors?: Maybe<Array<FieldError>>;
   users?: Maybe<Array<User>>;
 };
+
+export type ChangeAvatarMutationVariables = Exact<{
+  filename: Scalars['String'];
+}>;
+
+
+export type ChangeAvatarMutation = { __typename?: 'Mutation', changeAvatar: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, avatar: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type ChangeEmailMutationVariables = Exact<{
+  newEmail: Scalars['String'];
+}>;
+
+
+export type ChangeEmailMutation = { __typename?: 'Mutation', changeEmail: { __typename?: 'UserResponse', user?: { __typename?: 'User', email: string, id: number, username: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type ChangePasswordMutationVariables = Exact<{
+  newPassword: Scalars['String'];
+  oldPassword: Scalars['String'];
+}>;
+
+
+export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, email: string, username: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
 export type LoginMutationVariables = Exact<{
   password: Scalars['String'];
@@ -276,6 +320,7 @@ export type RegisterMutation = { __typename?: 'Mutation', register: { __typename
 export type SendDmMutationVariables = Exact<{
   receiverId: Scalars['Float'];
   msg: Scalars['String'];
+  type: Scalars['String'];
 }>;
 
 
@@ -320,7 +365,7 @@ export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, email: string, avatar: string } | null };
 
 export type RetrieveDmQueryVariables = Exact<{
   receiverId: Scalars['Float'];
@@ -329,7 +374,7 @@ export type RetrieveDmQueryVariables = Exact<{
 }>;
 
 
-export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number }> | null } | null };
+export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string, type: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number, avatar: string }> | null } | null };
 
 export type RetrieveInChannelQueryVariables = Exact<{
   limit: Scalars['Float'];
@@ -341,6 +386,129 @@ export type RetrieveInChannelQueryVariables = Exact<{
 export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number }> | null, users?: Array<{ __typename?: 'User', id: number, username: string }> | null } | null };
 
 
+export const ChangeAvatarDocument = gql`
+    mutation ChangeAvatar($filename: String!) {
+  changeAvatar(filename: $filename) {
+    user {
+      id
+      avatar
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type ChangeAvatarMutationFn = Apollo.MutationFunction<ChangeAvatarMutation, ChangeAvatarMutationVariables>;
+
+/**
+ * __useChangeAvatarMutation__
+ *
+ * To run a mutation, you first call `useChangeAvatarMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeAvatarMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changeAvatarMutation, { data, loading, error }] = useChangeAvatarMutation({
+ *   variables: {
+ *      filename: // value for 'filename'
+ *   },
+ * });
+ */
+export function useChangeAvatarMutation(baseOptions?: Apollo.MutationHookOptions<ChangeAvatarMutation, ChangeAvatarMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangeAvatarMutation, ChangeAvatarMutationVariables>(ChangeAvatarDocument, options);
+      }
+export type ChangeAvatarMutationHookResult = ReturnType<typeof useChangeAvatarMutation>;
+export type ChangeAvatarMutationResult = Apollo.MutationResult<ChangeAvatarMutation>;
+export type ChangeAvatarMutationOptions = Apollo.BaseMutationOptions<ChangeAvatarMutation, ChangeAvatarMutationVariables>;
+export const ChangeEmailDocument = gql`
+    mutation ChangeEmail($newEmail: String!) {
+  changeEmail(newEmail: $newEmail) {
+    user {
+      email
+      id
+      username
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type ChangeEmailMutationFn = Apollo.MutationFunction<ChangeEmailMutation, ChangeEmailMutationVariables>;
+
+/**
+ * __useChangeEmailMutation__
+ *
+ * To run a mutation, you first call `useChangeEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changeEmailMutation, { data, loading, error }] = useChangeEmailMutation({
+ *   variables: {
+ *      newEmail: // value for 'newEmail'
+ *   },
+ * });
+ */
+export function useChangeEmailMutation(baseOptions?: Apollo.MutationHookOptions<ChangeEmailMutation, ChangeEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangeEmailMutation, ChangeEmailMutationVariables>(ChangeEmailDocument, options);
+      }
+export type ChangeEmailMutationHookResult = ReturnType<typeof useChangeEmailMutation>;
+export type ChangeEmailMutationResult = Apollo.MutationResult<ChangeEmailMutation>;
+export type ChangeEmailMutationOptions = Apollo.BaseMutationOptions<ChangeEmailMutation, ChangeEmailMutationVariables>;
+export const ChangePasswordDocument = gql`
+    mutation ChangePassword($newPassword: String!, $oldPassword: String!) {
+  changePassword(newPassword: $newPassword, oldPassword: $oldPassword) {
+    user {
+      id
+      email
+      username
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type ChangePasswordMutationFn = Apollo.MutationFunction<ChangePasswordMutation, ChangePasswordMutationVariables>;
+
+/**
+ * __useChangePasswordMutation__
+ *
+ * To run a mutation, you first call `useChangePasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangePasswordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changePasswordMutation, { data, loading, error }] = useChangePasswordMutation({
+ *   variables: {
+ *      newPassword: // value for 'newPassword'
+ *      oldPassword: // value for 'oldPassword'
+ *   },
+ * });
+ */
+export function useChangePasswordMutation(baseOptions?: Apollo.MutationHookOptions<ChangePasswordMutation, ChangePasswordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, options);
+      }
+export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>;
+export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
+export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($password: String!, $usernameOrEmail: String!) {
   login(password: $password, usernameOrEmail: $usernameOrEmail) {
@@ -455,8 +623,8 @@ export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
 export const SendDmDocument = gql`
-    mutation SendDM($receiverId: Float!, $msg: String!) {
-  sendDM(receiverId: $receiverId, msg: $msg) {
+    mutation SendDM($receiverId: Float!, $msg: String!, $type: String!) {
+  sendDM(receiverId: $receiverId, msg: $msg, type: $type) {
     message {
       msg
       senderId
@@ -487,6 +655,7 @@ export type SendDmMutationFn = Apollo.MutationFunction<SendDmMutation, SendDmMut
  *   variables: {
  *      receiverId: // value for 'receiverId'
  *      msg: // value for 'msg'
+ *      type: // value for 'type'
  *   },
  * });
  */
@@ -700,6 +869,7 @@ export const MeDocument = gql`
     id
     username
     email
+    avatar
   }
 }
     `;
@@ -738,6 +908,7 @@ export const RetrieveDmDocument = gql`
       senderId
       channelId
       createdAt
+      type
     }
     errors {
       field
@@ -746,6 +917,7 @@ export const RetrieveDmDocument = gql`
     users {
       username
       id
+      avatar
     }
     hasMore
   }

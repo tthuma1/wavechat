@@ -1,0 +1,12 @@
+mutation ChangeAvatar($filename: String!) {
+  changeAvatar(filename: $filename) {
+    user {
+      id
+      avatar
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

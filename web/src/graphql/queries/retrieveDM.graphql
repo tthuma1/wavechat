@@ -5,6 +5,7 @@ query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
       senderId
       channelId
       createdAt
+      type
     }
     errors {
       field
@@ -13,6 +14,7 @@ query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
     users {
       username
       id
+      avatar
     }
     hasMore
   }

@@ -1,5 +1,5 @@
-mutation SendDM($receiverId: Float!, $msg: String!) {
-  sendDM(receiverId: $receiverId, msg: $msg) {
+mutation SendDM($receiverId: Float!, $msg: String!, $type: String!) {
+  sendDM(receiverId: $receiverId, msg: $msg, type: $type) {
     message {
       msg
       senderId

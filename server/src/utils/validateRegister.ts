@@ -39,3 +39,18 @@ export const validateRegister = (options: UsernamePasswordInput) => {
   if (returnValue.length !== 0) return returnValue;
   return null;
 };
+
+export const validateEmail = (email: string) => {
+  let returnValue = [];
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
+  if (email && email !== "" && !emailRegex.test(email)) {
+    returnValue.push({
+      field: "email",
+      message: "Invalid email.",
+    });
+  }
+
+  if (returnValue.length !== 0) return returnValue;
+  return null;
+};
