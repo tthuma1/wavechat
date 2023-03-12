@@ -1,0 +1,40 @@
+mutation ChangeAvatar($filename: String!) {
+  changeAvatar(filename: $filename) {
+    user {
+      id
+      avatar
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+
+mutation ChangeEmail($newEmail: String!) {
+  changeEmail(newEmail: $newEmail) {
+    user {
+      email
+      id
+      username
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+
+mutation ChangePassword($newPassword: String!, $oldPassword: String!) {
+  changePassword(newPassword: $newPassword, oldPassword: $oldPassword) {
+    user {
+      id
+      email
+      username
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

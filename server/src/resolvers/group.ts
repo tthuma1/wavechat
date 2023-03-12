@@ -14,6 +14,8 @@ import {
 } from "type-graphql";
 import { FieldError } from "./FieldError";
 import { MyContext } from "../types";
+import { AppDataSource } from "../DataSource";
+import { UsersResponse } from "./user";
 
 @ObjectType()
 export class GroupResponse {
@@ -25,12 +27,24 @@ export class GroupResponse {
 }
 
 @ObjectType()
+class GroupWithChannel {
+  @Field(() => Group)
+  group: Group;
+
+  @Field(() => Channel)
+  channel: Channel;
+}
+
+@ObjectType()
 export class GroupsResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 
   @Field(() => [Group], { nullable: true })
   groups?: Group[];
+
+  @Field(() => [Number], { nullable: true })
+  firstChannelIds?: number[];
 }
 
 @ObjectType()
@@ -40,15 +54,6 @@ class GHUResponse {
 
   @Field(() => Group_Has_User, { nullable: true })
   ghu?: Group_Has_User;
-}
-
-@ObjectType()
-class UsersResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-
-  @Field(() => [User], { nullable: true })
-  users?: User[];
 }
 
 @ObjectType()
@@ -169,15 +174,39 @@ export class GroupResolver {
 
     let ghu_arr = await Group_Has_User.findBy({ userId });
     let groups: any[] = [];
+    let firstChannelIds: number[] = [];
 
     for (const ghu of ghu_arr) {
       let groupId = ghu.groupId;
       let group = await Group.findOneBy({ id: groupId, type: "group" });
 
-      if (group) groups.push(group);
+      if (group) {
+        groups.push(group);
+
+        let channel = await Channel.findOneBy({ groupId: group.id });
+        if (channel) {
+          firstChannelIds.push(channel.id);
+        }
+      }
     }
 
-    return { groups };
+    return { groups, firstChannelIds };
+  }
+
+  @Query(() => GroupsResponse)
+  async getUserGroupsCurrent(@Ctx() { req }: MyContext) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    return this.getUserGroups(req.session.userId);
   }
 
   @Query(() => UsersResponse)
@@ -239,5 +268,30 @@ export class GroupResolver {
     let group = await Group.findOneBy({ id: groupId });
 
     return { group };
+  }
+
+  @Query(() => [GroupWithChannel])
+  async searchGroups(@Arg("name") name: string) {
+    if (name == "") return [];
+
+    const groups: Group[] = await AppDataSource.query(
+      `
+SELECT * FROM \`group\`
+WHERE type = 'group' AND (LOWER(name) LIKE LOWER(CONCAT('%', ?, '%'))
+OR levenshtein(name, ?) <= 2)
+ORDER BY levenshtein(name, ?)
+LIMIT 15;
+`,
+      [name, name, name]
+    );
+
+    let result: GroupWithChannel[] = [];
+
+    for (const group of groups) {
+      let channel = await Channel.findOneBy({ groupId: group.id });
+      if (channel) result.push({ group, channel });
+    }
+
+    return result;
   }
 }

@@ -17,5 +17,6 @@ query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
       avatar
     }
     hasMore
+    newAmount
   }
 }

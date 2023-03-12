@@ -1,7 +1,13 @@
-query getUser($id: Float!) {
+query GetUser($id: Float!) {
   getUser(id: $id) {
     user {
       id
+      username
+      avatar
+    }
+    errors {
+      field
+      message
     }
   }
 }

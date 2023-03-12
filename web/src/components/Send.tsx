@@ -60,7 +60,7 @@ const Send: NextPage<{
                 socket.emit("received");
                 resetForm();
               }
-            } else {
+            } else if (fileSrc != "") {
               console.log(process.env);
               //
               //

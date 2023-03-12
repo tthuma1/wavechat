@@ -1,0 +1,11 @@
+mutation JoinGroup($groupId: Float!) {
+  joinGroup(groupId: $groupId) {
+    errors {
+      field
+      message
+    }
+    ghu {
+      groupId
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import type { NextComponentType, NextPage } from "next";
-import router from "next/router";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   useGetFriendsQuery,
   useGetUserLazyQuery,
@@ -7,6 +8,7 @@ import {
 } from "../generated/graphql";
 
 const FriendList: NextPage<{ type: number }> = props => {
+  const router = useRouter();
   const { data: meData, loading: meLoading } = useMeQuery();
   const { data: friendsData, loading: friendsLoading } = useGetFriendsQuery({
     variables: { userId: meData?.me?.id! }, //parseFloat(meData.me.id) },
@@ -23,29 +25,41 @@ const FriendList: NextPage<{ type: number }> = props => {
       for (const friend of friendsData.getFriends) {
         if (props.type == 1) {
           friends.push(
+            // <Link href={"/dm/" + friend.id}>
             <a
               href={"/dm/" + friend.id}
               key={friend.username}
               className="text-lg bg-gray-700 p-4 rounded-md hover:bg-gray-750"
             >
               <img
-                src="/avatar.jpg"
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  friend.avatar
+                }
                 className="w-10 h-10 inline rounded-full mr-4"
               />
               {friend.username}
             </a>
+            // </Link>
           );
         } else if (props.type == 2) {
+          // on dms, groups
           friends.push(
+            // <Link
+            //   href={"/dm/" + friend.id}
+            //   // onClick={() => router.push("/dm/" + friend.id)}
+            // >
             <a
               href={"/dm/" + friend.id}
-              // onClick={() => router.push("/dm/" + friend.id)}
               key={friend.username}
               className="bg-gray-700 p-4 rounded-md hover:bg-gray-750"
             >
               <div className="flex items-center">
                 <img
-                  src="/avatar.jpg"
+                  src={
+                    "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                    friend.avatar
+                  }
                   className="w-8 h-8 inline rounded-full mr-4"
                 />
                 <span className="overflow-hidden text-ellipsis">
@@ -53,6 +67,7 @@ const FriendList: NextPage<{ type: number }> = props => {
                 </span>
               </div>
             </a>
+            // </Link>
           );
         }
       }

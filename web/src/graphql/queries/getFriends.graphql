@@ -2,5 +2,18 @@ query GetFriends($userId: Float!) {
   getFriends(userId: $userId) {
     username
     id
+    avatar
+  }
+}
+
+query GetFriendsCurrent {
+  getFriendsCurrent {
+    errors {
+      field
+      message
+    }
+    users {
+      id
+    }
   }
 }

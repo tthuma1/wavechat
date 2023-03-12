@@ -36,7 +36,7 @@ export class User extends BaseEntity {
   email!: string;
 
   @Field()
-  @Column()
+  @Column({ default: "default_avatar.png" })
   avatar!: string;
 
   // @OneToMany(() => Message, message => message.sender)

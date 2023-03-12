@@ -1,0 +1,12 @@
+query SearchGroups($name: String!) {
+  searchGroups(name: $name) {
+    channel {
+      id
+      name
+    }
+    group {
+      id
+      name
+    }
+  }
+}

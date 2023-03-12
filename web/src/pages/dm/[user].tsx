@@ -3,7 +3,9 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import {
   useGetUserLazyQuery,
+  useGetUserQuery,
   useMeQuery,
+  useRetrieveDmLazyQuery,
   useRetrieveDmQuery,
 } from "../../generated/graphql";
 import { io } from "socket.io-client";
@@ -15,7 +17,6 @@ import FriendList from "../../components/FriendList";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import React from "react";
 import { InMemoryCache } from "@apollo/client";
-import { offsetLimitPagination } from "@apollo/client/utilities";
 
 const socket = io("http://localhost:4000");
 
@@ -29,7 +30,8 @@ const User: NextPage = () => {
   // let firstLoad = true;
   const [firstLoad, setFirstLoad] = useState(true);
   const [firstItemIndex, setFirstItemIndex] = useState(1e9);
-  const [currOffset, setCurrOffset] = useState(5);
+  const [currOffset, setCurrOffset] = useState(15);
+  // const [messagesState, setMessagesState] = useState<any[]>([]);
   // const [messages, setMessages] = useState<any[]>([]);
 
   // if (typeof user === "string") {
@@ -44,13 +46,19 @@ const User: NextPage = () => {
 
   const { data: meData, loading: meLoading } = useMeQuery();
 
+  const { data: userData, loading: userLoading } = useGetUserQuery({
+    variables: { id: parseFloat(quser as string) },
+  });
+
   let allLoaded = false;
 
   if (
     !loading &&
     typeof data !== "undefined" &&
     !meLoading &&
-    meData!.me != null
+    meData!.me != null &&
+    !userLoading &&
+    userData?.getUser != null
   ) {
     if (data!.retrieveDM!.messages !== null) {
       // console.log(data);
@@ -80,6 +88,7 @@ const User: NextPage = () => {
         const message = data!.retrieveDM!.messages![i];
         let sender = senders.find(el => el.id == message.senderId)!;
 
+        // console.log(message);
         if (sender && message.type == "text") {
           messages.unshift(
             // {
@@ -87,7 +96,7 @@ const User: NextPage = () => {
             //   dateOut,
             //   msg: message.msg,
             // }
-            <div key={i} className="flex my-4">
+            <div key={i} className="flex py-2">
               <img
                 src={
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -103,12 +112,8 @@ const User: NextPage = () => {
             </div>
           );
         } else if (sender && message.type == "image") {
-          console.log(
-            "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-              sender.avatar
-          );
           messages.unshift(
-            <div key={i} className="flex my-4">
+            <div key={i} className="flex py-2">
               <img
                 src={
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -136,6 +141,7 @@ const User: NextPage = () => {
     }
 
     allLoaded = true;
+
     initial_item_count = messages.length - 1;
 
     // quick hack because it doesn't scroll to bottom on load
@@ -144,15 +150,27 @@ const User: NextPage = () => {
       //   document.getElementById("virt")?.scrollHeight;
       // console.log(virtRef.current);
       // console.log("scrolling down", firstLoad);
-      if (virtRef.current != null && firstLoad) {
-        setFirstLoad(() => false);
-        virtRef.current!.scrollToIndex({
-          index: messages.length - 1,
-          behavior: "smooth",
-        });
-      }
+      // if (virtRef.current != null && firstLoad) {
+      //   setFirstLoad(() => false);
+      //   virtRef.current!.scrollToIndex({
+      //     index: messages.length - 1,
+      //     behavior: "smooth",
+      //   });
+      // }
     }, 100);
   }
+
+  useEffect(() => {
+    if (virtRef.current != null) {
+      setFirstLoad(() => false);
+      virtRef.current.scrollToIndex({
+        index: messages.length - 1,
+        // behavior: "smooth",
+      });
+    }
+    // setMessagesState(messages);
+    // console.log(messagesState);
+  }, []);
 
   if (!meLoading && meData?.me == null) {
     Router.push("/login");
@@ -174,16 +192,29 @@ const User: NextPage = () => {
     // }
 
     if (data!.retrieveDM!.hasMore) {
+      await fetchMore({ variables: { offset: currOffset, limit: 10 } });
       setCurrOffset(() => currOffset + 10);
+
+      // const { data, loading } = useRetrieveDmQuery({
+      //   variables: {
+      //     receiverId: parseFloat(quser as string),
+      //     offset: currOffset,
+      //     limit: 15,
+      //   },
+      // });
+
+      // if (!loading) {
       setFirstItemIndex(() => firstItemIndex - 10);
+      // setMessagesState([...messagesState, data?.retrieveDM?.messages]);
+      // }
     } else {
     }
   };
 
-  useEffect(() => {
-    // console.log(currOffset);
-    if (data) fetchMore({ variables: { offset: currOffset, limit: 10 } });
-  }, [currOffset]);
+  // useEffect(() => {
+  //   // console.log(currOffset);
+  //   if (data) fetchMore({ variables: { offset: currOffset, limit: 10 } });
+  // }, [currOffset]);
 
   if (allLoaded) {
     return (
@@ -196,11 +227,28 @@ const User: NextPage = () => {
         <div className="ml-10 mt-10 flex flex-col justify-between">
           <FriendList type={2} />
           <div className="flex mt-8 mb-10 justify-start items-start w-full">
-            <img src="/avatar.jpg" className="w-8 h-8 rounded-full mr-4" />
+            <img
+              src={
+                "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                meData?.me?.avatar
+              }
+              className="w-8 h-8 rounded-full mr-4"
+            />
             <span className="font-semibold pr-2">{meData!.me!.username}</span>
           </div>
         </div>
         <div className="mt-10 w-full mx-10 flex flex-col h-[90vh]">
+          <div className="bg-gray-800 flex py-2 px-3 items-center justify-center">
+            <img
+              src={
+                "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                userData?.getUser?.user?.avatar
+              }
+              className="w-6 h-6 rounded-full mr-4"
+            />
+            <span className="pr-2">{userData?.getUser?.user?.username}</span>
+          </div>
+          <div className="w-full h-px bg-gray-600"></div>
           <div className="flex-auto bg-gray-800 rounded-t-md scrollbar-colored">
             {/* {messages} */}
             {/* pt-8 pb-2 */}
@@ -209,10 +257,10 @@ const User: NextPage = () => {
               data={messages}
               ref={virtRef}
               startReached={prependItems}
-              firstItemIndex={firstItemIndex}
+              firstItemIndex={1e9 - messages.length}
               initialTopMostItemIndex={{
                 index: initial_item_count,
-                behavior: "smooth",
+                // behavior: "smooth",
                 // align: "end",
               }}
               followOutput
@@ -289,10 +337,12 @@ const User: NextPage = () => {
           )}
         /> */}
 
-        <div className="h-10 mr-10 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center">
-          <a href="/settings" className="m-4 text-lg">
-            <i className="fa-solid fa-gear"></i>
-          </a>
+        <div className="h-10 mr-10 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+          <Link href="/settings">
+            <a>
+              <i className="fa-solid fa-gear p-4 text-lg"></i>
+            </a>
+          </Link>
         </div>
       </div>
     );

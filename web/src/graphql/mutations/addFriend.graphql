@@ -1,0 +1,12 @@
+mutation AddFriend($friendId: Float!) {
+  addFriend(friendId: $friendId) {
+    friendship {
+      user1Id
+      user2Id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

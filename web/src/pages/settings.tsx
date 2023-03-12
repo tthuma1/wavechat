@@ -20,9 +20,12 @@ const Settings: NextPage = () => {
   const [changeEmail] = useChangeEmailMutation();
   const [changePassword] = useChangePasswordMutation();
   const [changeAvatar] = useChangeAvatarMutation();
-  const [file, setFile] = useState(new File([""], ""));
+  const [file, setFile] = useState<File>();
   const [fileSrc, setFileSrc] = useState("");
   const [saved, setSaved] = useState(false);
+
+  // quick hack because File is undefined on SSR
+  // React.useEffect(() => setFile(new File([""], "")), []);
 
   let allLoaded = false;
 
@@ -83,7 +86,7 @@ const Settings: NextPage = () => {
                 }
               }
 
-              if (fileSrc) {
+              if (fileSrc && file) {
                 const s3 = new AWS.S3({
                   correctClockSkew: true,
                   endpoint: "https://s3.eu-central-2.wasabisys.com", //use appropriate endpoint as per region of the bucket
@@ -145,7 +148,7 @@ const Settings: NextPage = () => {
                 <div className="flex mt-3">
                   <img
                     src={
-                      fileSrc
+                      file
                         ? URL.createObjectURL(file)
                         : "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                           meData?.me?.avatar
@@ -169,7 +172,9 @@ const Settings: NextPage = () => {
                     onChange={event => {
                       // handleFileUpload(event);
                       setFile(event.currentTarget.files![0]);
-                      setFileSrc(URL.createObjectURL(file));
+                      setFileSrc(
+                        URL.createObjectURL(event.currentTarget.files![0])
+                      );
                     }}
                     className="hidden"
                   />

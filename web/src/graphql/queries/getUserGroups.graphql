@@ -1,0 +1,13 @@
+query GetUserGroupsCurrent {
+  getUserGroupsCurrent {
+    errors {
+      field
+      message
+    }
+    groups {
+      id
+      name
+    }
+    firstChannelIds
+  }
+}

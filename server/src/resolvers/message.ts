@@ -38,6 +38,9 @@ class MessagesResponse {
 
   @Field(() => Boolean, { nullable: true })
   hasMore: Boolean;
+
+  @Field(() => Number, { nullable: true })
+  newAmount: Number;
 }
 
 @Resolver(Message)
@@ -282,21 +285,25 @@ LIMIT ?, ?;
     let hasMore = messages.length == limit + 1;
     if (hasMore) messages.pop();
 
-    let users: User[] = [];
-    let userIds: number[] = [];
+    // let users: User[] = [];
+    let users = await User.find({
+      where: [{ id: receiverId }, { id: req.session.userId }],
+    });
 
-    for (const message of messages) {
-      if (!userIds.includes(message.senderId)) {
-        const sender = await User.findOneBy({ id: message.senderId });
-        if (sender != null) {
-          users.push(sender);
-          userIds.push(sender.id);
-          if (userIds.length == 2) break;
-        }
-      }
-    }
+    // let userIds: number[] = [];
 
-    return { messages, users, hasMore };
+    // for (const message of messages) {
+    //   if (!userIds.includes(message.senderId)) {
+    //     const sender = await User.findOneBy({ id: message.senderId });
+    //     if (sender != null) {
+    //       users.push(sender);
+    //       userIds.push(sender.id);
+    //       if (userIds.length == 2) break;
+    //     }
+    //   }
+    // }
+
+    return { messages, users, hasMore, newAmount: messages.length };
   }
 
   @Query(() => MessagesResponse, { nullable: true })

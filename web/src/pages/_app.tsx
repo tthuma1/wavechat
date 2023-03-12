@@ -34,6 +34,7 @@ const cache = new InMemoryCache({
               messages: [...(existing?.messages || []), ...incoming.messages],
               hasMore: incoming.hasMore,
               users: mergedUsers,
+              newAmount: incoming.newAmount,
             };
           },
         },

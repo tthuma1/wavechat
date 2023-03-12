@@ -31,6 +31,15 @@ class UserResponse {
 }
 
 @ObjectType()
+export class UsersResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => [User], { nullable: true })
+  users?: User[];
+}
+
+@ObjectType()
 class FriendshipResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
@@ -49,12 +58,6 @@ export class UserResolver {
     }
     // current user wants to see someone elses email
     return "";
-  }
-
-  @Query(() => [User])
-  async user(@Arg("id") id: number) {
-    const user = await User.findBy({ id });
-    return user;
   }
 
   @Query(() => User, { nullable: true })
@@ -220,6 +223,22 @@ export class UserResolver {
     return friends;
   }
 
+  @Query(() => UsersResponse)
+  async getFriendsCurrent(@Ctx() { req }: MyContext) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    return { users: this.getFriends(req.session.userId) };
+  }
+
   @Mutation(() => FriendshipResponse) // Boolean) //UserResponse)
   async addFriend(
     @Ctx() { req }: MyContext,
@@ -378,7 +397,7 @@ export class UserResolver {
   async changePassword(
     @Arg("oldPassword") oldPassword: string,
     @Arg("newPassword") newPassword: string,
-    @Ctx() { req, res }: MyContext
+    @Ctx() { req }: MyContext
   ) {
     if (typeof req.session.userId === "undefined") {
       return {
@@ -456,7 +475,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async changeAvatar(
     @Arg("filename") filename: string,
-    @Ctx() { req, res }: MyContext
+    @Ctx() { req }: MyContext
   ) {
     if (typeof req.session.userId === "undefined") {
       return {
@@ -502,5 +521,37 @@ export class UserResolver {
     }
 
     return { user };
+  }
+
+  @Query(() => UsersResponse)
+  async searchUsers(
+    @Arg("username") username: string,
+    @Ctx() { req }: MyContext
+  ) {
+    if (username == "") return { users: [] };
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const users = await AppDataSource.query(
+      `
+SELECT * FROM user
+WHERE id != ? AND (LOWER(username) LIKE LOWER(CONCAT('%', ?, '%'))
+OR levenshtein(username, ?) <= 2)
+ORDER BY levenshtein(username, ?)
+LIMIT 15;
+`,
+      [req.session.userId, username, username, username]
+    );
+
+    return { users };
   }
 }

@@ -1,0 +1,13 @@
+query SearchUsers($username: String!) {
+  searchUsers(username: $username) {
+    errors {
+      field
+      message
+    }
+    users {
+      id
+      username
+      avatar
+    }
+  }
+}
