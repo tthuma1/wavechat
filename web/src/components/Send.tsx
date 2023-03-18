@@ -56,7 +56,6 @@ const Send: NextPage<{
               } else if (response.data?.sendDM.message) {
                 // worked
                 // router.push("/");
-                console.log("worked");
                 socket.emit("received");
                 resetForm();
               }
@@ -132,6 +131,7 @@ const Send: NextPage<{
               variables: {
                 channelId: values.receiverId,
                 msg: values.msg,
+                type: "text",
               },
             });
             if (response.data?.sendInChannel.errors) {

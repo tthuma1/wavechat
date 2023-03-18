@@ -5,6 +5,7 @@ import {
   useGetUserLazyQuery,
   useGetUserQuery,
   useMeQuery,
+  useRemoveFriendMutation,
   useRetrieveDmLazyQuery,
   useRetrieveDmQuery,
 } from "../../generated/graphql";
@@ -44,11 +45,25 @@ const User: NextPage = () => {
   });
   //   }
 
+  useEffect(() => {
+    refetch({
+      receiverId: parseFloat(quser as string),
+      offset: 0,
+      limit: 15,
+    });
+
+    setCurrOffset(15), setFirstItemIndex(1e9);
+    setFirstLoad(true);
+    initial_item_count = 0;
+  }, [quser]);
+
   const { data: meData, loading: meLoading } = useMeQuery();
 
   const { data: userData, loading: userLoading } = useGetUserQuery({
     variables: { id: parseFloat(quser as string) },
   });
+
+  const [removeFriend] = useRemoveFriendMutation();
 
   let allLoaded = false;
 
@@ -165,6 +180,7 @@ const User: NextPage = () => {
       setFirstLoad(() => false);
       virtRef.current.scrollToIndex({
         index: messages.length - 1,
+        // align: "start",
         // behavior: "smooth",
       });
     }
@@ -216,6 +232,14 @@ const User: NextPage = () => {
   //   if (data) fetchMore({ variables: { offset: currOffset, limit: 10 } });
   // }, [currOffset]);
 
+  const handleRemove = async (id: number) => {
+    const response = await removeFriend({ variables: { friendId: id } });
+
+    if (response.data?.removeFriend) {
+      router.push("/app");
+    }
+  };
+
   if (allLoaded) {
     return (
       <div className="flex justify-center overflow-hidden w-screen h-screen">
@@ -226,30 +250,50 @@ const User: NextPage = () => {
         </Head>
         <div className="ml-10 mt-10 flex flex-col justify-between">
           <FriendList type={2} />
-          <div className="flex mt-8 mb-10 justify-start items-start w-full">
-            <img
-              src={
-                "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                meData?.me?.avatar
-              }
-              className="w-8 h-8 rounded-full mr-4"
-            />
-            <span className="font-semibold pr-2">{meData!.me!.username}</span>
-          </div>
+          <Link href="/settings">
+            <div className="pt-4 mb-10 justify-start items-start w-full border-t border-gray-500 ">
+              <div className="flex hover:cursor-pointer hover:bg-gray-800 px-3 py-2 rounded-md items-center">
+                <img
+                  src={
+                    "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                    meData?.me?.avatar
+                  }
+                  className="w-8 h-8 rounded-full mr-4"
+                />
+                <div className="font-semibold pr-2">{meData!.me!.username}</div>
+              </div>
+            </div>
+          </Link>
         </div>
         <div className="mt-10 w-full mx-10 flex flex-col h-[90vh]">
-          <div className="bg-gray-800 flex py-2 px-3 items-center justify-center">
-            <img
-              src={
-                "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                userData?.getUser?.user?.avatar
-              }
-              className="w-6 h-6 rounded-full mr-4"
-            />
-            <span className="pr-2">{userData?.getUser?.user?.username}</span>
+          <div className="bg-gray-800 flex py-2 px-3 items-center">
+            <div className="flex-1"></div>
+            <div className="flex">
+              <img
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  userData?.getUser?.user?.avatar
+                }
+                className="w-6 h-6 rounded-full mr-4"
+              />
+              <span className="pr-2">{userData?.getUser?.user?.username}</span>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <div
+                className="btn-secondary text-sm"
+                onClick={() => {
+                  handleRemove(parseFloat(quser as string));
+                }}
+              >
+                Remove Friend
+              </div>
+              <div className="ml-3 btn-secondary text-sm" onClick={() => {}}>
+                Block
+              </div>
+            </div>
           </div>
           <div className="w-full h-px bg-gray-600"></div>
-          <div className="flex-auto bg-gray-800 rounded-t-md scrollbar-colored">
+          <div className="flex-auto bg-gray-800 scrollbar-colored pt-3">
             {/* {messages} */}
             {/* pt-8 pb-2 */}
             <Virtuoso
@@ -337,12 +381,21 @@ const User: NextPage = () => {
           )}
         /> */}
 
-        <div className="h-10 mr-10 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
-          <Link href="/settings">
-            <a>
-              <i className="fa-solid fa-gear p-4 text-lg"></i>
-            </a>
-          </Link>
+        <div className="flex flex-col">
+          <div className="h-10 mr-10 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+            <Link href="/settings">
+              <a>
+                <i className="fa-solid fa-gear p-4 text-lg"></i>
+              </a>
+            </Link>
+          </div>
+          <div className="h-10 mr-10 mt-3 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+            <Link href="/app">
+              <a>
+                <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
+              </a>
+            </Link>
+          </div>
         </div>
       </div>
     );

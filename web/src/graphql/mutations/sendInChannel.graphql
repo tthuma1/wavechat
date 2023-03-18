@@ -1,5 +1,5 @@
-mutation SendInChannel($channelId: Float!, $msg: String!) {
-  sendInChannel(channelId: $channelId, msg: $msg) {
+mutation SendInChannel($channelId: Float!, $msg: String!, $type: String!) {
+  sendInChannel(channelId: $channelId, msg: $msg, type: $type) {
     message {
       msg
       createdAt

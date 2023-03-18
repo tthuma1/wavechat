@@ -79,6 +79,7 @@ const main = async () => {
     context: ({ req, res }): MyContext => ({
       req,
       res,
+      redis,
     }),
     plugins: [
       ApolloServerPluginLandingPageLocalDefault({

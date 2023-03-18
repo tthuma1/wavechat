@@ -4,12 +4,17 @@ import Head from "next/head";
 // import Image from 'next/image'
 import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
-import { useLoginMutation } from "../generated/graphql";
+import {
+  useForgotPasswordMutation,
+  useLoginMutation,
+} from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import router from "next/router";
+import Link from "next/link";
 
 const Login: NextPage = () => {
   const [login] = useLoginMutation();
+  const [forgotPassword] = useForgotPasswordMutation();
 
   return (
     <div className="h-screen flex justify-center">
@@ -59,12 +64,17 @@ const Login: NextPage = () => {
                 className="mt-4 input"
               />
               <ErrorMessage name="password" />
+              <Link href="/forgot-password">
+                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 flex justify-start">
+                  Forgot password?
+                </div>
+              </Link>
               <br />
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-8 bg-blue-600 py-4 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
+                className="mt-8 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
               >
                 Log In
               </button>

@@ -20,6 +20,8 @@ import { AppDataSource } from "../DataSource";
 import { FieldError } from "./FieldError";
 // import { Group } from "../enitities/Group";
 // import { Group_Has_User } from "../enitities/Group_Has_User";
+import { v4 } from "uuid";
+import { sendEmail } from "../utils/sendEmail";
 
 @ObjectType()
 class UserResponse {
@@ -282,14 +284,6 @@ export class UserResolver {
 
     if (user1Id > user2Id) [user1Id, user2Id] = [user2Id, user1Id];
 
-    console.log(user1Id + "  " + user2Id);
-    console.log(
-      await Friendship.findBy({
-        user1Id,
-        user2Id,
-      })
-    );
-
     if (
       (
         await Friendship.findBy({
@@ -357,6 +351,65 @@ export class UserResolver {
         ],
       };
     }
+  }
+
+  @Mutation(() => FriendshipResponse) // Boolean) //UserResponse)
+  async removeFriend(
+    @Ctx() { req }: MyContext,
+    @Arg("friendId") friendId: number
+  ) {
+    if ((await User.findBy({ id: friendId })).length === 0) {
+      return {
+        errors: [
+          {
+            field: "friendId",
+            message: "Friend ID doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    let user1Id = req.session.userId;
+    let user2Id = friendId;
+
+    if (user1Id > user2Id) [user1Id, user2Id] = [user2Id, user1Id];
+
+    const friendship = await Friendship.findOneBy({
+      user1Id,
+      user2Id,
+    });
+
+    if (!friendship) {
+      return {
+        errors: [
+          {
+            field: "friendId",
+            message: "Friend not added",
+          },
+        ],
+      };
+    }
+
+    await AppDataSource.query(
+      `
+DELETE FROM friendship
+WHERE user1Id = ? AND user2Id = ?;
+`,
+      [user1Id, user2Id]
+    );
+
+    return { friendship };
   }
 
   @Mutation(() => UserResponse)
@@ -473,6 +526,65 @@ export class UserResolver {
   }
 
   @Mutation(() => UserResponse)
+  async changePasswordToken(
+    @Arg("token") token: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { redis, req }: MyContext
+  ) {
+    if (newPassword.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "newPassword",
+            message: "length must be greater than 2",
+          },
+        ],
+      };
+    }
+
+    const key = "forgotPassword:" + token;
+    const userId = await redis.get(key);
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
+    }
+
+    const userIdNum = parseInt(userId);
+    const user = await User.findOneBy({ id: userIdNum });
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer exists",
+          },
+        ],
+      };
+    }
+
+    await User.update(
+      { id: userIdNum },
+      {
+        password: await argon2.hash(newPassword),
+      }
+    );
+
+    await redis.del(key);
+
+    // log in user after change password
+    req.session.userId = user.id;
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
   async changeAvatar(
     @Arg("filename") filename: string,
     @Ctx() { req }: MyContext
@@ -553,5 +665,33 @@ LIMIT 15;
     );
 
     return { users };
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { redis }: MyContext
+  ) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      // the email is not in the db
+      return true;
+    }
+
+    const token = v4();
+
+    await redis.set(
+      "forgotPassword:" + token,
+      user.id,
+      "EX",
+      1000 * 60 * 60 * 24 * 3
+    ); // 3 days
+
+    await sendEmail(
+      email,
+      `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
+    );
+
+    return true;
   }
 }

@@ -159,6 +159,70 @@ export class GroupResolver {
     return { ghu };
   }
 
+  @Mutation(() => GHUResponse)
+  async leaveGroup(@Ctx() { req }: MyContext, @Arg("groupId") groupId: number) {
+    if (
+      (
+        await Group.findBy({
+          id: groupId,
+        })
+      ).length == 0
+    ) {
+      return {
+        errors: [
+          {
+            field: "groupId",
+            message: "Group doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (
+      (
+        await Group_Has_User.findBy({
+          groupId,
+          userId: req.session.userId,
+        })
+      ).length == 0
+    ) {
+      return {
+        errors: [
+          {
+            field: "groupId",
+            message: "User is not in group",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const ghu = await Group_Has_User.findOneBy({
+      groupId,
+      userId: req.session.userId,
+    });
+
+    await AppDataSource.query(
+      `
+DELETE FROM group_has_user
+WHERE userId = ? AND groupId = ?;
+`,
+      [req.session.userId, groupId]
+    );
+
+    return { ghu };
+  }
+
   @Query(() => GroupsResponse)
   async getUserGroups(@Arg("userId") userId: number) {
     if ((await User.findBy({ id: userId })).length === 0) {
@@ -207,6 +271,29 @@ export class GroupResolver {
     }
 
     return this.getUserGroups(req.session.userId);
+  }
+
+  @Query(() => Boolean)
+  async isCurrentInChannel(
+    @Ctx() { req }: MyContext,
+    @Arg("channelId") channelId: number
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return false;
+    }
+
+    const res = await AppDataSource.query(
+      `
+SELECT ghu.userId FROM group_has_user ghu
+INNER JOIN \`group\` g ON ghu.groupId = g.id
+INNER JOIN channel c ON c.groupId = g.id
+WHERE ghu.userId = ? AND c.id = ?;
+      `,
+      [req.session.userId, channelId]
+    );
+
+    if (res.length > 0) return true;
+    return false;
   }
 
   @Query(() => UsersResponse)

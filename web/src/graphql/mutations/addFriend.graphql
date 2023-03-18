@@ -10,3 +10,16 @@ mutation AddFriend($friendId: Float!) {
     }
   }
 }
+
+mutation RemoveFriend($friendId: Float!) {
+  removeFriend(friendId: $friendId) {
+    friendship {
+      user1Id
+      user2Id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

@@ -46,7 +46,19 @@ const Settings: NextPage = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className="pt-20 flex flex-col items-center">
-          <h2 className="text-4xl font-semibold mb-10">Settings</h2>
+          <div className="flex w-full">
+            <div className="flex-1 flex justify-start">
+              <div className="h-10 w-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+                <Link href="/app">
+                  <a>
+                    <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
+                  </a>
+                </Link>
+              </div>
+            </div>
+            <h2 className="text-4xl font-semibold mb-10">Settings</h2>
+            <div className="flex-1"></div>
+          </div>
           <Formik
             initialValues={{
               email: "",

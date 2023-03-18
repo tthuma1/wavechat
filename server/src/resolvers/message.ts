@@ -157,6 +157,7 @@ WHERE userId = ? AND g.id IN (
   async sendInChannel(
     @Arg("msg") msg: string,
     @Arg("channelId") channelId: number,
+    @Arg("type") type: string,
     @Ctx() { req }: MyContext
   ) {
     if ((await Channel.findBy({ id: channelId })).length === 0) {
@@ -207,6 +208,7 @@ WHERE c.id = ? AND ghu.userId = ?;
     message.channelId = channelId;
     message.msg = msg;
     message.senderId = req.session.userId;
+    message.type = type;
     await message.save();
 
     return { message };

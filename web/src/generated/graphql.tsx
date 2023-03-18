@@ -123,12 +123,16 @@ export type Mutation = {
   changeAvatar: UserResponse;
   changeEmail: UserResponse;
   changePassword: UserResponse;
+  changePasswordToken: UserResponse;
   createChannel: ChannelResponse;
   createGroup: GroupResponse;
+  forgotPassword: Scalars['Boolean'];
   joinGroup: GhuResponse;
+  leaveGroup: GhuResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  removeFriend: FriendshipResponse;
   sendDM: MessageResponse;
   sendInChannel: MessageResponse;
 };
@@ -155,6 +159,12 @@ export type MutationChangePasswordArgs = {
 };
 
 
+export type MutationChangePasswordTokenArgs = {
+  newPassword: Scalars['String'];
+  token: Scalars['String'];
+};
+
+
 export type MutationCreateChannelArgs = {
   groupId: Scalars['Float'];
   name: Scalars['String'];
@@ -166,7 +176,17 @@ export type MutationCreateGroupArgs = {
 };
 
 
+export type MutationForgotPasswordArgs = {
+  email: Scalars['String'];
+};
+
+
 export type MutationJoinGroupArgs = {
+  groupId: Scalars['Float'];
+};
+
+
+export type MutationLeaveGroupArgs = {
   groupId: Scalars['Float'];
 };
 
@@ -182,6 +202,11 @@ export type MutationRegisterArgs = {
 };
 
 
+export type MutationRemoveFriendArgs = {
+  friendId: Scalars['Float'];
+};
+
+
 export type MutationSendDmArgs = {
   msg: Scalars['String'];
   receiverId: Scalars['Float'];
@@ -192,11 +217,13 @@ export type MutationSendDmArgs = {
 export type MutationSendInChannelArgs = {
   channelId: Scalars['Float'];
   msg: Scalars['String'];
+  type: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
   channelToGroup: GroupResponse;
+  getChannelInfo: ChannelResponse;
   getChannelsInGroup: ChannelsResponse;
   getFriends: Array<User>;
   getFriendsCurrent: UsersResponse;
@@ -204,6 +231,8 @@ export type Query = {
   getUser: UserResponse;
   getUserGroups: GroupsResponse;
   getUserGroupsCurrent: GroupsResponse;
+  getUsersInChannel: UsersResponse;
+  isCurrentInChannel: Scalars['Boolean'];
   me?: Maybe<User>;
   retrieveDM?: Maybe<MessagesResponse>;
   retrieveInChannel?: Maybe<MessagesResponse>;
@@ -213,6 +242,11 @@ export type Query = {
 
 
 export type QueryChannelToGroupArgs = {
+  channelId: Scalars['Float'];
+};
+
+
+export type QueryGetChannelInfoArgs = {
   channelId: Scalars['Float'];
 };
 
@@ -239,6 +273,16 @@ export type QueryGetUserArgs = {
 
 export type QueryGetUserGroupsArgs = {
   userId: Scalars['Float'];
+};
+
+
+export type QueryGetUsersInChannelArgs = {
+  channelId: Scalars['Float'];
+};
+
+
+export type QueryIsCurrentInChannelArgs = {
+  channelId: Scalars['Float'];
 };
 
 
@@ -298,6 +342,28 @@ export type AddFriendMutationVariables = Exact<{
 
 export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'FriendshipResponse', friendship?: { __typename?: 'Friendship', user1Id: number, user2Id: number } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type RemoveFriendMutationVariables = Exact<{
+  friendId: Scalars['Float'];
+}>;
+
+
+export type RemoveFriendMutation = { __typename?: 'Mutation', removeFriend: { __typename?: 'FriendshipResponse', friendship?: { __typename?: 'Friendship', user1Id: number, user2Id: number } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type ChangePasswordTokenMutationVariables = Exact<{
+  newPassword: Scalars['String'];
+  token: Scalars['String'];
+}>;
+
+
+export type ChangePasswordTokenMutation = { __typename?: 'Mutation', changePasswordToken: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, username: string, avatar: string, email: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type ForgotPasswordMutationVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type ForgotPasswordMutation = { __typename?: 'Mutation', forgotPassword: boolean };
+
 export type JoinGroupMutationVariables = Exact<{
   groupId: Scalars['Float'];
 }>;
@@ -337,6 +403,7 @@ export type SendDmMutation = { __typename?: 'Mutation', sendDM: { __typename?: '
 export type SendInChannelMutationVariables = Exact<{
   channelId: Scalars['Float'];
   msg: Scalars['String'];
+  type: Scalars['String'];
 }>;
 
 
@@ -378,6 +445,13 @@ export type GetChannelsInGroupQueryVariables = Exact<{
 
 export type GetChannelsInGroupQuery = { __typename?: 'Query', getChannelsInGroup: { __typename?: 'ChannelsResponse', channels?: Array<{ __typename?: 'Channel', id: number, groupId: number, name: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type GetChannelInfoQueryVariables = Exact<{
+  channelId: Scalars['Float'];
+}>;
+
+
+export type GetChannelInfoQuery = { __typename?: 'Query', getChannelInfo: { __typename?: 'ChannelResponse', channel?: { __typename?: 'Channel', id: number, name: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
 export type GetFriendsQueryVariables = Exact<{
   userId: Scalars['Float'];
 }>;
@@ -390,6 +464,13 @@ export type GetFriendsCurrentQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetFriendsCurrentQuery = { __typename?: 'Query', getFriendsCurrent: { __typename?: 'UsersResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', id: number }> | null } };
 
+export type GetGroupUsersQueryVariables = Exact<{
+  groupId: Scalars['Float'];
+}>;
+
+
+export type GetGroupUsersQuery = { __typename?: 'Query', getGroupUsers: { __typename?: 'UsersResponse', users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
 export type GetUserQueryVariables = Exact<{
   id: Scalars['Float'];
 }>;
@@ -397,10 +478,31 @@ export type GetUserQueryVariables = Exact<{
 
 export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, username: string, avatar: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type GetUserGroupsQueryVariables = Exact<{
+  userId: Scalars['Float'];
+}>;
+
+
+export type GetUserGroupsQuery = { __typename?: 'Query', getUserGroups: { __typename?: 'GroupsResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, groups?: Array<{ __typename?: 'Group', id: number, name: string, createdAt: string }> | null } };
+
 export type GetUserGroupsCurrentQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetUserGroupsCurrentQuery = { __typename?: 'Query', getUserGroupsCurrent: { __typename?: 'GroupsResponse', firstChannelIds?: Array<number> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, groups?: Array<{ __typename?: 'Group', id: number, name: string }> | null } };
+
+export type IsCurrentInChannelQueryVariables = Exact<{
+  channelId: Scalars['Float'];
+}>;
+
+
+export type IsCurrentInChannelQuery = { __typename?: 'Query', isCurrentInChannel: boolean };
+
+export type LeaveGroupMutationVariables = Exact<{
+  groupId: Scalars['Float'];
+}>;
+
+
+export type LeaveGroupMutation = { __typename?: 'Mutation', leaveGroup: { __typename?: 'GHUResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, ghu?: { __typename?: 'Group_Has_User', groupId: number, userId: number } | null } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -423,7 +525,7 @@ export type RetrieveInChannelQueryVariables = Exact<{
 }>;
 
 
-export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number }> | null, users?: Array<{ __typename?: 'User', id: number, username: string }> | null } | null };
+export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null } | null };
 
 export type SearchGroupsQueryVariables = Exact<{
   name: Scalars['String'];
@@ -480,6 +582,120 @@ export function useAddFriendMutation(baseOptions?: Apollo.MutationHookOptions<Ad
 export type AddFriendMutationHookResult = ReturnType<typeof useAddFriendMutation>;
 export type AddFriendMutationResult = Apollo.MutationResult<AddFriendMutation>;
 export type AddFriendMutationOptions = Apollo.BaseMutationOptions<AddFriendMutation, AddFriendMutationVariables>;
+export const RemoveFriendDocument = gql`
+    mutation RemoveFriend($friendId: Float!) {
+  removeFriend(friendId: $friendId) {
+    friendship {
+      user1Id
+      user2Id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type RemoveFriendMutationFn = Apollo.MutationFunction<RemoveFriendMutation, RemoveFriendMutationVariables>;
+
+/**
+ * __useRemoveFriendMutation__
+ *
+ * To run a mutation, you first call `useRemoveFriendMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveFriendMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeFriendMutation, { data, loading, error }] = useRemoveFriendMutation({
+ *   variables: {
+ *      friendId: // value for 'friendId'
+ *   },
+ * });
+ */
+export function useRemoveFriendMutation(baseOptions?: Apollo.MutationHookOptions<RemoveFriendMutation, RemoveFriendMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveFriendMutation, RemoveFriendMutationVariables>(RemoveFriendDocument, options);
+      }
+export type RemoveFriendMutationHookResult = ReturnType<typeof useRemoveFriendMutation>;
+export type RemoveFriendMutationResult = Apollo.MutationResult<RemoveFriendMutation>;
+export type RemoveFriendMutationOptions = Apollo.BaseMutationOptions<RemoveFriendMutation, RemoveFriendMutationVariables>;
+export const ChangePasswordTokenDocument = gql`
+    mutation ChangePasswordToken($newPassword: String!, $token: String!) {
+  changePasswordToken(newPassword: $newPassword, token: $token) {
+    user {
+      id
+      username
+      avatar
+      email
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type ChangePasswordTokenMutationFn = Apollo.MutationFunction<ChangePasswordTokenMutation, ChangePasswordTokenMutationVariables>;
+
+/**
+ * __useChangePasswordTokenMutation__
+ *
+ * To run a mutation, you first call `useChangePasswordTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangePasswordTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changePasswordTokenMutation, { data, loading, error }] = useChangePasswordTokenMutation({
+ *   variables: {
+ *      newPassword: // value for 'newPassword'
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useChangePasswordTokenMutation(baseOptions?: Apollo.MutationHookOptions<ChangePasswordTokenMutation, ChangePasswordTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangePasswordTokenMutation, ChangePasswordTokenMutationVariables>(ChangePasswordTokenDocument, options);
+      }
+export type ChangePasswordTokenMutationHookResult = ReturnType<typeof useChangePasswordTokenMutation>;
+export type ChangePasswordTokenMutationResult = Apollo.MutationResult<ChangePasswordTokenMutation>;
+export type ChangePasswordTokenMutationOptions = Apollo.BaseMutationOptions<ChangePasswordTokenMutation, ChangePasswordTokenMutationVariables>;
+export const ForgotPasswordDocument = gql`
+    mutation ForgotPassword($email: String!) {
+  forgotPassword(email: $email)
+}
+    `;
+export type ForgotPasswordMutationFn = Apollo.MutationFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>;
+
+/**
+ * __useForgotPasswordMutation__
+ *
+ * To run a mutation, you first call `useForgotPasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useForgotPasswordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [forgotPasswordMutation, { data, loading, error }] = useForgotPasswordMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useForgotPasswordMutation(baseOptions?: Apollo.MutationHookOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, options);
+      }
+export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswordMutation>;
+export type ForgotPasswordMutationResult = Apollo.MutationResult<ForgotPasswordMutation>;
+export type ForgotPasswordMutationOptions = Apollo.BaseMutationOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>;
 export const JoinGroupDocument = gql`
     mutation JoinGroup($groupId: Float!) {
   joinGroup(groupId: $groupId) {
@@ -677,8 +893,8 @@ export type SendDmMutationHookResult = ReturnType<typeof useSendDmMutation>;
 export type SendDmMutationResult = Apollo.MutationResult<SendDmMutation>;
 export type SendDmMutationOptions = Apollo.BaseMutationOptions<SendDmMutation, SendDmMutationVariables>;
 export const SendInChannelDocument = gql`
-    mutation SendInChannel($channelId: Float!, $msg: String!) {
-  sendInChannel(channelId: $channelId, msg: $msg) {
+    mutation SendInChannel($channelId: Float!, $msg: String!, $type: String!) {
+  sendInChannel(channelId: $channelId, msg: $msg, type: $type) {
     message {
       msg
       createdAt
@@ -709,6 +925,7 @@ export type SendInChannelMutationFn = Apollo.MutationFunction<SendInChannelMutat
  *   variables: {
  *      channelId: // value for 'channelId'
  *      msg: // value for 'msg'
+ *      type: // value for 'type'
  *   },
  * });
  */
@@ -923,6 +1140,48 @@ export function useGetChannelsInGroupLazyQuery(baseOptions?: Apollo.LazyQueryHoo
 export type GetChannelsInGroupQueryHookResult = ReturnType<typeof useGetChannelsInGroupQuery>;
 export type GetChannelsInGroupLazyQueryHookResult = ReturnType<typeof useGetChannelsInGroupLazyQuery>;
 export type GetChannelsInGroupQueryResult = Apollo.QueryResult<GetChannelsInGroupQuery, GetChannelsInGroupQueryVariables>;
+export const GetChannelInfoDocument = gql`
+    query GetChannelInfo($channelId: Float!) {
+  getChannelInfo(channelId: $channelId) {
+    channel {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetChannelInfoQuery__
+ *
+ * To run a query within a React component, call `useGetChannelInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelInfoQuery({
+ *   variables: {
+ *      channelId: // value for 'channelId'
+ *   },
+ * });
+ */
+export function useGetChannelInfoQuery(baseOptions: Apollo.QueryHookOptions<GetChannelInfoQuery, GetChannelInfoQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetChannelInfoQuery, GetChannelInfoQueryVariables>(GetChannelInfoDocument, options);
+      }
+export function useGetChannelInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetChannelInfoQuery, GetChannelInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetChannelInfoQuery, GetChannelInfoQueryVariables>(GetChannelInfoDocument, options);
+        }
+export type GetChannelInfoQueryHookResult = ReturnType<typeof useGetChannelInfoQuery>;
+export type GetChannelInfoLazyQueryHookResult = ReturnType<typeof useGetChannelInfoLazyQuery>;
+export type GetChannelInfoQueryResult = Apollo.QueryResult<GetChannelInfoQuery, GetChannelInfoQueryVariables>;
 export const GetFriendsDocument = gql`
     query GetFriends($userId: Float!) {
   getFriends(userId: $userId) {
@@ -1000,6 +1259,49 @@ export function useGetFriendsCurrentLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type GetFriendsCurrentQueryHookResult = ReturnType<typeof useGetFriendsCurrentQuery>;
 export type GetFriendsCurrentLazyQueryHookResult = ReturnType<typeof useGetFriendsCurrentLazyQuery>;
 export type GetFriendsCurrentQueryResult = Apollo.QueryResult<GetFriendsCurrentQuery, GetFriendsCurrentQueryVariables>;
+export const GetGroupUsersDocument = gql`
+    query GetGroupUsers($groupId: Float!) {
+  getGroupUsers(groupId: $groupId) {
+    users {
+      id
+      username
+      avatar
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetGroupUsersQuery__
+ *
+ * To run a query within a React component, call `useGetGroupUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGroupUsersQuery({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useGetGroupUsersQuery(baseOptions: Apollo.QueryHookOptions<GetGroupUsersQuery, GetGroupUsersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGroupUsersQuery, GetGroupUsersQueryVariables>(GetGroupUsersDocument, options);
+      }
+export function useGetGroupUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGroupUsersQuery, GetGroupUsersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGroupUsersQuery, GetGroupUsersQueryVariables>(GetGroupUsersDocument, options);
+        }
+export type GetGroupUsersQueryHookResult = ReturnType<typeof useGetGroupUsersQuery>;
+export type GetGroupUsersLazyQueryHookResult = ReturnType<typeof useGetGroupUsersLazyQuery>;
+export type GetGroupUsersQueryResult = Apollo.QueryResult<GetGroupUsersQuery, GetGroupUsersQueryVariables>;
 export const GetUserDocument = gql`
     query GetUser($id: Float!) {
   getUser(id: $id) {
@@ -1043,6 +1345,49 @@ export function useGetUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
 export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
 export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<GetUserQuery, GetUserQueryVariables>;
+export const GetUserGroupsDocument = gql`
+    query GetUserGroups($userId: Float!) {
+  getUserGroups(userId: $userId) {
+    errors {
+      field
+      message
+    }
+    groups {
+      id
+      name
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserGroupsQuery__
+ *
+ * To run a query within a React component, call `useGetUserGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserGroupsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetUserGroupsQuery(baseOptions: Apollo.QueryHookOptions<GetUserGroupsQuery, GetUserGroupsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUserGroupsQuery, GetUserGroupsQueryVariables>(GetUserGroupsDocument, options);
+      }
+export function useGetUserGroupsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserGroupsQuery, GetUserGroupsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUserGroupsQuery, GetUserGroupsQueryVariables>(GetUserGroupsDocument, options);
+        }
+export type GetUserGroupsQueryHookResult = ReturnType<typeof useGetUserGroupsQuery>;
+export type GetUserGroupsLazyQueryHookResult = ReturnType<typeof useGetUserGroupsLazyQuery>;
+export type GetUserGroupsQueryResult = Apollo.QueryResult<GetUserGroupsQuery, GetUserGroupsQueryVariables>;
 export const GetUserGroupsCurrentDocument = gql`
     query GetUserGroupsCurrent {
   getUserGroupsCurrent {
@@ -1085,6 +1430,79 @@ export function useGetUserGroupsCurrentLazyQuery(baseOptions?: Apollo.LazyQueryH
 export type GetUserGroupsCurrentQueryHookResult = ReturnType<typeof useGetUserGroupsCurrentQuery>;
 export type GetUserGroupsCurrentLazyQueryHookResult = ReturnType<typeof useGetUserGroupsCurrentLazyQuery>;
 export type GetUserGroupsCurrentQueryResult = Apollo.QueryResult<GetUserGroupsCurrentQuery, GetUserGroupsCurrentQueryVariables>;
+export const IsCurrentInChannelDocument = gql`
+    query isCurrentInChannel($channelId: Float!) {
+  isCurrentInChannel(channelId: $channelId)
+}
+    `;
+
+/**
+ * __useIsCurrentInChannelQuery__
+ *
+ * To run a query within a React component, call `useIsCurrentInChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsCurrentInChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsCurrentInChannelQuery({
+ *   variables: {
+ *      channelId: // value for 'channelId'
+ *   },
+ * });
+ */
+export function useIsCurrentInChannelQuery(baseOptions: Apollo.QueryHookOptions<IsCurrentInChannelQuery, IsCurrentInChannelQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IsCurrentInChannelQuery, IsCurrentInChannelQueryVariables>(IsCurrentInChannelDocument, options);
+      }
+export function useIsCurrentInChannelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IsCurrentInChannelQuery, IsCurrentInChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IsCurrentInChannelQuery, IsCurrentInChannelQueryVariables>(IsCurrentInChannelDocument, options);
+        }
+export type IsCurrentInChannelQueryHookResult = ReturnType<typeof useIsCurrentInChannelQuery>;
+export type IsCurrentInChannelLazyQueryHookResult = ReturnType<typeof useIsCurrentInChannelLazyQuery>;
+export type IsCurrentInChannelQueryResult = Apollo.QueryResult<IsCurrentInChannelQuery, IsCurrentInChannelQueryVariables>;
+export const LeaveGroupDocument = gql`
+    mutation LeaveGroup($groupId: Float!) {
+  leaveGroup(groupId: $groupId) {
+    errors {
+      field
+      message
+    }
+    ghu {
+      groupId
+      userId
+    }
+  }
+}
+    `;
+export type LeaveGroupMutationFn = Apollo.MutationFunction<LeaveGroupMutation, LeaveGroupMutationVariables>;
+
+/**
+ * __useLeaveGroupMutation__
+ *
+ * To run a mutation, you first call `useLeaveGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLeaveGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [leaveGroupMutation, { data, loading, error }] = useLeaveGroupMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useLeaveGroupMutation(baseOptions?: Apollo.MutationHookOptions<LeaveGroupMutation, LeaveGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LeaveGroupMutation, LeaveGroupMutationVariables>(LeaveGroupDocument, options);
+      }
+export type LeaveGroupMutationHookResult = ReturnType<typeof useLeaveGroupMutation>;
+export type LeaveGroupMutationResult = Apollo.MutationResult<LeaveGroupMutation>;
+export type LeaveGroupMutationOptions = Apollo.BaseMutationOptions<LeaveGroupMutation, LeaveGroupMutationVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -1193,6 +1611,7 @@ export const RetrieveInChannelDocument = gql`
     users {
       id
       username
+      avatar
     }
   }
 }

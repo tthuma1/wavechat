@@ -11,3 +11,16 @@ query GetChannelsInGroup($groupId: Float!) {
     }
   }
 }
+
+query GetChannelInfo($channelId: Float!) {
+  getChannelInfo(channelId: $channelId) {
+    channel {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

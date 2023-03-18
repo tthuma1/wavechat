@@ -1,0 +1,13 @@
+query GetGroupUsers($groupId: Float!) {
+  getGroupUsers(groupId: $groupId) {
+    users {
+      id
+      username
+      avatar
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

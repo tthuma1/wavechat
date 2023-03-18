@@ -148,7 +148,7 @@ const Search: NextPage = () => {
               </Form>
             )}
           </Formik>
-          <div className="mt-3 bg-gray-850 rounded-md w-[70vw] px-14 py-5 grid grid-cols-2">
+          <div className="mt-3 bg-gray-850 rounded-md w-[70vw] h-[50vh] px-14 py-5 grid grid-cols-2 overflow-y-scroll">
             <div className="border-r pr-4 border-gray-700">
               <p className="font-semibold">Users:</p>
               {users?.map(user => (
@@ -166,22 +166,31 @@ const Search: NextPage = () => {
                   >
                     {user.username}
                   </span>
-                  {addedFriends.includes(user.id) ||
-                  addedFriendsStart.includes(user.id) ? (
+                  <div>
                     <Link href={`dm/${user.id}`}>
                       <button className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300">
                         <i className="fa-solid fa-message text-gray-300 mr-2"></i>
                         Message
                       </button>
                     </Link>
+                  </div>
+                  {addedFriends.includes(user.id) ||
+                  addedFriendsStart.includes(user.id) ? (
+                    // <Link href={`dm/${user.id}`}>
+                    //   <button className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300">
+                    //     <i className="fa-solid fa-message text-gray-300 mr-2"></i>
+                    //     Message
+                    //   </button>
+                    // </Link>
+                    <div></div>
                   ) : (
                     <button
-                      // className="w-32 bg-violet-700 py-2 ml-4 rounded-md text-sm hover:bg-violet-500 disabled:text-gray-300"
-                      className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
+                      // className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
+                      className="btn-secondary w-10 text-sm ml-4"
                       onClick={() => handleAddFriend(user.id)}
                     >
                       <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i>
-                      Add Friend
+                      {/* Add Friend */}
                     </button>
                   )}
                 </div>
@@ -217,7 +226,8 @@ const Search: NextPage = () => {
                     </Link>
                   ) : (
                     <button
-                      className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
+                      // className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
+                      className="btn-secondary w-32 text-sm ml-4"
                       onClick={() => handleJoinGroup(g_w_c.group.id)}
                     >
                       {/* <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i> */}

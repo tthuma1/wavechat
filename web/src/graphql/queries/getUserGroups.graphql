@@ -1,3 +1,17 @@
+query GetUserGroups($userId: Float!) {
+  getUserGroups(userId: $userId) {
+    errors {
+      field
+      message
+    }
+    groups {
+      id
+      name
+      createdAt
+    }
+  }
+}
+
 query GetUserGroupsCurrent {
   getUserGroupsCurrent {
     errors {
@@ -10,4 +24,8 @@ query GetUserGroupsCurrent {
     }
     firstChannelIds
   }
+}
+
+query isCurrentInChannel($channelId: Float!) {
+  isCurrentInChannel(channelId: $channelId)
 }

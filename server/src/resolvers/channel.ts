@@ -1,8 +1,18 @@
 import { Group } from "../enitities/Group";
-import { Arg, Ctx, Field, Mutation, ObjectType, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { FieldError } from "./FieldError";
-import { MyContext } from "src/types";
 import { Channel } from "../enitities/Channel";
+import { UsersResponse } from "./user";
+import { AppDataSource } from "../DataSource";
+import { User } from "../enitities/User";
 
 @ObjectType()
 export class ChannelResponse {
@@ -38,5 +48,49 @@ export class ChannelResolver {
     await channel.save();
 
     return { channel };
+  }
+
+  @Query(() => ChannelResponse)
+  async getChannelInfo(@Arg("channelId") channelId: number) {
+    const res = await Channel.findOneBy({ id: channelId });
+    if (!res) {
+      return {
+        errors: [
+          {
+            field: "channelId",
+            message: "Channel doesn't exist",
+          },
+        ],
+      };
+    }
+
+    return { channel: res };
+  }
+
+  @Query(() => UsersResponse)
+  async getUsersInChannel(@Arg("channelId") channelId: number) {
+    if (!(await Channel.findOneBy({ id: channelId }))) {
+      return {
+        errors: [
+          {
+            field: "channelId",
+            message: "Channel doesn't exist",
+          },
+        ],
+      };
+    }
+
+    const users: User[] = await AppDataSource.query(
+      `
+SELECT u.* FROM channel c
+INNER JOIN \`group\` g ON g.id = c.groupId
+INNER JOIN group_has_user ghu ON ghu.groupId = g.id
+INNER JOIN user u ON u.id = ghu.userId
+WHERE c.id = ?;
+      `,
+      [channelId]
+    );
+
+    return { users };
   }
 }

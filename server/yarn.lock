@@ -426,6 +426,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.23.tgz#70f5f20b0b1b38f696848c1d3647bb95694e615e"
   integrity sha512-MhbCWN18R4GhO8ewQWAFK4TGQdBpXWByukz7cWyJmXhvRuCIaM/oWytGPqVmDzgEnnaIc9ss6HbU5mUi+vyZPA==
 
+"@types/nodemailer@^6.4.7":
+  version "6.4.7"
+  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-6.4.7.tgz#658f4bca47c1a895b1d7e054b3b54030a5e1f5e0"
+  integrity sha512-f5qCBGAn/f0qtRcd4SEn88c8Fp3Swct1731X4ryPKqS61/A3LmmzN8zaEz7hneJvpjFbUUgY7lru/B/7ODTazg==
+  dependencies:
+    "@types/node" "*"
+
 "@types/qs@*":
   version "6.9.7"
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.7.tgz#63bb7d067db107cc1e457c303bc25d511febf6cb"
@@ -455,6 +462,11 @@
   dependencies:
     "@types/mime" "*"
     "@types/node" "*"
+
+"@types/uuid@^9.0.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-9.0.1.tgz#98586dc36aee8dacc98cc396dbca8d0429647aa6"
+  integrity sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==
 
 abbrev@1:
   version "1.1.1"
@@ -1515,6 +1527,11 @@ node-fetch@^2.6.7:
   dependencies:
     whatwg-url "^5.0.0"
 
+nodemailer@^6.9.1:
+  version "6.9.1"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.9.1.tgz#8249d928a43ed85fec17b13d2870c8f758a126ed"
+  integrity sha512-qHw7dOiU5UKNnQpXktdgQ1d3OFgRAekuvbJLcdG5dnEo/GtcTHRYM7+UfJARdOFU9WUQO8OiIamgWPmiSFHYAA==
+
 nodemon@^2.0.19:
   version "2.0.19"
   resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-2.0.19.tgz#cac175f74b9cb8b57e770d47841995eebe4488bd"
@@ -2075,6 +2092,11 @@ uuid@^8.0.0, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
+  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
 
 v8-compile-cache-lib@^3.0.1:
   version "3.0.1"

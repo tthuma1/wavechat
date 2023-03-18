@@ -1,0 +1,12 @@
+mutation LeaveGroup($groupId: Float!) {
+  leaveGroup(groupId: $groupId) {
+    errors {
+      field
+      message
+    }
+    ghu {
+      groupId
+      userId
+    }
+  }
+}
