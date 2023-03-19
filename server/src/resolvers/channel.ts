@@ -1,7 +1,6 @@
 import { Group } from "../enitities/Group";
 import {
   Arg,
-  Ctx,
   Field,
   Mutation,
   ObjectType,
