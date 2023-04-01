@@ -1,0 +1,3 @@
+mutation DeleteChannel($deleteChannelId: Float!) {
+  deleteChannel(id: $deleteChannelId)
+}

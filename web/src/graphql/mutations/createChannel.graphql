@@ -1,0 +1,12 @@
+mutation CreateChannel($groupId: Float!, $name: String!) {
+  createChannel(groupId: $groupId, name: $name) {
+    channel {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

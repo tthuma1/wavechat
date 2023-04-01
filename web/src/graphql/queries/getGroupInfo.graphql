@@ -1,0 +1,13 @@
+query GetGroupInfo($groupId: Float!) {
+  getGroupInfo(groupId: $groupId) {
+    group {
+      id
+      name
+      adminId
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

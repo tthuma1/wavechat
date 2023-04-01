@@ -30,12 +30,12 @@ const FriendList: NextPage<{ type: number }> = props => {
       for (const friend of friendsData.getFriends) {
         if (props.type == 1) {
           friends.push(
-            <Link href={"/dm/" + friend.id}>
+            <Link href={"/dm/" + friend.id} key={friend.id}>
               <div
                 key={friend.username}
-                className="w-40 text-lg bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-750 overflow-hidden text-ellipsis shadow-sm hover:cursor-pointer"
+                className="text-lg bg-gray-50 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 shadow-sm hover:cursor-pointer"
               >
-                <div className="overflow-hidden text-ellipsis flex">
+                <div className="flex">
                   <img
                     src={
                       "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -58,7 +58,7 @@ const FriendList: NextPage<{ type: number }> = props => {
           friends.push(
             <Link
               href={"/dm/" + friend.id}
-              key={friend.username}
+              key={friend.id}
               // onClick={() => router.push("/dm/" + friend.id)}
             >
               {/* <a
@@ -66,7 +66,7 @@ const FriendList: NextPage<{ type: number }> = props => {
               key={friend.username}
               className="bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-750"
             > */}
-              <div className="flex items-center bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-750 hover:cursor-pointer">
+              <div className="flex items-center bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 hover:cursor-pointer shadow-sm">
                 <img
                   src={
                     "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -92,19 +92,20 @@ const FriendList: NextPage<{ type: number }> = props => {
     groupsData.getUserGroupsCurrent.groups &&
     groupsData.getUserGroupsCurrent.firstChannelIds
   ) {
-    for (let i = 0; i < groupsData.getUserGroupsCurrent.groups.length; i++) {
+    for (
+      let i = 0;
+      i < groupsData.getUserGroupsCurrent.groups.length - 1;
+      i++
+    ) {
       let group = groupsData.getUserGroupsCurrent.groups[i];
       let channelId = groupsData.getUserGroupsCurrent.firstChannelIds[i];
       groups.push(
-        <Link href={"/channel/" + channelId}>
-          <div
-            key={group.name}
-            className="bg-gray-700 p-4 rounded-md hover:bg-gray-750 hover:cursor-pointer"
-          >
-            <div className="flex items-center">
-              <span className="overflow-hidden text-ellipsis">
+        <Link href={"/channel/" + channelId} key={channelId}>
+          <div className="text-lg bg-gray-50 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 hover:cursor-pointer shadow-sm">
+            <div className="flex items-center h-8">
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                 {group.name}
-              </span>
+              </div>
             </div>
           </div>
         </Link>
@@ -115,13 +116,13 @@ const FriendList: NextPage<{ type: number }> = props => {
   if (props.type == 1) {
     return (
       <div className="flex justify-center items-center">
-        <div className="bg-gray-800 w-[80vw] px-16 py-8 mx-10 h-[80vh]">
+        <div className="bg-gray-200 dark:bg-gray-800 w-[80vw] px-16 py-8 mx-10 h-[80vh] rounded-md">
           <div className="flex justify-between h-full">
-            <div>
+            <div className="flex-1 mr-10">
               {/* friend list */}
               <Link href="/search">
-                <div className="px-2 py-2 bg-gray-850 w-fit btn-secondary text-sm mb-4">
-                  <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i>
+                <div className="px-2 py-2 bg-gray-50 dark:bg-gray-850 w-fit btn-secondary text-sm mb-4">
+                  <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
                   Add Friends
                 </div>
               </Link>
@@ -130,14 +131,22 @@ const FriendList: NextPage<{ type: number }> = props => {
                 {friends}
               </div>
             </div>
-            <div className="h-full w-px bg-gray-500"></div>
-            <div className="flex flex-col">
-              <Link href="/search">
-                <div className="px-2 py-2 bg-gray-850 w-fit btn-secondary text-sm mb-4">
-                  <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i>
-                  Join Group
-                </div>
-              </Link>
+            <div className="h-full w-px bg-gray-600"></div>
+            <div className="flex flex-1 flex-col ml-10">
+              <div className="flex gap-2">
+                <Link href="/search">
+                  <div className="px-2 py-2 bg-gray-50 d btn-secondary dark:bg-gray-850 w-fit text-sm mb-4">
+                    <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
+                    Join Group
+                  </div>
+                </Link>
+                <Link href="">
+                  <div className="px-2 py-2 bg-gray-50 btn-secondary dark:bg-gray-850 w-fit text-sm mb-4">
+                    <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
+                    Create Group
+                  </div>
+                </Link>
+              </div>
               <p className="mb-5">Groups:</p>
               <div className="overflow-y-scroll scrollbar-colored pr-2">
                 <div className="grid gap-8 grid-rows-4 grid-cols-2">

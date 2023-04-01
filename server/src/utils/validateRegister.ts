@@ -22,10 +22,10 @@ export const validateRegister = (options: UsernamePasswordInput) => {
     });
   }
 
-  if (options.username.includes("@")) {
+  if (options.username.includes("@") || options.username.includes(" ")) {
     returnValue.push({
       field: "username",
-      message: "Username cannot include an @",
+      message: "Username cannot include an @ or empty space",
     });
   }
 

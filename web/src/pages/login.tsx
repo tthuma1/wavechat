@@ -7,14 +7,22 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import {
   useForgotPasswordMutation,
   useLoginMutation,
+  useMeQuery,
 } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
-import router from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 
 const Login: NextPage = () => {
+  const router = useRouter();
+  const { data, loading, refetch } = useMeQuery();
+
   const [login] = useLoginMutation();
   const [forgotPassword] = useForgotPasswordMutation();
+
+  refetch();
+
+  if (!loading && data?.me) router.push("/app");
 
   return (
     <div className="h-screen flex justify-center">
@@ -24,7 +32,7 @@ const Login: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex items-center flex-col px-28 text-center bg-gray-850 my-28 rounded-lg shadow-lg">
+      <main className="flex items-center flex-col px-28 text-center bg-gray-200 dark:bg-gray-850 my-28 rounded-lg shadow-lg">
         <h2 className="text-4xl font-medium mt-16 mb-16">Log In</h2>
 
         <Formik
@@ -51,7 +59,7 @@ const Login: NextPage = () => {
               <Field
                 name="usernameOrEmail"
                 placeholder="Username or email"
-                className="input"
+                className="input-light dark:input"
               />
               <ErrorMessage name="usernameOrEmail" />
               <br />
@@ -61,11 +69,11 @@ const Login: NextPage = () => {
                 type="password"
                 name="password"
                 placeholder="Password"
-                className="mt-4 input"
+                className="mt-4 input-light dark:input"
               />
               <ErrorMessage name="password" />
               <Link href="/forgot-password">
-                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 flex justify-start">
+                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 flex justify-start hover:text-gray-600 dark:hover:text-gray-400 w-fit">
                   Forgot password?
                 </div>
               </Link>
@@ -74,7 +82,7 @@ const Login: NextPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-8 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
+                className="text-gray-100 mt-8 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
               >
                 Log In
               </button>

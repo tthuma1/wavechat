@@ -32,12 +32,16 @@ export class User extends BaseEntity {
   password!: string;
 
   @Field()
-  @Column({ length: 320 })
+  @Column({ length: 320, unique: true })
   email!: string;
 
   @Field()
   @Column({ default: "default_avatar.png" })
   avatar!: string;
+
+  @Field()
+  @Column({ default: false })
+  isVerified: boolean;
 
   // @OneToMany(() => Message, message => message.sender)
   // public sentMessages!: Message[];

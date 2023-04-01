@@ -75,7 +75,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
-    @Ctx() { req }: MyContext
+    @Ctx() { redis }: MyContext
   ) {
     const errors = validateRegister(options);
     if (errors) {
@@ -84,6 +84,12 @@ export class UserResolver {
 
     const hashedPassword = await argon2.hash(options.password);
     let user;
+
+    // if unverified user with same email exists, delete them from table
+    let sameEmail = await User.findOneBy({ email: options.email });
+    if (sameEmail && !sameEmail.isVerified) {
+      await User.delete({ email: options.email });
+    }
 
     try {
       // User.create({}).save()
@@ -114,9 +120,66 @@ export class UserResolver {
       }
     }
 
+    // send confirmation email
+    const token = v4();
+
+    await redis.set("verifyEmail:" + token, user.id, "EX", 60 * 60 * 24 * 3); // 3 days, v sekundah
+
+    await sendEmail(
+      options.email,
+      `<a href="http://localhost:3000/verify/${token}">verify email</a>`
+    );
+
     // store user id session
     // this will set a cookie on the user
     // keep them logged in
+    // req.session.userId = user.id;
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async verifyEmail(
+    @Arg("token") token: string,
+    @Ctx() { redis, req }: MyContext
+  ) {
+    const key = "verifyEmail:" + token;
+    const userId = await redis.get(key);
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
+    }
+
+    const userIdNum = parseInt(userId);
+    const user = await User.findOneBy({ id: userIdNum });
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer exists",
+          },
+        ],
+      };
+    }
+
+    await User.update(
+      { id: userIdNum },
+      {
+        isVerified: true,
+      }
+    );
+
+    await redis.del(key);
+
+    // log in user after confirmation
     req.session.userId = user.id;
 
     return { user };
@@ -413,6 +476,46 @@ WHERE user1Id = ? AND user2Id = ?;
   }
 
   @Mutation(() => UserResponse)
+  async changeUsername(
+    @Arg("newUsername") newUsername: string,
+    @Ctx() { req }: MyContext
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (await User.findOneBy({ username: newUsername })) {
+      return {
+        errors: [
+          {
+            field: "newUsername",
+            message: "Username is already taken.",
+          },
+        ],
+      };
+    }
+
+    AppDataSource.createQueryBuilder()
+      .update(User)
+      .set({
+        username: newUsername,
+      })
+      .where("id = :id", { id: req.session.userId })
+      .execute();
+
+    const user = await User.findOneBy({ id: req.session.userId });
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
   async changeEmail(
     @Arg("newEmail") newEmail: string,
     @Ctx() { req }: MyContext
@@ -680,12 +783,7 @@ LIMIT 15;
 
     const token = v4();
 
-    await redis.set(
-      "forgotPassword:" + token,
-      user.id,
-      "EX",
-      1000 * 60 * 60 * 24 * 3
-    ); // 3 days
+    await redis.set("forgotPassword:" + token, user.id, "EX", 60 * 60 * 24 * 3); // 3 days, v sekundah
 
     await sendEmail(
       email,

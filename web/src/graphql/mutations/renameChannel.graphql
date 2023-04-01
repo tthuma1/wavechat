@@ -1,0 +1,12 @@
+mutation RenameChannel($newName: String!, $channelId: Float!) {
+  renameChannel(newName: $newName, channelId: $channelId) {
+    channel {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

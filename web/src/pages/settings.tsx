@@ -23,9 +23,14 @@ const Settings: NextPage = () => {
   const [file, setFile] = useState<File>();
   const [fileSrc, setFileSrc] = useState("");
   const [saved, setSaved] = useState(false);
+  const [currTheme, setCurrtheme] = useState("");
 
   // quick hack because File is undefined on SSR
   // React.useEffect(() => setFile(new File([""], "")), []);
+
+  useEffect(() => {
+    setCurrtheme(localStorage.theme);
+  }, []);
 
   let allLoaded = false;
 
@@ -36,6 +41,20 @@ const Settings: NextPage = () => {
   if (!meLoading && meData?.me == null) {
     Router.push("/login");
   }
+
+  const changeTheme = () => {
+    if (localStorage.theme === "dark") {
+      localStorage.theme = "light";
+      document.getElementById("main")!.classList.remove("dark");
+    } else {
+      localStorage.theme = "dark";
+      document.getElementById("main")!.classList.add("dark");
+    }
+
+    setCurrtheme(localStorage.theme);
+
+    console.log(localStorage.theme);
+  };
 
   if (allLoaded) {
     return (
@@ -48,7 +67,7 @@ const Settings: NextPage = () => {
         <div className="pt-20 flex flex-col items-center">
           <div className="flex w-full">
             <div className="flex-1 flex justify-start">
-              <div className="h-10 w-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+              <div className="h-10 w-10 bg-gray-150 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
                 <Link href="/app">
                   <a>
                     <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
@@ -155,7 +174,7 @@ const Settings: NextPage = () => {
             {({ handleSubmit, isSubmitting }) => (
               <Form
                 onSubmit={handleSubmit}
-                className="bg-gray-850 rounded-md w-[70vw] px-14 py-10"
+                className="bg-gray-200 dark:bg-gray-850 rounded-md w-[70vw] px-14 py-10"
               >
                 <div className="flex mt-3">
                   <img
@@ -168,28 +187,57 @@ const Settings: NextPage = () => {
                     className="h-20 w-20 object-cover rounded-full mr-3"
                   />
                   <label htmlFor="file" className="cursor-pointer mr-3 p-2">
-                    <div className="bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500">
+                    <div className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500">
                       {/* <i className="fa-solid fa-circle-plus text-gray-300 pr-2"></i> */}
                       Change avatar
                     </div>
                   </label>
-                  <div className="border-red-700 border py-2 px-4 rounded-md text-sm hover:bg-red-700 hover:cursor-pointer m-2 h-fit">
-                    Remove avatar
+
+                  <div className="flex flex-1 justify-between">
+                    <div className="border-red-700 bg-gray-50 dark:bg-transparent border py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer m-2 h-fit hover:text-gray-100">
+                      Remove avatar
+                    </div>
+                    <input
+                      id="file"
+                      name="file"
+                      type="file"
+                      accept="image/*"
+                      onChange={event => {
+                        // handleFileUpload(event);
+                        setFile(event.currentTarget.files![0]);
+                        setFileSrc(
+                          URL.createObjectURL(event.currentTarget.files![0])
+                        );
+                      }}
+                      className="hidden"
+                    />
                   </div>
-                  <input
-                    id="file"
-                    name="file"
-                    type="file"
-                    accept="image/*"
-                    onChange={event => {
-                      // handleFileUpload(event);
-                      setFile(event.currentTarget.files![0]);
-                      setFileSrc(
-                        URL.createObjectURL(event.currentTarget.files![0])
-                      );
-                    }}
-                    className="hidden"
-                  />
+                  <div
+                    className="h-10 w-10 bg-gray-50 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700 hover:cursor-pointer"
+                    onClick={changeTheme}
+                  >
+                    <a>
+                      {currTheme == "dark" ? (
+                        // <i className="fa-solid fa-sun p-4 text-lg"></i>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className="h-6 w-6 hidden dark:block"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                          ></path>
+                        </svg>
+                      ) : (
+                        <i className="fa-regular fa-moon p-4 text-lg"></i>
+                      )}
+                    </a>
+                  </div>
                 </div>
 
                 <br />
@@ -199,7 +247,7 @@ const Settings: NextPage = () => {
                   type="email"
                   name="email"
                   placeholder="New email"
-                  className="mt-4 mb-2 input-settings w-[30rem]"
+                  className="mt-4 mb-2 input-settings-light dark:input-settings w-[30rem]"
                 />
                 <ErrorMessage name="email" />
 
@@ -210,7 +258,7 @@ const Settings: NextPage = () => {
                   type="password"
                   name="oldPassword"
                   placeholder="Old password"
-                  className="mt-4 input-settings w-[30rem]"
+                  className="mt-4 input-settings-light dark:input-settings w-[30rem]"
                 />
                 <ErrorMessage name="oldPassword" />
 
@@ -219,7 +267,7 @@ const Settings: NextPage = () => {
                   type="password"
                   name="newPassword"
                   placeholder="New password"
-                  className="mt-4 mb-7 input-settings w-[30rem]"
+                  className="mt-4 mb-7 input-settings-light dark:input-settings w-[30rem]"
                 />
                 <ErrorMessage name="newPassword" />
 
@@ -229,7 +277,7 @@ const Settings: NextPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-600 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500 disabled:text-gray-300"
+                  className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500 disabled:text-gray-300"
                 >
                   Save
                 </button>

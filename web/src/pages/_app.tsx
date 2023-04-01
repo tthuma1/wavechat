@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import NavBar from "../components/NavBar";
 import "../styles/globals.css";
 import Script from "next/script";
+import { useEffect } from "react";
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -50,18 +51,32 @@ const client = new ApolloClient({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <div className="w-screen h-screen bg-gray-900 text-gray-100">
-      <Script
-        src="https://kit.fontawesome.com/c5fdb8664c.js"
-        crossOrigin="anonymous"
-      />
-      <Script src="https://sdk.amazonaws.com/js/aws-sdk-2.619.0.min.js" />
+  useEffect(() => {
+    if (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.getElementById("main")!.classList.add("dark");
+    } else {
+      document.getElementById("main")!.classList.remove("dark");
+    }
+  }, []);
 
-      <ApolloProvider client={client}>
-        {/* <NavBar /> */}
-        <Component {...pageProps} />
-      </ApolloProvider>
+  return (
+    <div id="main">
+      <div className="w-screen h-screen dark:bg-gray-900 dark:text-gray-100 bg-gray-50 text-gray-900">
+        <Script
+          src="https://kit.fontawesome.com/c5fdb8664c.js"
+          crossOrigin="anonymous"
+        />
+        <Script src="https://sdk.amazonaws.com/js/aws-sdk-2.619.0.min.js" />
+
+        <ApolloProvider client={client}>
+          {/* <NavBar /> */}
+          <Component {...pageProps} />
+        </ApolloProvider>
+      </div>
     </div>
   );
 }

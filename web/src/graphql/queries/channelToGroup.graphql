@@ -3,6 +3,7 @@ query ChannelToGroup($channelId: Float!) {
     group {
       id
       name
+      adminId
     }
   }
 }

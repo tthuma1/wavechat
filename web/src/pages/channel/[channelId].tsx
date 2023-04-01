@@ -19,6 +19,8 @@ import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import React from "react";
 import ChannelList from "../../components/ChannelList";
 import UsersList from "../../components/UsersList";
+import CreateChannelModal from "../../components/CreateChannelModal";
+import EditChannelModal from "../../components/EditChannelModal";
 
 const socket = io("http://localhost:4000");
 
@@ -165,6 +167,14 @@ const Channel: NextPage = () => {
     if (data) fetchMore({ variables: { offset: currOffset, limit: 10 } });
   }, [currOffset]);
 
+  const showEditModal = () => {
+    let modal = document.getElementById("editModal");
+
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+    document.getElementById("editInput")?.focus();
+  };
+
   if (allLoaded) {
     return (
       <div className="flex justify-center w-screen h-screen">
@@ -177,7 +187,7 @@ const Channel: NextPage = () => {
           <ChannelList groupId={groupData!.channelToGroup.group?.id} />
           <Link href="/settings">
             <div className="pt-4 mb-10 justify-start items-start w-full border-t border-gray-500 ">
-              <div className="flex hover:cursor-pointer hover:bg-gray-800 px-3 py-2 rounded-md items-center">
+              <div className="flex hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 px-3 py-2 rounded-md items-center">
                 <img
                   src={
                     "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -192,9 +202,27 @@ const Channel: NextPage = () => {
             </div>
           </Link>
         </div>
+
+        <CreateChannelModal
+          groupId={groupData?.channelToGroup.group?.id as number}
+        />
+
+        <EditChannelModal
+          channelId={channelData?.getChannelInfo.channel?.id as number}
+        />
+
         <div className="mt-10 flex-1 mx-8 flex flex-col h-[90vh]">
-          <div className="bg-gray-800 flex py-2 px-3 items-center">
-            <div className="flex-1"></div>
+          <div className="bg-gray-100 dark:bg-gray-800 flex py-2 px-3 items-center rounded-t-md">
+            <div className="flex-1 flex justify-start">
+              {meData?.me?.id == groupData?.channelToGroup.group?.adminId && (
+                <div
+                  className="btn-secondary text-sm text-gray-800 dark:text-gray-300"
+                  onClick={showEditModal}
+                >
+                  <i className="fa-solid fa-pen-to-square"></i>
+                </div>
+              )}
+            </div>
             <div>
               {groupData?.channelToGroup.group?.name} -{" "}
               {channelData?.getChannelInfo.channel?.name}
@@ -211,7 +239,7 @@ const Channel: NextPage = () => {
             </div>
           </div>
           <div className="w-full h-px bg-gray-600"></div>
-          <div className="flex-auto bg-gray-800 rounded-t-md scrollbar-colored">
+          <div className="flex-auto bg-gray-100 dark:bg-gray-800 scrollbar-colored">
             <Virtuoso
               id="virt"
               data={messages}
@@ -228,21 +256,21 @@ const Channel: NextPage = () => {
               )}
             />
           </div>
-          <div className="bg-gray-800 px-6 py-3 rounded-b-md">
+          <div className="bg-gray-100 dark:bg-gray-800 px-6 py-3 rounded-b-md">
             <Send receiverId={qchannelId} type="group" />
           </div>
         </div>
 
         <div className="w-72 mr-10">
           <div className="flex w-60 mb-5">
-            <div className="h-10 w-14 mr-5 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+            <div className="h-10 w-14 mr-5 mt-10 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
               <Link href="/settings">
                 <a>
                   <i className="fa-solid fa-gear p-4 text-lg"></i>
                 </a>
               </Link>
             </div>
-            <div className="h-10 w-14 mr-10 mt-10  bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+            <div className="h-10 w-14 mr-5 mt-10 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
               <Link href="/app">
                 <a>
                   <i className="fa-solid fa-arrow-left p-4 text-lg"></i>

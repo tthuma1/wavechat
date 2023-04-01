@@ -6,9 +6,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 // import { useMeQuery } from "../generated/graphql";
 import { useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
+import { useState } from "react";
 
 const Register: NextPage = () => {
   const [register] = useRegisterMutation();
+  const [isSent, setIsSent] = useState(false);
 
   return (
     <div className="h-screen flex justify-center">
@@ -18,7 +20,7 @@ const Register: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex items-center flex-col px-28 text-center bg-gray-850 my-28 rounded-lg shadow-lg">
+      <main className="flex items-center flex-col px-28 text-center bg-gray-200 dark:bg-gray-850 my-28 rounded-lg shadow-lg">
         <h2 className="text-4xl font-medium mt-16 mb-16">Register</h2>
 
         <Formik
@@ -35,6 +37,7 @@ const Register: NextPage = () => {
               // worked
               // router.push("/");
               console.log("worked");
+              setIsSent(true);
             }
 
             // actions.setSubmitting(false);
@@ -43,16 +46,20 @@ const Register: NextPage = () => {
           {({ handleSubmit, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
               {/* <label htmlFor="username">Username</label> */}
-              <Field name="username" placeholder="Username" className="input" />
+              <Field
+                name="username"
+                placeholder="Username"
+                className="input-light dark:input"
+              />
               <ErrorMessage name="username" />
               <br />
 
-              {/* <label htmlFor="email">Email (optional)</label> */}
+              {/* <label htmlFor="email">Email</label> */}
               <Field
                 type="email"
                 name="email"
-                placeholder="Email (optional)"
-                className="input mt-4"
+                placeholder="Email"
+                className="input-light dark:input mt-4"
               />
               <ErrorMessage name="email" />
               <br />
@@ -62,15 +69,17 @@ const Register: NextPage = () => {
                 type="password"
                 name="password"
                 placeholder="Password"
-                className="input mt-4"
+                className="input-light dark:input mt-4"
               />
               <ErrorMessage name="password" />
               <br />
 
+              {isSent && <div className="mt-2">Confirmation email sent!</div>}
+
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-8 bg-blue-600 py-4 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
+                className="text-gray-100 mt-8 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
               >
                 Register
               </button>

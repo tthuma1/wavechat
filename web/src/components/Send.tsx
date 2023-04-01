@@ -60,7 +60,6 @@ const Send: NextPage<{
                 resetForm();
               }
             } else if (fileSrc != "") {
-              console.log(process.env);
               //
               //
               //
@@ -149,7 +148,10 @@ const Send: NextPage<{
         }}
       >
         {({ handleSubmit, isSubmitting, setFieldValue }) => (
-          <Form onSubmit={handleSubmit} className="bg-gray-750 py-2 rounded-md">
+          <Form
+            onSubmit={handleSubmit}
+            className="bg-gray-50 dark:bg-gray-750 py-2 rounded-md"
+          >
             {fileSrc && (
               <>
                 <div className="mb-3 mx-4">
@@ -170,7 +172,7 @@ const Send: NextPage<{
             <div className="flex items-center px-4">
               <label
                 htmlFor="file"
-                className="cursor-pointer text-2xl mr-3 text-gray-300"
+                className="cursor-pointer text-2xl mr-3 text-gray-800 dark:text-gray-300"
               >
                 <i className="fa-solid fa-circle-plus"></i>
               </label>
@@ -192,14 +194,14 @@ const Send: NextPage<{
               <Field
                 name="msg"
                 placeholder="Start typing..."
-                className="bg-gray-750 outline-none w-full"
+                className="bg-gray-50 dark:bg-gray-750 outline-none w-full"
                 autoFocus
               />
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-blue-600 py-2 px-4 rounded-md font-semibold text-sm"
+                className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500"
               >
                 Send
               </button>

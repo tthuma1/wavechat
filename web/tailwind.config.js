@@ -8,9 +8,11 @@ module.exports = {
         gray: {
           750: "#313a4a",
           850: "#161e2e",
+          150: "#ebedf0",
         },
       },
     },
   },
+  darkMode: "class",
   plugins: [],
 };

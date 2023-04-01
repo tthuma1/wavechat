@@ -252,7 +252,7 @@ const User: NextPage = () => {
           <FriendList type={2} />
           <Link href="/settings">
             <div className="pt-4 mb-10 justify-start items-start w-full border-t border-gray-500 ">
-              <div className="flex hover:cursor-pointer hover:bg-gray-800 px-3 py-2 rounded-md items-center">
+              <div className="flex hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 px-3 py-2 rounded-md items-center">
                 <img
                   src={
                     "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -266,7 +266,7 @@ const User: NextPage = () => {
           </Link>
         </div>
         <div className="mt-10 w-full mx-10 flex flex-col h-[90vh]">
-          <div className="bg-gray-800 flex py-2 px-3 items-center">
+          <div className="bg-gray-100 dark:bg-gray-800 flex py-2 px-3 items-center rounded-t-md">
             <div className="flex-1"></div>
             <div className="flex">
               <img
@@ -287,13 +287,13 @@ const User: NextPage = () => {
               >
                 Remove Friend
               </div>
-              <div className="ml-3 btn-secondary text-sm" onClick={() => {}}>
+              {/* <div className="ml-3 btn-secondary text-sm" onClick={() => {}}>
                 Block
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="w-full h-px bg-gray-600"></div>
-          <div className="flex-auto bg-gray-800 scrollbar-colored pt-3">
+          <div className="flex-auto bg-gray-100 dark:bg-gray-800 scrollbar-colored pt-3">
             {/* {messages} */}
             {/* pt-8 pb-2 */}
             <Virtuoso
@@ -341,7 +341,7 @@ const User: NextPage = () => {
               scroll to bottom
             </button> */}
           </div>
-          <div className="bg-gray-800 px-6 py-3 rounded-b-md">
+          <div className="bg-gray-100 dark:bg-gray-800 px-6 py-3 rounded-b-md">
             <Send receiverId={quser} type="dm" />
           </div>
           {/* {messages.map((message, i) => {
@@ -382,14 +382,14 @@ const User: NextPage = () => {
         /> */}
 
         <div className="flex flex-col">
-          <div className="h-10 mr-10 mt-10 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+          <div className="h-10 mr-10 mt-10 bg-gray-200 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
             <Link href="/settings">
               <a>
                 <i className="fa-solid fa-gear p-4 text-lg"></i>
               </a>
             </Link>
           </div>
-          <div className="h-10 mr-10 mt-3 bg-gray-800 rounded-md flex justify-center items-center text-gray-300 text-center hover:bg-gray-700">
+          <div className="h-10 mr-10 mt-3 bg-gray-200 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
             <Link href="/app">
               <a>
                 <i className="fa-solid fa-arrow-left p-4 text-lg"></i>

@@ -121,6 +121,18 @@ const main = async () => {
       console.log("received a message in index.ts");
       io.sockets.emit("received");
     });
+
+    socket.on("channel created", () => {
+      io.sockets.emit("channel created");
+    });
+
+    socket.on("channel renamed", () => {
+      io.sockets.emit("channel renamed");
+    });
+
+    socket.on("channel deleted", () => {
+      io.sockets.emit("channel deleted");
+    });
   });
 
   /*

@@ -102,6 +102,57 @@ export class GroupResolver {
     return { group };
   }
 
+  @Mutation(() => GroupResponse)
+  async changeGroupName(
+    @Ctx() { req }: MyContext,
+    @Arg("id") id: number,
+    @Arg("newName") newName: string
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const group = await Group.findOneBy({ id, type: "group" });
+
+    if (!group) {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "Group doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (group.adminId != req.session.userId) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not group admin.",
+          },
+        ],
+      };
+    }
+
+    await Group.update(
+      { id },
+      {
+        name: newName,
+      }
+    );
+
+    return { group: await Group.findOneBy({ id }) };
+  }
+
   @Mutation(() => GHUResponse)
   async joinGroup(@Ctx() { req }: MyContext, @Arg("groupId") groupId: number) {
     if (
@@ -380,5 +431,16 @@ LIMIT 15;
     }
 
     return result;
+  }
+
+  @Query(() => GroupResponse)
+  async getGroupInfo(@Arg("groupId") groupId: number) {
+    const group = await Group.findOneBy({ id: groupId });
+
+    if (group) return { group };
+    else
+      return {
+        errors: [{ field: "groupId", message: "Group doesn't exist." }],
+      };
   }
 }

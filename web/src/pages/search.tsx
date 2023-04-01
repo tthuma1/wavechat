@@ -88,7 +88,19 @@ const Search: NextPage = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className="pt-20 flex flex-col items-center">
-          <h2 className="text-4xl font-semibold mb-10">Search</h2>
+          <div className="flex w-full">
+            <div className="flex-1 flex justify-start">
+              <div className="h-10 w-10 bg-gray-150 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
+                <Link href="/app">
+                  <a>
+                    <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
+                  </a>
+                </Link>
+              </div>
+            </div>
+            <h2 className="text-4xl font-semibold mb-10">Search</h2>
+            <div className="flex-1"></div>
+          </div>
           <Formik
             initialValues={{
               name: "",
@@ -127,7 +139,7 @@ const Search: NextPage = () => {
             {({ handleSubmit, isSubmitting }) => (
               <Form
                 onSubmit={handleSubmit}
-                className="bg-gray-850 rounded-md w-[70vw] px-14 py-10"
+                className="bg-gray-150 dark:bg-gray-850 rounded-md w-[70vw] px-14 py-10"
               >
                 <label htmlFor="username">Username or group name:</label>
                 <br />
@@ -135,20 +147,20 @@ const Search: NextPage = () => {
                   type="text"
                   name="name"
                   placeholder="username or group name"
-                  className="mt-4 input-settings w-[30rem] mr-3"
+                  className="mt-4 input-settings-light dark:input-settings w-[30rem] mr-3"
                 />
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-700 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500 disabled:text-gray-300"
+                  className="text-gray-100 bg-blue-700 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500 disabled:text-gray-300"
                 >
                   Search
                 </button>
               </Form>
             )}
           </Formik>
-          <div className="mt-3 bg-gray-850 rounded-md w-[70vw] h-[50vh] px-14 py-5 grid grid-cols-2 overflow-y-scroll">
+          <div className="mt-3 bg-gray-150 dark:bg-gray-850 rounded-md w-[70vw] h-[50vh] px-14 py-5 grid grid-cols-2 overflow-y-scroll scrollbar-colored">
             <div className="border-r pr-4 border-gray-700">
               <p className="font-semibold">Users:</p>
               {users?.map(user => (
@@ -168,7 +180,8 @@ const Search: NextPage = () => {
                   </span>
                   <div>
                     <Link href={`dm/${user.id}`}>
-                      <button className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300">
+                      <button className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm text-gray-100 hover:bg-blue-500 disabled:text-gray-300">
+                        {/* <button className="btn-secondary w-32 text-sm"> */}
                         <i className="fa-solid fa-message text-gray-300 mr-2"></i>
                         Message
                       </button>
@@ -182,14 +195,14 @@ const Search: NextPage = () => {
                     //     Message
                     //   </button>
                     // </Link>
-                    <div></div>
+                    <div className="w-12 ml-4"></div>
                   ) : (
                     <button
                       // className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
                       className="btn-secondary w-10 text-sm ml-4"
                       onClick={() => handleAddFriend(user.id)}
                     >
-                      <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i>
+                      <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
                       {/* Add Friend */}
                     </button>
                   )}
@@ -217,7 +230,8 @@ const Search: NextPage = () => {
                   joinedGroupsStart.includes(g_w_c.group.id) ? (
                     <Link href={`channel/${g_w_c.channel.id}`}>
                       <button
-                        className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300"
+                        className="text-gray-100 w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300"
+                        // className="btn-secondary w-32 text-sm ml-4"
                         onClick={() => handleJoinGroup(g_w_c.group.id)}
                       >
                         {/* <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i> */}

@@ -6,8 +6,16 @@
   @apply rounded-3xl border-gray-600 bg-gray-800 px-4 py-2 outline-none focus:border shadow;
 }
 
+.input-light {
+  @apply rounded-3xl border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2 outline-none focus:border shadow;
+}
+
 .input-settings {
-  @apply rounded-lg border-gray-600 bg-gray-800 px-4 py-2 outline-none focus:border shadow;
+  @apply rounded-lg border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2 outline-none focus:border shadow;
+}
+
+.input-settings-light {
+  @apply rounded-lg border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2 outline-none focus:border shadow;
 }
 
 .scrollbar-colored {
@@ -20,5 +28,9 @@
 }
 
 .btn-secondary {
-  @apply border-violet-700 border-2 py-2 px-3 rounded-md hover:bg-gray-700 hover:cursor-pointer disabled:text-gray-300;
+  @apply border-violet-700 border-2 py-2 px-3 rounded-md bg-gray-50 dark:bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 hover:cursor-pointer disabled:text-gray-300;
+}
+
+.btn-secondary-light {
+  @apply border-violet-700 border-2 py-2 px-3 rounded-md bg-gray-50 hover:bg-gray-200 hover:cursor-pointer disabled:text-gray-300;
 }
