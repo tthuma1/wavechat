@@ -24,6 +24,9 @@ export class GroupResponse {
 
   @Field(() => Group, { nullable: true })
   group?: Group;
+
+  @Field(() => Number, { nullable: true })
+  firstChannelId?: number;
 }
 
 @ObjectType()
@@ -99,11 +102,11 @@ export class GroupResolver {
 
     await channel.save();
 
-    return { group };
+    return { group, firstChannelId: channel.id };
   }
 
   @Mutation(() => GroupResponse)
-  async changeGroupName(
+  async renameGroup(
     @Ctx() { req }: MyContext,
     @Arg("id") id: number,
     @Arg("newName") newName: string
@@ -143,6 +146,17 @@ export class GroupResolver {
       };
     }
 
+    if (newName == "") {
+      return {
+        errors: [
+          {
+            field: "name",
+            message: "Name cannot be empty.",
+          },
+        ],
+      };
+    }
+
     await Group.update(
       { id },
       {
@@ -151,6 +165,51 @@ export class GroupResolver {
     );
 
     return { group: await Group.findOneBy({ id }) };
+  }
+
+  @Mutation(() => GroupResponse)
+  async deleteGroup(@Ctx() { req }: MyContext, @Arg("id") id: number) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const group = await Group.findOneBy({ id, type: "group" });
+
+    if (!group) {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "Group doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (group.adminId != req.session.userId) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not group admin.",
+          },
+        ],
+      };
+    }
+
+    // typeorm doesn't allow cascade delete on many to one relations
+    await Channel.delete({ groupId: id });
+    await Group_Has_User.delete({ groupId: id });
+    await Group.delete({ id });
+
+    return { group };
   }
 
   @Mutation(() => GHUResponse)

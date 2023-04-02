@@ -238,6 +238,8 @@ const User: NextPage = () => {
     if (response.data?.removeFriend) {
       router.push("/app");
     }
+
+    socket.emit("friend removed");
   };
 
   if (allLoaded) {

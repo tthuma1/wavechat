@@ -127,6 +127,7 @@ export class UserResolver {
 
     await sendEmail(
       options.email,
+      "Verify email",
       `<a href="http://localhost:3000/verify/${token}">verify email</a>`
     );
 
@@ -484,8 +485,19 @@ WHERE user1Id = ? AND user2Id = ?;
       return {
         errors: [
           {
-            field: "userId",
-            message: "User is not logged in.",
+            field: "userid",
+            message: "user is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (newUsername.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "newUsername",
+            message: "Length must be greater than 2.",
           },
         ],
       };
@@ -787,6 +799,7 @@ LIMIT 15;
 
     await sendEmail(
       email,
+      "Reset password",
       `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
     );
 

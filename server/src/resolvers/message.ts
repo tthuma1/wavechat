@@ -94,7 +94,6 @@ export class MessageResolver {
     //     WHERE userId = 5
     // ) AND g.type = 'dm';
 
-    // sql injection secure - ids can only be numbers
     const dmId = await AppDataSource.manager.query(
       `
 SELECT g.id FROM \`group\` g

@@ -1,0 +1,12 @@
+mutation DeleteGroup($deleteGroupId: Float!) {
+  deleteGroup(id: $deleteGroupId) {
+    group {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

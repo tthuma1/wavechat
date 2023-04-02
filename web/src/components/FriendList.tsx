@@ -1,6 +1,7 @@
 import type { NextComponentType, NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { io } from "socket.io-client";
 import {
   useGetFriendsQuery,
   useGetUserGroupsCurrentQuery,
@@ -9,14 +10,43 @@ import {
   useMeQuery,
 } from "../generated/graphql";
 
+const socket = io("http://localhost:4000");
+
 const FriendList: NextPage<{ type: number }> = props => {
   const router = useRouter();
   const { data: meData, loading: meLoading } = useMeQuery();
-  const { data: friendsData, loading: friendsLoading } = useGetFriendsQuery({
+  const {
+    data: friendsData,
+    loading: friendsLoading,
+    refetch: refetchFriends,
+  } = useGetFriendsQuery({
     variables: { userId: meData?.me?.id! }, //parseFloat(meData.me.id) },
   });
-  const { data: groupsData, loading: groupsLoading } =
-    useGetUserGroupsCurrentQuery();
+  const {
+    data: groupsData,
+    loading: groupsLoading,
+    refetch: refetchGroups,
+  } = useGetUserGroupsCurrentQuery();
+
+  socket.on("group deleted", async () => {
+    refetchGroups();
+  });
+
+  socket.on("group joined", async () => {
+    refetchGroups();
+  });
+
+  socket.on("group left", async () => {
+    refetchGroups();
+  });
+
+  socket.on("friend removed", () => {
+    refetchFriends();
+  });
+
+  socket.on("friend added", () => {
+    refetchFriends();
+  });
 
   // const [getUser, { data: getUserData, loading: getUserLoading }] =
   //   useGetUserLazyQuery();
@@ -92,11 +122,7 @@ const FriendList: NextPage<{ type: number }> = props => {
     groupsData.getUserGroupsCurrent.groups &&
     groupsData.getUserGroupsCurrent.firstChannelIds
   ) {
-    for (
-      let i = 0;
-      i < groupsData.getUserGroupsCurrent.groups.length - 1;
-      i++
-    ) {
+    for (let i = 0; i < groupsData.getUserGroupsCurrent.groups.length; i++) {
       let group = groupsData.getUserGroupsCurrent.groups[i];
       let channelId = groupsData.getUserGroupsCurrent.firstChannelIds[i];
       groups.push(
@@ -112,6 +138,25 @@ const FriendList: NextPage<{ type: number }> = props => {
       );
     }
   }
+
+  const showCreateModal = () => {
+    let modal = document.getElementById("createGroupModal");
+    console.log(modal);
+
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+    document.getElementById("createGroupInput")?.focus();
+
+    if (modal) {
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = event => {
+        if (event.target == modal) {
+          modal!.classList.remove("flex");
+          modal!.classList.add("hidden");
+        }
+      };
+    }
+  };
 
   if (props.type == 1) {
     return (
@@ -140,12 +185,13 @@ const FriendList: NextPage<{ type: number }> = props => {
                     Join Group
                   </div>
                 </Link>
-                <Link href="">
-                  <div className="px-2 py-2 bg-gray-50 btn-secondary dark:bg-gray-850 w-fit text-sm mb-4">
-                    <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
-                    Create Group
-                  </div>
-                </Link>
+                <div
+                  className="px-2 py-2 bg-gray-50 btn-secondary dark:bg-gray-850 w-fit text-sm mb-4"
+                  onClick={showCreateModal}
+                >
+                  <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
+                  Create Group
+                </div>
               </div>
               <p className="mb-5">Groups:</p>
               <div className="overflow-y-scroll scrollbar-colored pr-2">

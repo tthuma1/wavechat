@@ -1,0 +1,13 @@
+mutation CreateGroup($name: String!) {
+  createGroup(name: $name) {
+    errors {
+      field
+      message
+    }
+    group {
+      name
+      createdAt
+    }
+    firstChannelId
+  }
+}

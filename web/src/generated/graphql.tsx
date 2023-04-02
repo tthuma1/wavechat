@@ -70,6 +70,7 @@ export type Group = {
 export type GroupResponse = {
   __typename?: 'GroupResponse';
   errors?: Maybe<Array<FieldError>>;
+  firstChannelId?: Maybe<Scalars['Float']>;
   group?: Maybe<Group>;
 };
 
@@ -122,13 +123,13 @@ export type Mutation = {
   addFriend: FriendshipResponse;
   changeAvatar: UserResponse;
   changeEmail: UserResponse;
-  changeGroupName: GroupResponse;
   changePassword: UserResponse;
   changePasswordToken: UserResponse;
   changeUsername: UserResponse;
   createChannel: ChannelResponse;
   createGroup: GroupResponse;
   deleteChannel: Scalars['Float'];
+  deleteGroup: GroupResponse;
   forgotPassword: Scalars['Boolean'];
   joinGroup: GhuResponse;
   leaveGroup: GhuResponse;
@@ -137,6 +138,7 @@ export type Mutation = {
   register: UserResponse;
   removeFriend: FriendshipResponse;
   renameChannel: ChannelResponse;
+  renameGroup: GroupResponse;
   sendDM: MessageResponse;
   sendInChannel: MessageResponse;
   verifyEmail: UserResponse;
@@ -155,12 +157,6 @@ export type MutationChangeAvatarArgs = {
 
 export type MutationChangeEmailArgs = {
   newEmail: Scalars['String'];
-};
-
-
-export type MutationChangeGroupNameArgs = {
-  id: Scalars['Float'];
-  newName: Scalars['String'];
 };
 
 
@@ -193,6 +189,11 @@ export type MutationCreateGroupArgs = {
 
 
 export type MutationDeleteChannelArgs = {
+  id: Scalars['Float'];
+};
+
+
+export type MutationDeleteGroupArgs = {
   id: Scalars['Float'];
 };
 
@@ -230,6 +231,12 @@ export type MutationRemoveFriendArgs = {
 
 export type MutationRenameChannelArgs = {
   channelId: Scalars['Float'];
+  newName: Scalars['String'];
+};
+
+
+export type MutationRenameGroupArgs = {
+  id: Scalars['Float'];
   newName: Scalars['String'];
 };
 
@@ -396,6 +403,13 @@ export type ChangePasswordTokenMutationVariables = Exact<{
 
 export type ChangePasswordTokenMutation = { __typename?: 'Mutation', changePasswordToken: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, username: string, avatar: string, email: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type ChangeUsernameMutationVariables = Exact<{
+  newUsername: Scalars['String'];
+}>;
+
+
+export type ChangeUsernameMutation = { __typename?: 'Mutation', changeUsername: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, email: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
 export type CreateChannelMutationVariables = Exact<{
   groupId: Scalars['Float'];
   name: Scalars['String'];
@@ -404,12 +418,26 @@ export type CreateChannelMutationVariables = Exact<{
 
 export type CreateChannelMutation = { __typename?: 'Mutation', createChannel: { __typename?: 'ChannelResponse', channel?: { __typename?: 'Channel', id: number, name: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type CreateGroupMutationVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type CreateGroupMutation = { __typename?: 'Mutation', createGroup: { __typename?: 'GroupResponse', firstChannelId?: number | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, group?: { __typename?: 'Group', name: string, createdAt: string } | null } };
+
 export type DeleteChannelMutationVariables = Exact<{
   deleteChannelId: Scalars['Float'];
 }>;
 
 
 export type DeleteChannelMutation = { __typename?: 'Mutation', deleteChannel: number };
+
+export type DeleteGroupMutationVariables = Exact<{
+  deleteGroupId: Scalars['Float'];
+}>;
+
+
+export type DeleteGroupMutation = { __typename?: 'Mutation', deleteGroup: { __typename?: 'GroupResponse', group?: { __typename?: 'Group', id: number, name: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
@@ -452,6 +480,14 @@ export type RenameChannelMutationVariables = Exact<{
 
 
 export type RenameChannelMutation = { __typename?: 'Mutation', renameChannel: { __typename?: 'ChannelResponse', channel?: { __typename?: 'Channel', id: number, name: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type RenameGroupMutationVariables = Exact<{
+  newName: Scalars['String'];
+  renameGroupId: Scalars['Float'];
+}>;
+
+
+export type RenameGroupMutation = { __typename?: 'Mutation', renameGroup: { __typename?: 'GroupResponse', group?: { __typename?: 'Group', id: number, name: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
 export type SendDmMutationVariables = Exact<{
   receiverId: Scalars['Float'];
@@ -741,6 +777,46 @@ export function useChangePasswordTokenMutation(baseOptions?: Apollo.MutationHook
 export type ChangePasswordTokenMutationHookResult = ReturnType<typeof useChangePasswordTokenMutation>;
 export type ChangePasswordTokenMutationResult = Apollo.MutationResult<ChangePasswordTokenMutation>;
 export type ChangePasswordTokenMutationOptions = Apollo.BaseMutationOptions<ChangePasswordTokenMutation, ChangePasswordTokenMutationVariables>;
+export const ChangeUsernameDocument = gql`
+    mutation ChangeUsername($newUsername: String!) {
+  changeUsername(newUsername: $newUsername) {
+    user {
+      id
+      email
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type ChangeUsernameMutationFn = Apollo.MutationFunction<ChangeUsernameMutation, ChangeUsernameMutationVariables>;
+
+/**
+ * __useChangeUsernameMutation__
+ *
+ * To run a mutation, you first call `useChangeUsernameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeUsernameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changeUsernameMutation, { data, loading, error }] = useChangeUsernameMutation({
+ *   variables: {
+ *      newUsername: // value for 'newUsername'
+ *   },
+ * });
+ */
+export function useChangeUsernameMutation(baseOptions?: Apollo.MutationHookOptions<ChangeUsernameMutation, ChangeUsernameMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangeUsernameMutation, ChangeUsernameMutationVariables>(ChangeUsernameDocument, options);
+      }
+export type ChangeUsernameMutationHookResult = ReturnType<typeof useChangeUsernameMutation>;
+export type ChangeUsernameMutationResult = Apollo.MutationResult<ChangeUsernameMutation>;
+export type ChangeUsernameMutationOptions = Apollo.BaseMutationOptions<ChangeUsernameMutation, ChangeUsernameMutationVariables>;
 export const CreateChannelDocument = gql`
     mutation CreateChannel($groupId: Float!, $name: String!) {
   createChannel(groupId: $groupId, name: $name) {
@@ -782,6 +858,47 @@ export function useCreateChannelMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateChannelMutationHookResult = ReturnType<typeof useCreateChannelMutation>;
 export type CreateChannelMutationResult = Apollo.MutationResult<CreateChannelMutation>;
 export type CreateChannelMutationOptions = Apollo.BaseMutationOptions<CreateChannelMutation, CreateChannelMutationVariables>;
+export const CreateGroupDocument = gql`
+    mutation CreateGroup($name: String!) {
+  createGroup(name: $name) {
+    errors {
+      field
+      message
+    }
+    group {
+      name
+      createdAt
+    }
+    firstChannelId
+  }
+}
+    `;
+export type CreateGroupMutationFn = Apollo.MutationFunction<CreateGroupMutation, CreateGroupMutationVariables>;
+
+/**
+ * __useCreateGroupMutation__
+ *
+ * To run a mutation, you first call `useCreateGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGroupMutation, { data, loading, error }] = useCreateGroupMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useCreateGroupMutation(baseOptions?: Apollo.MutationHookOptions<CreateGroupMutation, CreateGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument, options);
+      }
+export type CreateGroupMutationHookResult = ReturnType<typeof useCreateGroupMutation>;
+export type CreateGroupMutationResult = Apollo.MutationResult<CreateGroupMutation>;
+export type CreateGroupMutationOptions = Apollo.BaseMutationOptions<CreateGroupMutation, CreateGroupMutationVariables>;
 export const DeleteChannelDocument = gql`
     mutation DeleteChannel($deleteChannelId: Float!) {
   deleteChannel(id: $deleteChannelId)
@@ -813,6 +930,46 @@ export function useDeleteChannelMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteChannelMutationHookResult = ReturnType<typeof useDeleteChannelMutation>;
 export type DeleteChannelMutationResult = Apollo.MutationResult<DeleteChannelMutation>;
 export type DeleteChannelMutationOptions = Apollo.BaseMutationOptions<DeleteChannelMutation, DeleteChannelMutationVariables>;
+export const DeleteGroupDocument = gql`
+    mutation DeleteGroup($deleteGroupId: Float!) {
+  deleteGroup(id: $deleteGroupId) {
+    group {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type DeleteGroupMutationFn = Apollo.MutationFunction<DeleteGroupMutation, DeleteGroupMutationVariables>;
+
+/**
+ * __useDeleteGroupMutation__
+ *
+ * To run a mutation, you first call `useDeleteGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGroupMutation, { data, loading, error }] = useDeleteGroupMutation({
+ *   variables: {
+ *      deleteGroupId: // value for 'deleteGroupId'
+ *   },
+ * });
+ */
+export function useDeleteGroupMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGroupMutation, DeleteGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument, options);
+      }
+export type DeleteGroupMutationHookResult = ReturnType<typeof useDeleteGroupMutation>;
+export type DeleteGroupMutationResult = Apollo.MutationResult<DeleteGroupMutation>;
+export type DeleteGroupMutationOptions = Apollo.BaseMutationOptions<DeleteGroupMutation, DeleteGroupMutationVariables>;
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -1037,6 +1194,47 @@ export function useRenameChannelMutation(baseOptions?: Apollo.MutationHookOption
 export type RenameChannelMutationHookResult = ReturnType<typeof useRenameChannelMutation>;
 export type RenameChannelMutationResult = Apollo.MutationResult<RenameChannelMutation>;
 export type RenameChannelMutationOptions = Apollo.BaseMutationOptions<RenameChannelMutation, RenameChannelMutationVariables>;
+export const RenameGroupDocument = gql`
+    mutation RenameGroup($newName: String!, $renameGroupId: Float!) {
+  renameGroup(newName: $newName, id: $renameGroupId) {
+    group {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type RenameGroupMutationFn = Apollo.MutationFunction<RenameGroupMutation, RenameGroupMutationVariables>;
+
+/**
+ * __useRenameGroupMutation__
+ *
+ * To run a mutation, you first call `useRenameGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRenameGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [renameGroupMutation, { data, loading, error }] = useRenameGroupMutation({
+ *   variables: {
+ *      newName: // value for 'newName'
+ *      renameGroupId: // value for 'renameGroupId'
+ *   },
+ * });
+ */
+export function useRenameGroupMutation(baseOptions?: Apollo.MutationHookOptions<RenameGroupMutation, RenameGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RenameGroupMutation, RenameGroupMutationVariables>(RenameGroupDocument, options);
+      }
+export type RenameGroupMutationHookResult = ReturnType<typeof useRenameGroupMutation>;
+export type RenameGroupMutationResult = Apollo.MutationResult<RenameGroupMutation>;
+export type RenameGroupMutationOptions = Apollo.BaseMutationOptions<RenameGroupMutation, RenameGroupMutationVariables>;
 export const SendDmDocument = gql`
     mutation SendDM($receiverId: Float!, $msg: String!, $type: String!) {
   sendDM(receiverId: $receiverId, msg: $msg, type: $type) {

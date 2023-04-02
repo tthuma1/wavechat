@@ -26,6 +26,7 @@ const VerifyEmail: NextPage = () => {
     if (!data?.verifyEmail.errors) {
       return <div>Error verifying email</div>;
     } else {
+      router.push("/app");
       return <div>Email verified!</div>;
     }
   } else {

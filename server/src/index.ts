@@ -17,12 +17,37 @@ import { AppDataSource } from "./DataSource";
 import { Server } from "socket.io";
 import { GroupResolver } from "./resolvers/group";
 import { ChannelResolver } from "./resolvers/channel";
+require("dotenv").config();
+import fileUpload, { UploadedFile } from "express-fileupload";
+import sharp from "sharp";
+import AWS from "aws-sdk";
+import { v4 } from "uuid";
+import cors from "cors";
 
 declare module "express-session" {
   export interface SessionData {
     userId: number;
   }
 }
+
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       files: {
+//         image: {
+//           name: string;
+//           data: Buffer;
+//           size: number;
+//           encoding: string;
+//           tempFilePath: string;
+//           truncated: boolean;
+//           mimetype: string;
+//           md5: string;
+//         };
+//       };
+//     }
+//   }
+// }
 
 const main = async () => {
   // const AppDataSource = new DataSource({
@@ -58,7 +83,7 @@ const main = async () => {
       secure: __prod__,
     },
     saveUninitialized: false,
-    secret: "nadjkfmasdlfkmf",
+    secret: process.env.COOKIE_SECRET as string,
     resave: false,
   });
 
@@ -111,14 +136,14 @@ const main = async () => {
   });
 
   io.on("connection", socket => {
-    console.log("a user connected");
+    // console.log("a user connected");
 
     socket.on("disconnect", () => {
-      console.log("user disconnected");
+      // console.log("user disconnected");
     });
 
     socket.on("received", () => {
-      console.log("received a message in index.ts");
+      // console.log("received a message in index.ts");
       io.sockets.emit("received");
     });
 
@@ -133,7 +158,131 @@ const main = async () => {
     socket.on("channel deleted", () => {
       io.sockets.emit("channel deleted");
     });
+
+    socket.on("group renamed", () => {
+      io.sockets.emit("group renamed");
+    });
+
+    socket.on("group deleted", () => {
+      io.sockets.emit("group deleted");
+    });
+
+    socket.on("group left", () => {
+      io.sockets.emit("group left");
+    });
+
+    socket.on("group joined", () => {
+      io.sockets.emit("group joined");
+    });
+
+    socket.on("friend added", () => {
+      io.sockets.emit("friend added");
+    });
+
+    socket.on("friend removed", () => {
+      io.sockets.emit("friend removed");
+    });
   });
+
+  // image upload service
+  app.use(
+    fileUpload({
+      limits: {
+        fileSize: 10485760,
+      },
+      abortOnLimit: true,
+    })
+  );
+
+  app.post(
+    "/upload",
+    cors({
+      origin: ["http://localhost:3000"],
+      credentials: true,
+    }),
+    async (req, res) => {
+      console.log(req.files);
+      if (req.files && req.files.image) {
+        const image = req.files.image as UploadedFile;
+
+        // If no image submitted, exit
+        if (!image) return res.sendStatus(400);
+
+        // If does not have image mime type prevent from uploading
+        if (!/^image/.test(image.mimetype)) return res.sendStatus(400);
+
+        const imageSharp = sharp(image.data);
+        let metadata;
+        try {
+          metadata = await imageSharp.metadata();
+        } catch {
+          return res.sendStatus(400);
+        }
+
+        // console.log(metadata);
+
+        if (metadata.width! > 1000) {
+          image.data = await sharp(image.data)
+            .resize({ width: 1000 })
+            .toBuffer();
+          // .toFile("output.jpg", function (err) {
+          //   // output.jpg is a 300 pixels wide and 200 pixels high image
+          //   // containing a scaled and cropped version of input.jpg
+          // });
+        }
+        if (metadata.height! > 1000) {
+          image.data = await sharp(image.data)
+            .resize({ height: 1000 })
+            .toBuffer();
+          // .toFile("output.jpg", function (err) {
+          //   // output.jpg is a 300 pixels wide and 200 pixels high image
+          //   // containing a scaled and cropped version of input.jpg
+          // });
+        }
+
+        const s3 = new AWS.S3({
+          correctClockSkew: true,
+          endpoint: "https://s3.eu-central-2.wasabisys.com", //use appropriate endpoint as per region of the bucket
+          accessKeyId: process.env.AWS_ACCESS_KEY,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+          region: "eu-central-2",
+          logger: console,
+        });
+        const filename = v4() + "_" + image.name;
+        const uploadRequest = new AWS.S3.ManagedUpload({
+          params: {
+            Bucket: "wavechat",
+            Key: "attachments/" + filename,
+            Body: image.data,
+            ACL: "public-read",
+          },
+          service: s3,
+        });
+        // uploadRequest.on("httpUploadProgress", function (event) {
+        //   const progressPercentage = Math.floor(
+        //     (event.loaded * 100) / event.total
+        //   );
+        //   console.log("Upload progress " + progressPercentage);
+        // });
+
+        // console.log("Configed and sending");
+
+        try {
+          await uploadRequest.promise();
+
+          // console.log("Good upload");
+          return res.send({
+            filename,
+          });
+        } catch (err) {
+          // console.log("UPLOAD ERROR: " + JSON.stringify(err, null, 2));
+          return res.sendStatus(400);
+        }
+      } else {
+        return res.sendStatus(400);
+      }
+    }
+  );
 
   /*
   const user = new User();

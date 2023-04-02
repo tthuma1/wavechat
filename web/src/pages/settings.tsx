@@ -6,6 +6,7 @@ import {
   useChangeEmailMutation,
   useChangePasswordMutation,
   useChangeAvatarMutation,
+  useChangeUsernameMutation,
 } from "../generated/graphql";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ import AWS from "aws-sdk";
 
 const Settings: NextPage = () => {
   const { data: meData, loading: meLoading } = useMeQuery();
+  const [changeUsername] = useChangeUsernameMutation();
   const [changeEmail] = useChangeEmailMutation();
   const [changePassword] = useChangePasswordMutation();
   const [changeAvatar] = useChangeAvatarMutation();
@@ -64,7 +66,7 @@ const Settings: NextPage = () => {
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="pt-20 flex flex-col items-center">
+        <div className="pt-10 flex flex-col items-center">
           <div className="flex w-full">
             <div className="flex-1 flex justify-start">
               <div className="h-10 w-10 bg-gray-150 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
@@ -83,8 +85,25 @@ const Settings: NextPage = () => {
               email: "",
               oldPassword: "",
               newPassword: "",
+              newUsername: "",
             }}
             onSubmit={async (values, { setErrors, resetForm }) => {
+              if (values.newUsername) {
+                const response = await changeUsername({
+                  variables: {
+                    newUsername: values.newUsername,
+                  },
+                });
+                if (response.data?.changeUsername.errors) {
+                  console.log(response.data?.changeUsername.errors);
+                  console.log(toErrorMap(response.data.changeUsername.errors));
+                  setErrors(toErrorMap(response.data.changeUsername.errors));
+                } else {
+                  resetForm();
+                  setSaved(true);
+                }
+              }
+
               if (values.email) {
                 const response = await changeEmail({
                   variables: {
@@ -241,6 +260,18 @@ const Settings: NextPage = () => {
                 </div>
 
                 <br />
+                <label htmlFor="newUsername">Change username:</label>
+                <br />
+                <Field
+                  name="newUsername"
+                  placeholder="New username"
+                  className="mt-4 mb-2 input-settings-light dark:input-settings w-[30rem]"
+                />
+                <span className="ml-3 text-sm text-red-600">
+                  <ErrorMessage name="newUsername" />
+                </span>
+
+                <br className="mb-7" />
                 <label htmlFor="email">Change email:</label>
                 <br />
                 <Field
@@ -270,8 +301,6 @@ const Settings: NextPage = () => {
                   className="mt-4 mb-7 input-settings-light dark:input-settings w-[30rem]"
                 />
                 <ErrorMessage name="newPassword" />
-
-                <br />
 
                 <br />
                 <button

@@ -1,0 +1,12 @@
+mutation RenameGroup($newName: String!, $renameGroupId: Float!) {
+  renameGroup(newName: $newName, id: $renameGroupId) {
+    group {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

@@ -21,6 +21,7 @@ import ChannelList from "../../components/ChannelList";
 import UsersList from "../../components/UsersList";
 import CreateChannelModal from "../../components/CreateChannelModal";
 import EditChannelModal from "../../components/EditChannelModal";
+import EditGroupModal from "../../components/EditGroupModal";
 
 const socket = io("http://localhost:4000");
 
@@ -45,7 +46,11 @@ const Channel: NextPage = () => {
 
   const { data: meData, loading: meLoading } = useMeQuery();
 
-  const { data: groupData, loading: groupLoading } = useChannelToGroupQuery({
+  const {
+    data: groupData,
+    loading: groupLoading,
+    refetch: refetchGroupInfo,
+  } = useChannelToGroupQuery({
     variables: { channelId: parseFloat(qchannelId as string) },
   });
 
@@ -147,6 +152,10 @@ const Channel: NextPage = () => {
     refetch();
   });
 
+  socket.on("group renamed", async () => {
+    refetchGroupInfo();
+  });
+
   const prependItems = async () => {
     if (data!.retrieveInChannel!.hasMore) {
       setCurrOffset(() => currOffset + 10);
@@ -159,6 +168,7 @@ const Channel: NextPage = () => {
 
     if (response.data?.leaveGroup) {
       router.push("/app");
+      socket.emit("group left");
     }
   };
 
@@ -173,6 +183,14 @@ const Channel: NextPage = () => {
     modal?.classList.remove("hidden");
     modal?.classList.add("flex");
     document.getElementById("editInput")?.focus();
+  };
+
+  const showEditGroupModal = () => {
+    let modal = document.getElementById("editGroupModal");
+
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+    document.getElementById("editGroupInput")?.focus();
   };
 
   if (allLoaded) {
@@ -209,6 +227,10 @@ const Channel: NextPage = () => {
 
         <EditChannelModal
           channelId={channelData?.getChannelInfo.channel?.id as number}
+        />
+
+        <EditGroupModal
+          groupId={groupData?.channelToGroup.group?.id as number}
         />
 
         <div className="mt-10 flex-1 mx-8 flex flex-col h-[90vh]">
@@ -261,21 +283,27 @@ const Channel: NextPage = () => {
           </div>
         </div>
 
-        <div className="w-72 mr-10">
+        <div className="w-72 mr-10 mt-10">
           <div className="flex w-60 mb-5">
-            <div className="h-10 w-14 mr-5 mt-10 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="h-10 w-14 mr-5 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
               <Link href="/settings">
                 <a>
                   <i className="fa-solid fa-gear p-4 text-lg"></i>
                 </a>
               </Link>
             </div>
-            <div className="h-10 w-14 mr-5 mt-10 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="h-10 w-14 mr-5 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
               <Link href="/app">
                 <a>
                   <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
                 </a>
               </Link>
+            </div>
+            <div
+              className="btn-secondary text-sm w-full flex justify-center"
+              onClick={showEditGroupModal}
+            >
+              Edit Group
             </div>
           </div>
           <UsersList groupId={groupData!.channelToGroup.group?.id} />

@@ -3,6 +3,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
+import { io } from "socket.io-client";
 import {
   useSearchUsersQuery,
   useSearchGroupsQuery,
@@ -14,6 +15,8 @@ import {
   GroupWithChannel,
   useJoinGroupMutation,
 } from "../generated/graphql";
+
+const socket = io("http://localhost:4000");
 
 const Search: NextPage = () => {
   const { refetch: usersRefetch } = useSearchUsersQuery({
@@ -49,6 +52,7 @@ const Search: NextPage = () => {
     if (response.data?.addFriend) {
       setAddedFriends([...addedFriends, id]);
       // addedFriends.push(id);
+      socket.emit("friend added");
     }
 
     // console.log(response.data);
@@ -59,6 +63,7 @@ const Search: NextPage = () => {
 
     if (response.data?.joinGroup) {
       setJoinedGroups([...joinedGroups, id]);
+      socket.emit("group joined");
     }
   };
 

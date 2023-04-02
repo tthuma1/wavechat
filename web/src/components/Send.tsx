@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import formik from "formik";
 // import { useMeQuery } from "../generated/graphql";
 import {
+  useSendDmImageMutation,
   useSendDmMutation,
   useSendInChannelMutation,
 } from "../generated/graphql";
@@ -24,6 +25,7 @@ const Send: NextPage<{
   const [sendInChannel] = useSendInChannelMutation();
   const [file, setFile] = useState(new File([""], ""));
   const [fileSrc, setFileSrc] = useState("");
+  const [sendDMImage] = useSendDmImageMutation();
 
   // const handleFileUpload = (event: any) => {
   //   let reader = new FileReader();
@@ -60,11 +62,50 @@ const Send: NextPage<{
                 resetForm();
               }
             } else if (fileSrc != "") {
+              if (file.size > 10485760) {
+                // 10 MB
+                alert("File is too big!");
+              }
+              var data = new FormData();
+              data.append("image", file);
+
+              const filename = (
+                await (
+                  await fetch("http://localhost:4000/upload", {
+                    method: "POST",
+                    // headers: {
+                    //     'Accept': 'application/json',
+                    //     'Content-Type': 'application/json'
+                    // },
+                    body: data,
+                  })
+                ).json()
+              ).filename;
+
+              const response = await sendDM({
+                variables: { ...values, type: "image", msg: filename },
+              });
+
+              if (response.data?.sendDM.errors) {
+                console.log(response.data?.sendDM.errors);
+                setErrors(toErrorMap(response.data.sendDM.errors));
+                // setErrors({ username: "hi" });
+              } else if (response.data?.sendDM.message) {
+                // worked
+                // router.push("/");
+                console.log("worked");
+                socket.emit("received");
+                resetForm();
+                setFile(new File([""], ""));
+                setFileSrc("");
+              }
+
               //
               //
               //
               //
 
+              /*
               const s3 = new AWS.S3({
                 correctClockSkew: true,
                 endpoint: "https://s3.eu-central-2.wasabisys.com", //use appropriate endpoint as per region of the bucket
@@ -117,7 +158,7 @@ const Send: NextPage<{
                   }
                 }
               });
-
+*/
               //
               //
               //
@@ -184,7 +225,6 @@ const Send: NextPage<{
                 accept="image/*"
                 onChange={event => {
                   // handleFileUpload(event);
-                  console.log(file);
                   setFile(event.currentTarget.files![0]);
                   setFileSrc(URL.createObjectURL(file));
                 }}
