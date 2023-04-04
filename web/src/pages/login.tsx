@@ -27,7 +27,7 @@ const Login: NextPage = () => {
   return (
     <div className="h-screen flex justify-center">
       <Head>
-        <title>Discord Clone - Login</title>
+        <title>WaveChat - Login</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -73,7 +73,7 @@ const Login: NextPage = () => {
               />
               <ErrorMessage name="password" />
               <Link href="/forgot-password">
-                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 flex justify-start hover:text-gray-600 dark:hover:text-gray-400 w-fit">
+                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 w-fit">
                   Forgot password?
                 </div>
               </Link>
@@ -86,6 +86,11 @@ const Login: NextPage = () => {
               >
                 Log In
               </button>
+              <Link href="/register">
+                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
+                  Don't have an account? Sign Up
+                </div>
+              </Link>
             </Form>
           )}
         </Formik>

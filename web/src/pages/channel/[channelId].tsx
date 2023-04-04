@@ -197,7 +197,7 @@ const Channel: NextPage = () => {
     return (
       <div className="flex justify-center w-screen h-screen">
         <Head>
-          <title>{}</title>
+          <title>WaveChat - Group</title>
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>

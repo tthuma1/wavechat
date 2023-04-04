@@ -1,9 +1,15 @@
 import { NextPage } from "next";
+import Head from "next/head";
 import Link from "next/link";
 
 const Landing: NextPage = () => {
   return (
     <div className="flex items-center flex-col px-40 text-center">
+      <Head>
+        <title>WaveChat</title>
+        <meta name="description" content="" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <h1 className="text-6xl font-semibold mt-48">Welcome to WaveChat</h1>
       <div className="mt-8 text-xl">Start chatting now!</div>
       <div className="mt-10 w-full grid gap-x-20 grid-cols-2 grid-rows-1">

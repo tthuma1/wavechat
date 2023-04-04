@@ -18,7 +18,7 @@ const ChangePassword: NextPage = () => {
   return (
     <div className="h-screen flex justify-center">
       <Head>
-        <title>Discord Clone - Login</title>
+        <title>WaveChat - Change Password</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

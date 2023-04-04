@@ -9,7 +9,7 @@ const ForgotPassword: React.FC<{}> = ({}) => {
   return (
     <div className="h-screen flex justify-center">
       <Head>
-        <title>Discord Clone - Login</title>
+        <title>WaveChat - Forgot Password</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

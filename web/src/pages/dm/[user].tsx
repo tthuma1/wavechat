@@ -2,11 +2,9 @@ import Head from "next/head";
 import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import {
-  useGetUserLazyQuery,
   useGetUserQuery,
   useMeQuery,
   useRemoveFriendMutation,
-  useRetrieveDmLazyQuery,
   useRetrieveDmQuery,
 } from "../../generated/graphql";
 import { io } from "socket.io-client";
@@ -17,7 +15,6 @@ import { NextPage } from "next";
 import FriendList from "../../components/FriendList";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import React from "react";
-import { InMemoryCache } from "@apollo/client";
 
 const socket = io("http://localhost:4000");
 
@@ -246,7 +243,7 @@ const User: NextPage = () => {
     return (
       <div className="flex justify-center overflow-hidden w-screen h-screen">
         <Head>
-          <title>{}</title>
+          <title>WaveChat - DM</title>
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>

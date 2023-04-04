@@ -6,7 +6,6 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import formik from "formik";
 // import { useMeQuery } from "../generated/graphql";
 import {
-  useSendDmImageMutation,
   useSendDmMutation,
   useSendInChannelMutation,
 } from "../generated/graphql";
@@ -25,7 +24,6 @@ const Send: NextPage<{
   const [sendInChannel] = useSendInChannelMutation();
   const [file, setFile] = useState(new File([""], ""));
   const [fileSrc, setFileSrc] = useState("");
-  const [sendDMImage] = useSendDmImageMutation();
 
   // const handleFileUpload = (event: any) => {
   //   let reader = new FileReader();

@@ -62,7 +62,7 @@ const Settings: NextPage = () => {
     return (
       <div className="flex justify-center">
         <Head>
-          <title>{}</title>
+          <title>WaveChat - Settings</title>
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>

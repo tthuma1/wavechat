@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   port: 3306,
   username: "mysql",
   password: "mysql",
-  database: "discord_clone2",
+  database: "wavechat",
   entities: [User, Message, Friendship, Group, Group_Has_User, Channel],
   migrations: [FriendshipCheck1674906699226, Cascade1680381411813],
   synchronize: true,

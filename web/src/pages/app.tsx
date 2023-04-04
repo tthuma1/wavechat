@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import CreateGroupModal from "../components/CreateGroupModal";
 import FriendList from "../components/FriendList";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
+import Head from "next/head";
 
 const App: NextPage = () => {
   const router = useRouter();
@@ -27,6 +28,11 @@ const App: NextPage = () => {
   if (!loading)
     return (
       <>
+        <Head>
+          <title>WaveChat</title>
+          <meta name="description" content="" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
         <CreateGroupModal />
         <div className="pt-10 flex flex-col items-center">
           <div className="flex w-[80vw]">

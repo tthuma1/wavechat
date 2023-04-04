@@ -7,6 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useState } from "react";
+import Link from "next/link";
 
 const Register: NextPage = () => {
   const [register] = useRegisterMutation();
@@ -15,7 +16,7 @@ const Register: NextPage = () => {
   return (
     <div className="h-screen flex justify-center">
       <Head>
-        <title>Discord Clone - Register</title>
+        <title>WaveChat - Register</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -83,6 +84,11 @@ const Register: NextPage = () => {
               >
                 Register
               </button>
+              <Link href="/login">
+                <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
+                  Already have an account? Log in
+                </div>
+              </Link>
             </Form>
           )}
         </Formik>
