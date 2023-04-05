@@ -85,6 +85,17 @@ export class MessageResolver {
       };
     }
 
+    if (msg == "") {
+      return {
+        errors: [
+          {
+            field: "msg",
+            message: "Message cannot be empty",
+          },
+        ],
+      };
+    }
+
     // check if DM group already exists
     // SELECT g.id FROM `group` g
     // INNER JOIN group_has_user ghu ON ghu.groupId = g.id
@@ -176,6 +187,17 @@ WHERE userId = ? AND g.id IN (
           {
             field: "senderId",
             message: "Sender is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (msg == "") {
+      return {
+        errors: [
+          {
+            field: "msg",
+            message: "Message cannot be empty",
           },
         ],
       };

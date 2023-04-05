@@ -7,7 +7,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
-    "start": "node dist/index.js"
+    "start": "forever start dist/index.js",
+    "stop": "forever stopall"
   },
   "devDependencies": {
     "@types/connect-redis": "^0.0.18",
