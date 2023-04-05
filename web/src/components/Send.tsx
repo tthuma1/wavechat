@@ -14,7 +14,7 @@ import { io } from "socket.io-client";
 import { useState } from "react";
 import AWS from "aws-sdk";
 
-const socket = io("http://localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const Send: NextPage<{
   receiverId: string | string[] | undefined;
@@ -69,7 +69,7 @@ const Send: NextPage<{
 
               const filename = (
                 await (
-                  await fetch("http://localhost:4000/upload", {
+                  await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/upload`, {
                     method: "POST",
                     // headers: {
                     //     'Accept': 'application/json',
@@ -97,70 +97,6 @@ const Send: NextPage<{
                 setFile(new File([""], ""));
                 setFileSrc("");
               }
-
-              //
-              //
-              //
-              //
-
-              /*
-              const s3 = new AWS.S3({
-                correctClockSkew: true,
-                endpoint: "https://s3.eu-central-2.wasabisys.com", //use appropriate endpoint as per region of the bucket
-                accessKeyId: process.env.NEXT_PUBLIC_ACCESS_KEY,
-                secretAccessKey: process.env.NEXT_PUBLIC_SECRET_ACCESS_KEY,
-                region: "eu-central-2",
-                logger: console,
-              });
-              const filename = new Date().getTime() + "_" + file.name;
-              const uploadRequest = new AWS.S3.ManagedUpload({
-                params: {
-                  Bucket: "wavechat",
-                  Key: "attachments/" + filename,
-                  Body: file,
-                  ACL: "public-read",
-                },
-                service: s3,
-              });
-              uploadRequest.on("httpUploadProgress", function (event) {
-                const progressPercentage = Math.floor(
-                  (event.loaded * 100) / event.total
-                );
-                console.log("Upload progress " + progressPercentage);
-              });
-
-              console.log("Configed and sending");
-
-              uploadRequest.send(async err => {
-                if (err) {
-                  console.log("UPLOAD ERROR: " + JSON.stringify(err, null, 2));
-                } else {
-                  console.log("Good upload");
-
-                  const response = await sendDM({
-                    variables: { ...values, type: "image", msg: filename },
-                  });
-
-                  if (response.data?.sendDM.errors) {
-                    console.log(response.data?.sendDM.errors);
-                    setErrors(toErrorMap(response.data.sendDM.errors));
-                    // setErrors({ username: "hi" });
-                  } else if (response.data?.sendDM.message) {
-                    // worked
-                    // router.push("/");
-                    console.log("worked");
-                    socket.emit("received");
-                    resetForm();
-                    setFile(new File([""], ""));
-                    setFileSrc("");
-                  }
-                }
-              });
-*/
-              //
-              //
-              //
-              //
             }
 
             // actions.setSubmitting(false);

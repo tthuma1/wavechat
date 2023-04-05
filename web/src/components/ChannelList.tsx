@@ -9,7 +9,7 @@ import {
   useMeQuery,
 } from "../generated/graphql";
 
-const socket = io("http://localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const ChannelList: NextPage<{ groupId: number | undefined }> = props => {
   const { data: meData, loading: meLoading } = useMeQuery();

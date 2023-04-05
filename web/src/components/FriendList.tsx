@@ -10,7 +10,7 @@ import {
   useMeQuery,
 } from "../generated/graphql";
 
-const socket = io("http://localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const FriendList: NextPage<{ type: number }> = props => {
   const router = useRouter();
