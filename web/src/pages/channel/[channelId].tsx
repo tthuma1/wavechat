@@ -23,7 +23,7 @@ import CreateChannelModal from "../../components/CreateChannelModal";
 import EditChannelModal from "../../components/EditChannelModal";
 import EditGroupModal from "../../components/EditGroupModal";
 
-const socket = io("http://localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const Channel: NextPage = () => {
   const router = useRouter();

@@ -16,7 +16,7 @@ import FriendList from "../../components/FriendList";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import React from "react";
 
-const socket = io("http://localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const User: NextPage = () => {
   const router = useRouter();

@@ -128,7 +128,7 @@ export class UserResolver {
     await sendEmail(
       options.email,
       "Verify email",
-      `<a href="http://localhost:3000/verify/${token}">verify email</a>`
+      `<a href="${process.env.DOMAIN}/verify/${token}">verify email</a>`
     );
 
     // store user id session
@@ -800,7 +800,7 @@ LIMIT 15;
     await sendEmail(
       email,
       "Reset password",
-      `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
+      `<a href="${process.env.DOMAIN}/change-password/${token}">reset password</a>`
     );
 
     return true;

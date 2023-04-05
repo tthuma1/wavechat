@@ -197,7 +197,7 @@ const main = async () => {
   app.post(
     "/upload",
     cors({
-      origin: ["http://localhost:3000"],
+      origin: [process.env.DOMAIN!],
       credentials: true,
     }),
     async (req, res) => {
