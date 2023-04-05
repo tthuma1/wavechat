@@ -1,6 +1,5 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import type { AppProps } from "next/app";
-import NavBar from "../components/NavBar";
 import "../styles/globals.css";
 import Script from "next/script";
 import { useEffect } from "react";

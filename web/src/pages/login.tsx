@@ -88,7 +88,7 @@ const Login: NextPage = () => {
               </button>
               <Link href="/register">
                 <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
-                  Don't have an account? Sign Up
+                  {"Don't have an account? Sign Up"}
                 </div>
               </Link>
             </Form>

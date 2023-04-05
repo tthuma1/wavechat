@@ -88,7 +88,7 @@ const Search: NextPage = () => {
     return (
       <div className="flex justify-center">
         <Head>
-          <title>WaveChat - Search</title>
+          <title>WaveChat - Settings</title>
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
