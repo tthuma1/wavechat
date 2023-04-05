@@ -83,7 +83,7 @@ export class UserResolver {
     }
 
     const hashedPassword = await argon2.hash(options.password);
-    let user;
+    // let user;
 
     // if unverified user with same email exists, delete them from table
     let sameEmail = await User.findOneBy({ email: options.email });
@@ -91,6 +91,25 @@ export class UserResolver {
       await User.delete({ email: options.email });
     }
 
+    if (await User.findOneBy({ username: options.username })) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "Username already taken.",
+          },
+        ],
+      };
+    }
+
+    const user = new User();
+    user.username = options.username;
+    user.email = options.email;
+    user.password = hashedPassword;
+
+    await user.save();
+
+    /*
     try {
       // User.create({}).save()
       const result = await AppDataSource.createQueryBuilder()
@@ -119,6 +138,7 @@ export class UserResolver {
         };
       }
     }
+    */
 
     // send confirmation email
     const token = v4();

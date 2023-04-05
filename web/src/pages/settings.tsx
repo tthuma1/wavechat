@@ -41,9 +41,11 @@ const Settings: NextPage = () => {
     allLoaded = true;
   }
 
-  if (!meLoading && meData?.me == null) {
-    router.push("/login");
-  }
+  useEffect(() => {
+    if (!meLoading && meData?.me == null) {
+      router.push("/login");
+    }
+  });
 
   const changeTheme = () => {
     if (localStorage.theme === "dark") {
