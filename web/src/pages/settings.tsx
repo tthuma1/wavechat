@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import {
   useMeQuery,
   useChangeEmailMutation,
@@ -17,6 +17,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 import AWS from "aws-sdk";
 
 const Settings: NextPage = () => {
+  const router = useRouter();
   const { data: meData, loading: meLoading } = useMeQuery();
   const [changeUsername] = useChangeUsernameMutation();
   const [changeEmail] = useChangeEmailMutation();
@@ -41,7 +42,7 @@ const Settings: NextPage = () => {
   }
 
   if (!meLoading && meData?.me == null) {
-    Router.push("/login");
+    router.push("/login");
   }
 
   const changeTheme = () => {

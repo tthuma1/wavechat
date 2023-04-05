@@ -2,7 +2,7 @@ import { ErrorMessage, Field, Form, Formik, useField } from "formik";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import {
   useSearchUsersQuery,
@@ -15,10 +15,12 @@ import {
   GroupWithChannel,
   useJoinGroupMutation,
 } from "../generated/graphql";
+import { useRouter } from "next/router";
 
 const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const Search: NextPage = () => {
+  const router = useRouter();
   const { refetch: usersRefetch } = useSearchUsersQuery({
     variables: { username: "" },
   });
@@ -45,6 +47,10 @@ const Search: NextPage = () => {
 
   const [joinedGroups, setJoinedGroups] = useState<number[]>([]);
   let joinedGroupsStart: any[] = [];
+
+  useEffect(() => {
+    if (!meLoading && !meData?.me) router.push("/login");
+  });
 
   const handleAddFriend = async (id: number) => {
     const response = await addFriend({ variables: { friendId: id } });

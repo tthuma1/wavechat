@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import {
   useGetUserQuery,
   useMeQuery,
@@ -185,9 +185,11 @@ const User: NextPage = () => {
     // console.log(messagesState);
   }, []);
 
-  if (!meLoading && meData?.me == null) {
-    Router.push("/login");
-  }
+  useEffect(() => {
+    if (!meLoading && meData?.me == null) {
+      router.push("/login");
+    }
+  });
 
   socket.on("received", async () => {
     // console.log("received in [user].tsx");

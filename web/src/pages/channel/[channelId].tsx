@@ -143,9 +143,11 @@ const Channel: NextPage = () => {
     }, 100);
   }
 
-  if (!meLoading && meData?.me == null) {
-    router.push("/login");
-  }
+  useEffect(() => {
+    if (!meLoading && meData?.me == null) {
+      router.push("/login");
+    }
+  });
 
   socket.on("received", async () => {
     // console.log("received in [channel].tsx");
