@@ -150,7 +150,7 @@ WHERE userId = ? AND g.id IN (
       channelId = channel.id;
     } else {
       // retrive channelId of dm
-      channelId = (await Channel.findBy({ groupId: dmId.id }))[0].id;
+      channelId = (await Channel.findOneBy({ groupId: dmId[0].id }))!.id;
     }
 
     let message = new Message();

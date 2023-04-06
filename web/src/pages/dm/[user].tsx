@@ -241,7 +241,7 @@ const User: NextPage = () => {
     socket.emit("friend removed");
   };
 
-  if (allLoaded) {
+  if (allLoaded && router.isReady && quser) {
     return (
       <div className="flex justify-center overflow-hidden w-screen h-screen">
         <Head>

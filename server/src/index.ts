@@ -124,8 +124,8 @@ const main = async () => {
     },
   });
 
-  const server = app.listen(4000, () => {
-    console.log("server started on localhost:4000");
+  const server = app.listen(process.env.PORT, () => {
+    console.log("server started on localhost:" + process.env.PORT);
   });
 
   const io = new Server(server, {
