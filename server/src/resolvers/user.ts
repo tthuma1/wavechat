@@ -82,7 +82,9 @@ export class UserResolver {
       return { errors };
     }
 
-    const hashedPassword = await argon2.hash(options.password);
+    const hashedPassword = await argon2.hash(options.password, {
+      type: argon2.argon2i,
+    });
     // let user;
 
     // if unverified user with same email exists, delete them from table
@@ -229,7 +231,9 @@ export class UserResolver {
         ],
       };
     }
-    const valid = await argon2.verify(user.password, password);
+    const valid = await argon2.verify(user.password, password, {
+      type: argon2.argon2i,
+    });
     if (!valid) {
       return {
         errors: [
@@ -611,7 +615,9 @@ WHERE user1Id = ? AND user2Id = ?;
       };
     }
 
-    const valid = await argon2.verify(user.password, oldPassword);
+    const valid = await argon2.verify(user.password, oldPassword, {
+      type: argon2.argon2i,
+    });
     if (!valid) {
       return {
         errors: [
@@ -626,7 +632,7 @@ WHERE user1Id = ? AND user2Id = ?;
     await User.update(
       { id: req.session.userId },
       {
-        password: await argon2.hash(newPassword),
+        password: await argon2.hash(newPassword, { type: argon2.argon2i }),
       }
     );
 
@@ -707,7 +713,7 @@ WHERE user1Id = ? AND user2Id = ?;
     await User.update(
       { id: userIdNum },
       {
-        password: await argon2.hash(newPassword),
+        password: await argon2.hash(newPassword, { type: argon2.argon2i }),
       }
     );
 

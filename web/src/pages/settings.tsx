@@ -140,63 +140,47 @@ const Settings: NextPage = () => {
               }
 
               if (fileSrc && file) {
-                const s3 = new AWS.S3({
-                  correctClockSkew: true,
-                  endpoint: "https://s3.eu-central-2.wasabisys.com", //use appropriate endpoint as per region of the bucket
-                  accessKeyId: process.env.NEXT_PUBLIC_ACCESS_KEY,
-                  secretAccessKey: process.env.NEXT_PUBLIC_SECRET_ACCESS_KEY,
-                  region: "eu-central-2",
-                  logger: console,
-                });
-                const filename = new Date().getTime() + "_" + file.name;
-                const uploadRequest = new AWS.S3.ManagedUpload({
-                  params: {
-                    Bucket: "wavechat",
-                    Key: "avatars/" + filename,
-                    Body: file,
-                    ACL: "public-read",
-                  },
-                  service: s3,
-                });
-                uploadRequest.on("httpUploadProgress", function (event) {
-                  const progressPercentage = Math.floor(
-                    (event.loaded * 100) / event.total
-                  );
-                  console.log("Upload progress " + progressPercentage);
+                if (file.size > 10485760) {
+                  // 10 MB
+                  alert("File is too big!");
+                }
+                var data = new FormData();
+                data.append("image", file);
+                data.append("path", "avatars");
+
+                const filename = (
+                  await (
+                    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/upload`, {
+                      method: "POST",
+                      // headers: {
+                      //     'Accept': 'application/json',
+                      //     'Content-Type': 'application/json'
+                      // },
+                      body: data,
+                    })
+                  ).json()
+                ).filename;
+
+                const response = await changeAvatar({
+                  variables: { filename },
                 });
 
-                console.log("Configed and sending");
-
-                uploadRequest.send(async err => {
-                  if (err) {
-                    console.log(
-                      "UPLOAD ERROR: " + JSON.stringify(err, null, 2)
-                    );
-                  } else {
-                    console.log("Good upload");
-
-                    const response = await changeAvatar({
-                      variables: { filename },
-                    });
-
-                    if (response.data?.changeAvatar.errors) {
-                      console.log(response.data?.changeAvatar.errors);
-                      setErrors(toErrorMap(response.data.changeAvatar.errors));
-                    } else {
-                      resetForm();
-                      setFile(new File([""], ""));
-                      setFileSrc("");
-                      setSaved(true);
-                    }
-                  }
-                });
+                if (response.data?.changeAvatar.errors) {
+                  console.log(response.data?.changeAvatar.errors);
+                  setErrors(toErrorMap(response.data.changeAvatar.errors));
+                } else {
+                  resetForm();
+                  setFile(new File([""], ""));
+                  setFileSrc("");
+                  setSaved(true);
+                }
               }
             }}
           >
             {({ handleSubmit, isSubmitting }) => (
               <Form
                 onSubmit={handleSubmit}
-                className="bg-gray-200 dark:bg-gray-850 rounded-md w-[70vw] px-14 py-10"
+                className="bg-gray-200 dark:bg-gray-850 rounded-md w-[70vw] px-14 py-10 shadow-md"
               >
                 <div className="flex mt-3">
                   <img
@@ -216,7 +200,7 @@ const Settings: NextPage = () => {
                   </label>
 
                   <div className="flex flex-1 justify-between">
-                    <div className="border-red-700 bg-gray-50 dark:bg-transparent border py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer m-2 h-fit hover:text-gray-100">
+                    <div className="border-red-700 bg-gray-50 dark:bg-transparent border-2 py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer m-2 h-fit hover:text-gray-100">
                       Remove avatar
                     </div>
                     <input

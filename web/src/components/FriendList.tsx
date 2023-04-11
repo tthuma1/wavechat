@@ -141,7 +141,7 @@ const FriendList: NextPage<{ type: number }> = props => {
 
   const showCreateModal = () => {
     let modal = document.getElementById("createGroupModal");
-    console.log(modal);
+    // console.log(modal);
 
     modal?.classList.remove("hidden");
     modal?.classList.add("flex");

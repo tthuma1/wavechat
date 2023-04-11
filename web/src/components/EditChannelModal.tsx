@@ -26,7 +26,7 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
       if (response.data && response.data?.deleteChannel != -1) {
         socket.emit("channel deleted");
         // close modal
-        let modal = document.getElementById("editModal");
+        let modal = document.getElementById("editChannelModal");
         modal!.classList.remove("flex");
         modal!.classList.add("hidden");
 
@@ -37,27 +37,29 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
   };
 
   useEffect(() => {
-    let modal = document.getElementById("editModal");
-    window.onclick = event => {
-      if (event.target == modal) {
-        modal!.classList.remove("flex");
-        modal!.classList.add("hidden");
-        setDeleteStage(0);
-      }
-    };
+    let modal = document.getElementById("editChannelModal");
+    if (modal) {
+      modal.onclick = event => {
+        if (event.target == modal) {
+          modal!.classList.remove("flex");
+          modal!.classList.add("hidden");
+          setDeleteStage(0);
+        }
+      };
+    }
   }, []);
 
   return (
     <div
-      id="editModal"
+      id="editChannelModal"
       className="modal hidden fixed z-10 pt-[40vh] w-full h-full bg-[rgba(0,0,0,0.6)] justify-center"
     >
-      <div className="flex flex-col items-center bg-gray-850 w-1/2 h-fit rounded-md py-3 px-6">
+      <div className="flex flex-col items-center bg-gray-200 dark:bg-gray-850 w-1/2 h-fit rounded-md py-3 px-6">
         <div className="flex justify-end w-full">
           <div
-            className="w-6 h-6 text-xl text-gray-400 hover:cursor-pointer rounded-full hover:bg-gray-700 flex justify-center items-center"
+            className="w-6 h-6 text-xl text-gray-400 hover:cursor-pointer rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 flex justify-center items-center"
             onClick={() => {
-              let modal = document.getElementById("editModal");
+              let modal = document.getElementById("editChannelModal");
 
               modal!.classList.remove("flex");
               modal!.classList.add("hidden");
@@ -109,10 +111,7 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
         </Formik>
 
         <div className="flex justify-end w-full">
-          <div
-            className="mt-2 border-red-700 bg-gray-50 dark:bg-transparent border py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer hover:text-gray-100"
-            onClick={deleteChannel}
-          >
+          <div className="mt-2 btn-danger" onClick={deleteChannel}>
             {deleteStage == 0 && (
               <>
                 Delete Channel

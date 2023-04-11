@@ -49,7 +49,8 @@ const User: NextPage = () => {
       limit: 15,
     });
 
-    setCurrOffset(15), setFirstItemIndex(1e9);
+    setCurrOffset(15);
+    setFirstItemIndex(1e9);
     setFirstLoad(true);
     initial_item_count = 0;
   }, [quser]);
@@ -73,6 +74,7 @@ const User: NextPage = () => {
     userData?.getUser != null
   ) {
     if (data!.retrieveDM!.messages !== null) {
+      console.log(data.retrieveDM?.messages);
       // console.log(data);
       for (let i = 0; i < data!.retrieveDM!.messages!.length; i++) {
         let createdAt = new Date(
@@ -142,7 +144,7 @@ const User: NextPage = () => {
                       "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
                       message.msg
                     }
-                    className="max-h-32 rounded-md"
+                    className="max-h-72 rounded-md"
                   />
                 </div>
               </div>
@@ -193,7 +195,15 @@ const User: NextPage = () => {
 
   socket.on("received", async () => {
     // console.log("received in [user].tsx");
-    refetch();
+    // console.log(currOffset);
+
+    if (quser) {
+      await refetch({
+        receiverId: parseFloat(quser as string),
+        offset: 0,
+        limit: currOffset,
+      });
+    }
   });
 
   const prependItems = async () => {

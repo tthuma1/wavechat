@@ -34,7 +34,7 @@ const Channel: NextPage = () => {
 
   const [firstLoad, setFirstLoad] = useState(true);
   const [firstItemIndex, setFirstItemIndex] = useState(1e9);
-  const [currOffset, setCurrOffset] = useState(5);
+  const [currOffset, setCurrOffset] = useState(15);
 
   const { data, loading, refetch, fetchMore } = useRetrieveInChannelQuery({
     variables: {
@@ -76,7 +76,8 @@ const Channel: NextPage = () => {
       limit: 15,
     });
 
-    setCurrOffset(15), setFirstItemIndex(1e9);
+    setCurrOffset(15);
+    setFirstItemIndex(1e9);
     setFirstLoad(true);
     initial_item_count = 0;
   }, [qchannelId]);
@@ -96,6 +97,7 @@ const Channel: NextPage = () => {
     if (!isInChannelData.isCurrentInChannel) router.push("/app");
 
     if (data!.retrieveInChannel!.messages !== null) {
+      console.log(data.retrieveInChannel?.messages);
       for (let i = 0; i < data!.retrieveInChannel!.messages!.length; i++) {
         let createdAt = new Date(
           parseInt(data!.retrieveInChannel!.messages![i].createdAt)
@@ -106,9 +108,14 @@ const Channel: NextPage = () => {
         const message = data!.retrieveInChannel!.messages![i];
         let sender = senders.find(el => el.id == message.senderId)!;
 
-        if (sender)
+        if (sender && message.type == "text") {
           messages.unshift(
-            <div key={i} className="flex my-4">
+            // {
+            //   sender,
+            //   dateOut,
+            //   msg: message.msg,
+            // }
+            <div key={i} className="flex py-2">
               <img
                 src={
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -117,14 +124,38 @@ const Channel: NextPage = () => {
                 className="w-8 h-8 rounded-full mr-4"
               />
               <div>
-                <span className="font-semibold py-2 pr-2">
-                  {sender.username}
-                </span>
-                <span className="text-gray-400 text-sm py-2">{dateOut}</span>
+                <span className="font-semibold pr-2">{sender.username}</span>
+                <span className="text-gray-400 text-sm">{dateOut}</span>
                 <p>{message.msg}</p>
               </div>
             </div>
           );
+        } else if (sender && message.type == "image") {
+          messages.unshift(
+            <div key={i} className="flex py-2">
+              <img
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  sender.avatar
+                }
+                className="w-8 h-8 rounded-full mr-4"
+              />
+              <div>
+                <span className="font-semibold pr-2">{sender.username}</span>
+                <span className="text-gray-400 text-sm">{dateOut}</span>
+                <div className="pt-2">
+                  <img
+                    src={
+                      "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
+                      message.msg
+                    }
+                    className="max-h-72 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        }
       }
     }
 
@@ -133,15 +164,28 @@ const Channel: NextPage = () => {
 
     // quick hack because it doesn't scroll to bottom on load
     setTimeout(() => {
-      if (virtRef.current != null && firstLoad) {
-        setFirstLoad(() => false);
-        virtRef.current!.scrollToIndex({
-          index: messages.length - 1,
-          behavior: "smooth",
-        });
-      }
+      // if (virtRef.current != null && firstLoad) {
+      //   setFirstLoad(() => false);
+      //   virtRef.current!.scrollToIndex({
+      //     index: messages.length - 1,
+      //     behavior: "smooth",
+      //   });
+      // }
     }, 100);
   }
+
+  useEffect(() => {
+    if (virtRef.current != null) {
+      setFirstLoad(() => false);
+      virtRef.current.scrollToIndex({
+        index: messages.length - 1,
+        // align: "start",
+        // behavior: "smooth",
+      });
+    }
+    // setMessagesState(messages);
+    // console.log(messagesState);
+  }, []);
 
   useEffect(() => {
     if (!meLoading && meData?.me == null) {
@@ -151,7 +195,13 @@ const Channel: NextPage = () => {
 
   socket.on("received", async () => {
     // console.log("received in [channel].tsx");
-    refetch();
+    if (qchannelId) {
+      refetch({
+        channelId: parseFloat(qchannelId as string),
+        offset: 0,
+        limit: currOffset,
+      });
+    }
   });
 
   socket.on("group renamed", async () => {
@@ -160,6 +210,7 @@ const Channel: NextPage = () => {
 
   const prependItems = async () => {
     if (data!.retrieveInChannel!.hasMore) {
+      await fetchMore({ variables: { offset: currOffset, limit: 10 } });
       setCurrOffset(() => currOffset + 10);
       setFirstItemIndex(() => firstItemIndex - 10);
     }
@@ -174,17 +225,27 @@ const Channel: NextPage = () => {
     }
   };
 
-  useEffect(() => {
-    // console.log(currOffset);
-    if (data) fetchMore({ variables: { offset: currOffset, limit: 10 } });
-  }, [currOffset]);
+  // useEffect(() => {
+  //   // console.log(currOffset);
+  //   if (data) fetchMore({ variables: { offset: currOffset, limit: 10 } });
+  // }, [currOffset]);
 
   const showEditModal = () => {
-    let modal = document.getElementById("editModal");
+    let modal = document.getElementById("editChannelModal");
 
     modal?.classList.remove("hidden");
     modal?.classList.add("flex");
     document.getElementById("editInput")?.focus();
+
+    // if (modal) {
+    //   // When the user clicks anywhere outside of the modal, close it
+    //   window.onclick = event => {
+    //     if (event.target == modal) {
+    //       modal!.classList.remove("flex");
+    //       modal!.classList.add("hidden");
+    //     }
+    //   };
+    // }
   };
 
   const showEditGroupModal = () => {
@@ -193,6 +254,16 @@ const Channel: NextPage = () => {
     modal?.classList.remove("hidden");
     modal?.classList.add("flex");
     document.getElementById("editGroupInput")?.focus();
+
+    // if (modal) {
+    //   // When the user clicks anywhere outside of the modal, close it
+    //   window.onclick = event => {
+    //     if (event.target == modal) {
+    //       modal!.classList.remove("flex");
+    //       modal!.classList.add("hidden");
+    //     }
+    //   };
+    // }
   };
 
   if (allLoaded) {
@@ -269,10 +340,11 @@ const Channel: NextPage = () => {
               data={messages}
               ref={virtRef}
               startReached={prependItems}
-              firstItemIndex={firstItemIndex}
+              firstItemIndex={1e9 - messages.length}
               initialTopMostItemIndex={{
                 index: initial_item_count,
-                behavior: "smooth",
+                // behavior: "smooth",
+                // align: "end",
               }}
               followOutput
               itemContent={(index, message) => (

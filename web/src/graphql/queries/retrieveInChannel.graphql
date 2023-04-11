@@ -10,6 +10,7 @@ query RetrieveInChannel($limit: Float!, $offset: Float!, $channelId: Float!) {
       createdAt
       senderId
       channelId
+      type
     }
     users {
       id

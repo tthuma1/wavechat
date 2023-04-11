@@ -11,7 +11,7 @@ import {
 } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { io } from "socket.io-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AWS from "aws-sdk";
 
 const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
@@ -39,14 +39,17 @@ const Send: NextPage<{
     <div className="sticky">
       <Formik
         initialValues={{
-          receiverId: parseInt(props.receiverId as string),
           msg: "",
         }}
         onSubmit={async (values, { setErrors, resetForm }) => {
           if (props.type == "dm") {
             if (values.msg != "") {
               const response = await sendDM({
-                variables: { ...values, type: "text" },
+                variables: {
+                  msg: values.msg,
+                  receiverId: parseInt(props.receiverId as string),
+                  type: "text",
+                },
               });
 
               if (response.data?.sendDM.errors) {
@@ -66,6 +69,7 @@ const Send: NextPage<{
               }
               var data = new FormData();
               data.append("image", file);
+              data.append("path", "attachments");
 
               const filename = (
                 await (
@@ -81,7 +85,11 @@ const Send: NextPage<{
               ).filename;
 
               const response = await sendDM({
-                variables: { ...values, type: "image", msg: filename },
+                variables: {
+                  receiverId: parseInt(props.receiverId as string),
+                  type: "image",
+                  msg: filename,
+                },
               });
 
               if (response.data?.sendDM.errors) {
@@ -91,7 +99,7 @@ const Send: NextPage<{
               } else if (response.data?.sendDM.message) {
                 // worked
                 // router.push("/");
-                console.log("worked");
+                // console.log("worked");
                 socket.emit("received");
                 resetForm();
                 setFile(new File([""], ""));
@@ -101,23 +109,67 @@ const Send: NextPage<{
 
             // actions.setSubmitting(false);
           } else if (props.type == "group") {
-            const response = await sendInChannel({
-              variables: {
-                channelId: values.receiverId,
-                msg: values.msg,
-                type: "text",
-              },
-            });
-            if (response.data?.sendInChannel.errors) {
-              console.log(response.data?.sendInChannel.errors);
-              setErrors(toErrorMap(response.data.sendInChannel.errors));
-              // setErrors({ username: "hi" });
-            } else if (response.data?.sendInChannel.message) {
-              // worked
-              // router.push("/");
-              console.log("worked");
-              socket.emit("received");
-              resetForm();
+            if (values.msg != "") {
+              const response = await sendInChannel({
+                variables: {
+                  channelId: parseInt(props.receiverId as string),
+                  msg: values.msg,
+                  type: "text",
+                },
+              });
+              if (response.data?.sendInChannel.errors) {
+                console.log(response.data?.sendInChannel.errors);
+                setErrors(toErrorMap(response.data.sendInChannel.errors));
+                // setErrors({ username: "hi" });
+              } else if (response.data?.sendInChannel.message) {
+                // worked
+                // router.push("/");
+                // console.log("worked");
+                socket.emit("received");
+                resetForm();
+              }
+            } else if (fileSrc != "") {
+              if (file.size > 10485760) {
+                // 10 MB
+                alert("File is too big!");
+              }
+              var data = new FormData();
+              data.append("image", file);
+              data.append("path", "attachments");
+
+              const filename = (
+                await (
+                  await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/upload`, {
+                    method: "POST",
+                    // headers: {
+                    //     'Accept': 'application/json',
+                    //     'Content-Type': 'application/json'
+                    // },
+                    body: data,
+                  })
+                ).json()
+              ).filename;
+
+              const response = await sendInChannel({
+                variables: {
+                  channelId: parseInt(props.receiverId as string),
+                  msg: filename,
+                  type: "image",
+                },
+              });
+
+              if (response.data?.sendInChannel.errors) {
+                console.log(response.data?.sendInChannel.errors);
+                setErrors(toErrorMap(response.data.sendInChannel.errors));
+              } else if (response.data?.sendInChannel.message) {
+                // worked
+                // router.push("/");
+                // console.log("worked");
+                socket.emit("received");
+                resetForm();
+                setFile(new File([""], ""));
+                setFileSrc("");
+              }
             }
           }
         }}

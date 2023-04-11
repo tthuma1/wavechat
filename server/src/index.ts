@@ -201,7 +201,7 @@ const main = async () => {
       credentials: true,
     }),
     async (req, res) => {
-      console.log(req.files);
+      // console.log(req.body.path);
       if (req.files && req.files.image) {
         const image = req.files.image as UploadedFile;
 
@@ -252,7 +252,7 @@ const main = async () => {
         const uploadRequest = new AWS.S3.ManagedUpload({
           params: {
             Bucket: "wavechat",
-            Key: "attachments/" + filename,
+            Key: req.body.path + "/" + filename,
             Body: image.data,
             ACL: "public-read",
           },

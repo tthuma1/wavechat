@@ -637,7 +637,7 @@ export type RetrieveInChannelQueryVariables = Exact<{
 }>;
 
 
-export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null } | null };
+export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number, type: string }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null } | null };
 
 export type SearchGroupsQueryVariables = Exact<{
   name: Scalars['String'];
@@ -2078,6 +2078,7 @@ export const RetrieveInChannelDocument = gql`
       createdAt
       senderId
       channelId
+      type
     }
     users {
       id

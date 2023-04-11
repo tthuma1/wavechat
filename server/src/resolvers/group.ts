@@ -419,7 +419,16 @@ WHERE ghu.userId = ? AND c.id = ?;
       };
     }
 
-    let ghu_arr = await Group_Has_User.findBy({ groupId });
+    // let ghu_arr = await Group_Has_User.findBy({ groupId });
+    let ghu_arr = await AppDataSource.query(
+      `
+SELECT ghu.* FROM group_has_user ghu
+INNER JOIN user u ON ghu.userId = u.id
+WHERE ghu.groupId = ?
+ORDER BY u.username;
+      `,
+      [groupId]
+    );
     let users: any[] = [];
 
     for (const ghu of ghu_arr) {

@@ -15,10 +15,10 @@ const CreateGroupModal: NextPage = props => {
       id="createGroupModal"
       className="modal hidden fixed z-10 pt-[40vh] w-full h-full bg-[rgba(0,0,0,0.6)] justify-center"
     >
-      <div className="flex flex-col items-center bg-gray-850 w-1/2 h-fit rounded-md py-3 px-6">
+      <div className="flex flex-col items-center bg-gray-200 dark:bg-gray-850 w-1/2 h-fit rounded-md py-3 px-6">
         <div className="flex justify-end w-full">
           <div
-            className="w-6 h-6 text-xl text-gray-400 hover:cursor-pointer rounded-full hover:bg-gray-700 flex justify-center items-center"
+            className="w-6 h-6 text-xl text-gray-400 hover:cursor-pointer rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 flex justify-center items-center"
             onClick={() => {
               let modal = document.getElementById("createGroupModal");
 
