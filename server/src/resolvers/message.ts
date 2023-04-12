@@ -236,6 +236,71 @@ WHERE c.id = ? AND ghu.userId = ?;
   }
 
   @Query(() => MessagesResponse, { nullable: true })
+  async retrieveLastDM(
+    @Arg("receiverId") receiverId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if ((await User.findBy({ id: receiverId })).length === 0) {
+      return {
+        errors: [
+          {
+            field: "receiverId",
+            message: "Receiver ID doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Sender is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (req.session.userId == receiverId) {
+      return {
+        errors: [
+          {
+            field: "receiverId",
+            message: "Receiver can't be same as receiver",
+          },
+        ],
+      };
+    }
+
+    let messages = await AppDataSource.query(
+      `
+SELECT m.* FROM message m
+INNER JOIN channel c ON m.channelId = c.id
+INNER JOIN \`group\` g ON c.groupId = g.id
+INNER JOIN group_has_user ghu ON ghu.groupId = g.id
+WHERE userId = ? AND g.id IN (
+    SELECT g.id FROM \`group\` g
+    INNER JOIN group_has_user ghu ON ghu.groupId = g.id
+    WHERE userId = ?
+) AND g.type = 'dm'
+ORDER BY m.createdAt DESC
+LIMIT 1
+`,
+      [req.session.userId, receiverId]
+    );
+
+    let hasMore = false;
+
+    // let users: User[] = [];
+    let users = await User.find({
+      where: [{ id: receiverId }, { id: req.session.userId }],
+    });
+
+    return { messages, users, hasMore, newAmount: messages.length };
+  }
+
+  @Query(() => MessagesResponse, { nullable: true })
   async retrieveDM(
     @Arg("receiverId") receiverId: number,
     @Arg("offset") offset: number,

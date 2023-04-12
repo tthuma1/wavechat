@@ -97,7 +97,7 @@ const Channel: NextPage = () => {
     if (!isInChannelData.isCurrentInChannel) router.push("/app");
 
     if (data!.retrieveInChannel!.messages !== null) {
-      console.log(data.retrieveInChannel?.messages);
+      // console.log(data.retrieveInChannel?.messages);
       for (let i = 0; i < data!.retrieveInChannel!.messages!.length; i++) {
         let createdAt = new Date(
           parseInt(data!.retrieveInChannel!.messages![i].createdAt)
@@ -195,13 +195,14 @@ const Channel: NextPage = () => {
 
   socket.on("received", async () => {
     // console.log("received in [channel].tsx");
-    if (qchannelId) {
-      refetch({
-        channelId: parseFloat(qchannelId as string),
-        offset: 0,
-        limit: currOffset,
-      });
-    }
+    // if (qchannelId) {
+    //   refetch({
+    //     channelId: parseFloat(qchannelId as string),
+    //     offset: 0,
+    //     limit: currOffset,
+    //   });
+    // }
+    refetch();
   });
 
   socket.on("group renamed", async () => {

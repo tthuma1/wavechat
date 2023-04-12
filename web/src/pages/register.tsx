@@ -86,7 +86,7 @@ const Register: NextPage = () => {
               </button>
               <Link href="/login">
                 <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
-                  Already have an account? Log in
+                  Already have an account? Log In
                 </div>
               </Link>
             </Form>

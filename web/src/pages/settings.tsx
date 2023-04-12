@@ -33,7 +33,7 @@ const Settings: NextPage = () => {
 
   useEffect(() => {
     setCurrtheme(localStorage.theme);
-  }, []);
+  });
 
   let allLoaded = false;
 
@@ -57,8 +57,6 @@ const Settings: NextPage = () => {
     }
 
     setCurrtheme(localStorage.theme);
-
-    console.log(localStorage.theme);
   };
 
   if (allLoaded) {

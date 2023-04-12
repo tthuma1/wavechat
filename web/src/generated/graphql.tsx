@@ -276,6 +276,7 @@ export type Query = {
   me?: Maybe<User>;
   retrieveDM?: Maybe<MessagesResponse>;
   retrieveInChannel?: Maybe<MessagesResponse>;
+  retrieveLastDM?: Maybe<MessagesResponse>;
   searchGroups: Array<GroupWithChannel>;
   searchUsers: UsersResponse;
 };
@@ -342,6 +343,11 @@ export type QueryRetrieveInChannelArgs = {
   channelId: Scalars['Float'];
   limit: Scalars['Float'];
   offset: Scalars['Float'];
+};
+
+
+export type QueryRetrieveLastDmArgs = {
+  receiverId: Scalars['Float'];
 };
 
 
@@ -638,6 +644,13 @@ export type RetrieveInChannelQueryVariables = Exact<{
 
 
 export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number, type: string }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null } | null };
+
+export type RetrieveLastDmQueryVariables = Exact<{
+  receiverId: Scalars['Float'];
+}>;
+
+
+export type RetrieveLastDmQuery = { __typename?: 'Query', retrieveLastDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, newAmount?: number | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', senderId: number, channelId: number, msg: string, createdAt: string, type: string }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, email: string, avatar: string, isVerified: boolean }> | null } | null };
 
 export type SearchGroupsQueryVariables = Exact<{
   name: Scalars['String'];
@@ -2118,6 +2131,60 @@ export function useRetrieveInChannelLazyQuery(baseOptions?: Apollo.LazyQueryHook
 export type RetrieveInChannelQueryHookResult = ReturnType<typeof useRetrieveInChannelQuery>;
 export type RetrieveInChannelLazyQueryHookResult = ReturnType<typeof useRetrieveInChannelLazyQuery>;
 export type RetrieveInChannelQueryResult = Apollo.QueryResult<RetrieveInChannelQuery, RetrieveInChannelQueryVariables>;
+export const RetrieveLastDmDocument = gql`
+    query RetrieveLastDM($receiverId: Float!) {
+  retrieveLastDM(receiverId: $receiverId) {
+    errors {
+      field
+      message
+    }
+    messages {
+      senderId
+      channelId
+      msg
+      createdAt
+      type
+    }
+    users {
+      id
+      username
+      email
+      avatar
+      isVerified
+    }
+    hasMore
+    newAmount
+  }
+}
+    `;
+
+/**
+ * __useRetrieveLastDmQuery__
+ *
+ * To run a query within a React component, call `useRetrieveLastDmQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRetrieveLastDmQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRetrieveLastDmQuery({
+ *   variables: {
+ *      receiverId: // value for 'receiverId'
+ *   },
+ * });
+ */
+export function useRetrieveLastDmQuery(baseOptions: Apollo.QueryHookOptions<RetrieveLastDmQuery, RetrieveLastDmQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RetrieveLastDmQuery, RetrieveLastDmQueryVariables>(RetrieveLastDmDocument, options);
+      }
+export function useRetrieveLastDmLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RetrieveLastDmQuery, RetrieveLastDmQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RetrieveLastDmQuery, RetrieveLastDmQueryVariables>(RetrieveLastDmDocument, options);
+        }
+export type RetrieveLastDmQueryHookResult = ReturnType<typeof useRetrieveLastDmQuery>;
+export type RetrieveLastDmLazyQueryHookResult = ReturnType<typeof useRetrieveLastDmLazyQuery>;
+export type RetrieveLastDmQueryResult = Apollo.QueryResult<RetrieveLastDmQuery, RetrieveLastDmQueryVariables>;
 export const SearchGroupsDocument = gql`
     query SearchGroups($name: String!) {
   searchGroups(name: $name) {

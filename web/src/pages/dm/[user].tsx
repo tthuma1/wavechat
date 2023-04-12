@@ -6,6 +6,8 @@ import {
   useMeQuery,
   useRemoveFriendMutation,
   useRetrieveDmQuery,
+  useRetrieveLastDmLazyQuery,
+  useRetrieveLastDmQuery,
 } from "../../generated/graphql";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
@@ -23,6 +25,7 @@ const User: NextPage = () => {
   const { user: quser } = router.query;
   const virtRef = React.useRef<VirtuosoHandle>(null);
   let messages: any = [];
+  let newMessages: any = [];
   let initial_item_count = 0;
   // let currOffset = 0;
   // let firstLoad = true;
@@ -41,6 +44,17 @@ const User: NextPage = () => {
     },
   });
   //   }
+
+  const {
+    data: dataLatest,
+    loading: loadingLatest,
+    refetch: refetchLatest,
+    fetchMore: fetchMoreLatest,
+  } = useRetrieveLastDmQuery({
+    variables: {
+      receiverId: parseFloat(quser as string),
+    },
+  });
 
   useEffect(() => {
     refetch({
@@ -73,8 +87,9 @@ const User: NextPage = () => {
     !userLoading &&
     userData?.getUser != null
   ) {
+    // console.log(data.retrieveDM?.messages);
     if (data!.retrieveDM!.messages !== null) {
-      console.log(data.retrieveDM?.messages);
+      // console.log(data.retrieveDM?.messages);
       // console.log(data);
       for (let i = 0; i < data!.retrieveDM!.messages!.length; i++) {
         let createdAt = new Date(
@@ -196,43 +211,98 @@ const User: NextPage = () => {
   socket.on("received", async () => {
     // console.log("received in [user].tsx");
     // console.log(currOffset);
-
-    if (quser) {
-      await refetch({
-        receiverId: parseFloat(quser as string),
-        offset: 0,
-        limit: currOffset,
-      });
-    }
-  });
-
-  const prependItems = async () => {
-    // if (virtRef.current != null && firstLoad) {
-    //   console.log("aaa");
-    //   firstLoad = false;
-    //   virtRef.current!.scrollToIndex({
-    //     index: messages.length - 1,
-    //     behavior: "smooth",
+    // if (quser) {
+    //   await refetch({
+    //     receiverId: parseFloat(quser as string),
+    //     offset: 0,
+    //     limit: currOffset,
     //   });
     // }
+    refetch();
 
+    // await fetchMore({ variables: { offset: 10, limit: 10 } });
+
+    // refetchLatest();
+    // console.log(dataLatest);
+    // if (quser) {
+    //   await fetchMoreLatest({
+    //     variables: {
+    //       variables: { id: parseFloat(quser as string) },
+    //     },
+    //   });
+    // }
+  });
+
+  /*
+  if (!loadingLatest && dataLatest) {
+    if (dataLatest!.retrieveLastDM!.messages !== null) {
+      console.log(dataLatest.retrieveLastDM?.messages);
+      // console.log(data);
+      for (let i = 0; i < dataLatest!.retrieveLastDM!.messages!.length; i++) {
+        let createdAt = new Date(
+          parseInt(dataLatest!.retrieveLastDM!.messages![0].createdAt)
+        );
+        const dateOut = formatDate(new Date(createdAt));
+
+        const senders = dataLatest!.retrieveLastDM!.users!;
+        const message = dataLatest!.retrieveLastDM!.messages![0];
+        let sender = senders.find(el => el.id == message.senderId)!;
+
+        // console.log(message);
+        if (sender && message.type == "text") {
+          newMessages.push(
+            <div key={i} className="flex py-2">
+              <img
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  sender.avatar
+                }
+                className="w-8 h-8 rounded-full mr-4"
+              />
+              <div>
+                <span className="font-semibold pr-2">{sender.username}</span>
+                <span className="text-gray-400 text-sm">{dateOut}</span>
+                <p>{message.msg}</p>
+              </div>
+            </div>
+          );
+        } else if (sender && message.type == "image") {
+          newMessages.push(
+            <div key={i} className="flex py-2">
+              <img
+                src={
+                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                  sender.avatar
+                }
+                className="w-8 h-8 rounded-full mr-4"
+              />
+              <div>
+                <span className="font-semibold pr-2">{sender.username}</span>
+                <span className="text-gray-400 text-sm">{dateOut}</span>
+                <div className="pt-2">
+                  <img
+                    src={
+                      "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
+                      message.msg
+                    }
+                    className="max-h-72 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        }
+      }
+    }
+  }
+  */
+
+  const prependItems = async () => {
     if (data!.retrieveDM!.hasMore) {
       await fetchMore({ variables: { offset: currOffset, limit: 10 } });
       setCurrOffset(() => currOffset + 10);
 
-      // const { data, loading } = useRetrieveDmQuery({
-      //   variables: {
-      //     receiverId: parseFloat(quser as string),
-      //     offset: currOffset,
-      //     limit: 15,
-      //   },
-      // });
-
-      // if (!loading) {
       setFirstItemIndex(() => firstItemIndex - 10);
-      // setMessagesState([...messagesState, data?.retrieveDM?.messages]);
-      // }
-    } else {
     }
   };
 
@@ -304,6 +374,7 @@ const User: NextPage = () => {
             </div>
           </div>
           <div className="w-full h-px bg-gray-600"></div>
+          {/* {newMessages} */}
           <div className="flex-auto bg-gray-100 dark:bg-gray-800 scrollbar-colored pt-3">
             {/* {messages} */}
             {/* pt-8 pb-2 */}

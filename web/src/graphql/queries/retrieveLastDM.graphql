@@ -1,0 +1,24 @@
+query RetrieveLastDM($receiverId: Float!) {
+  retrieveLastDM(receiverId: $receiverId) {
+    errors {
+      field
+      message
+    }
+    messages {
+      senderId
+      channelId
+      msg
+      createdAt
+      type
+    }
+    users {
+      id
+      username
+      email
+      avatar
+      isVerified
+    }
+    hasMore
+    newAmount
+  }
+}

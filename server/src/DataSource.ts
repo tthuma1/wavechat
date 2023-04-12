@@ -7,13 +7,14 @@ import { Group_Has_User } from "./enitities/Group_Has_User";
 import { FriendshipCheck1674906699226 } from "./migrations/1674906699226-FriendshipCheck";
 import { Channel } from "./enitities/Channel";
 import { Cascade1680381411813 } from "./migrations/1680381411813-Cascade";
+require("dotenv").config();
 
 export const AppDataSource = new DataSource({
   type: "mariadb",
   host: "localhost",
   port: 3306,
-  username: "mysql",
-  password: "mysql",
+  username: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASS,
   database: "wavechat",
   entities: [User, Message, Friendship, Group, Group_Has_User, Channel],
   migrations: [FriendshipCheck1674906699226, Cascade1680381411813],
