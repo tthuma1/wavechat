@@ -54,12 +54,12 @@ export class ChannelResolver {
       };
     }
 
-    if (name.length <= 2) {
+    if (name.length == 0) {
       return {
         errors: [
           {
             field: "name",
-            message: "Name length must be greater than 2",
+            message: "Name can't be empty",
           },
         ],
       };

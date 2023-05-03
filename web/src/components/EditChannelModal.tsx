@@ -10,8 +10,7 @@ import {
   useGetChannelInfoQuery,
 } from "../generated/graphql";
 import Whitelist from "./Whitelist";
-
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+import { socket } from "../utils/socket";
 
 const EditChannelModal: NextPage<{ channelId: number }> = props => {
   const router = useRouter();

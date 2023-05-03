@@ -23,8 +23,7 @@ import UsersList from "../../components/UsersList";
 import CreateChannelModal from "../../components/CreateChannelModal";
 import EditChannelModal from "../../components/EditChannelModal";
 import EditGroupModal from "../../components/EditGroupModal";
-
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+import { socket } from "../../utils/socket";
 
 const Channel: NextPage = () => {
   const router = useRouter();
@@ -207,7 +206,7 @@ const Channel: NextPage = () => {
   });
 
   useEffect(() => {
-    socket.on("received channel", async receiverId => {
+    socket.on("received channel", async channelId => {
       // console.log("received in [channel].tsx");
       // if (qchannelId) {
       //   refetch({
@@ -232,14 +231,23 @@ const Channel: NextPage = () => {
 
       // refetch();
 
-      await fetchMore({ variables: { offset: 0, limit: 1 } });
-      setCurrOffset(() => currOffset + 1);
+      if (qchannelId == channelId) {
+        await fetchMore({ variables: { offset: 0, limit: 1 } });
+        setCurrOffset(() => currOffset + 1);
+      }
     });
-  }, []);
 
-  socket.on("group renamed", async () => {
-    refetchGroupInfo();
-  });
+    socket.on("group renamed", async () => {
+      refetchGroupInfo();
+    });
+  }, [qchannelId]);
+
+  // on unmount
+  useEffect(() => {
+    return () => {
+      socket.removeListener("received channel");
+    };
+  }, []);
 
   const prependItems = async () => {
     if (data!.retrieveInChannel!.hasMore) {

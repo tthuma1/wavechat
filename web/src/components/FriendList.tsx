@@ -9,8 +9,7 @@ import {
   useGetUserLazyQuery,
   useMeQuery,
 } from "../generated/graphql";
-
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+import { socket } from "../utils/socket";
 
 const FriendList: NextPage<{ type: number }> = props => {
   const router = useRouter();

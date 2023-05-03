@@ -16,8 +16,7 @@ import {
   useJoinGroupMutation,
 } from "../generated/graphql";
 import { useRouter } from "next/router";
-
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+import { socket } from "../utils/socket";
 
 const Search: NextPage = () => {
   const router = useRouter();

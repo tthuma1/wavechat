@@ -14,8 +14,6 @@ import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
 import { socket } from "../utils/socket";
 
-// const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
-
 const Send: NextPage<{
   receiverId: string | string[] | undefined;
   type: string;

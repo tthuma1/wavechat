@@ -140,7 +140,7 @@ const main = async () => {
   });
 
   io.on("connection", socket => {
-    // console.log("a user connected");
+    console.log("a user connected");
 
     socket.on("disconnect", () => {
       // console.log("user disconnected");
@@ -150,8 +150,8 @@ const main = async () => {
       io.sockets.emit("received dm", receiverId);
     });
 
-    socket.on("received channel", receiverId => {
-      io.sockets.emit("received channel", receiverId);
+    socket.on("received channel", channelId => {
+      io.sockets.emit("received channel", channelId);
     });
 
     socket.on("channel created", () => {

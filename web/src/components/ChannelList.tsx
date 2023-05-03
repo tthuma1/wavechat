@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Link from "next/link";
 import router from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import {
   useGetChannelsInGroupQuery,

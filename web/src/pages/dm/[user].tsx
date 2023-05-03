@@ -18,8 +18,6 @@ import React from "react";
 import { makeVar, useReactiveVar } from "@apollo/client";
 import { socket } from "../../utils/socket";
 
-// const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
-
 const User: NextPage = () => {
   const router = useRouter();
   const { user: quser } = router.query;

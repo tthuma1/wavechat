@@ -3,8 +3,7 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { io } from "socket.io-client";
 import { useCreateGroupMutation } from "../generated/graphql";
-
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+import { socket } from "../utils/socket";
 
 const CreateGroupModal: NextPage = props => {
   const router = useRouter();
