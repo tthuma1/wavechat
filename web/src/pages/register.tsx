@@ -44,7 +44,7 @@ const Register: NextPage = () => {
             // actions.setSubmitting(false);
           }}
         >
-          {({ handleSubmit, isSubmitting }) => (
+          {({ handleSubmit, isSubmitting, errors }) => (
             <Form onSubmit={handleSubmit}>
               {/* <label htmlFor="username">Username</label> */}
               <Field
@@ -52,8 +52,12 @@ const Register: NextPage = () => {
                 placeholder="Username"
                 className="input-light dark:input"
               />
-              <ErrorMessage name="username" />
-              <br />
+              {errors.username && (
+                <div className="mt-2 text-red-500 text-sm">
+                  <ErrorMessage name="username" />
+                </div>
+              )}
+              {!errors.username && <br />}
 
               {/* <label htmlFor="email">Email</label> */}
               <Field
@@ -62,8 +66,12 @@ const Register: NextPage = () => {
                 placeholder="Email"
                 className="input-light dark:input mt-4"
               />
-              <ErrorMessage name="email" />
-              <br />
+              {errors.email && (
+                <div className="mt-2 text-red-500 text-sm">
+                  <ErrorMessage name="email" />
+                </div>
+              )}
+              {!errors.email && <br />}
 
               {/* <label htmlFor="password">Password</label> */}
               <Field
@@ -72,8 +80,12 @@ const Register: NextPage = () => {
                 placeholder="Password"
                 className="input-light dark:input mt-4"
               />
-              <ErrorMessage name="password" />
-              <br />
+              {errors.password && (
+                <div className="mt-2 text-red-500 text-sm">
+                  <ErrorMessage name="password" />
+                </div>
+              )}
+              {!errors.password && <br />}
 
               {isSent && <div className="mt-2">Confirmation email sent!</div>}
 

@@ -24,7 +24,7 @@ import { v4 } from "uuid";
 import { sendEmail } from "../utils/sendEmail";
 
 @ObjectType()
-class UserResponse {
+export class UserResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 
@@ -479,6 +479,17 @@ export class UserResolver {
           {
             field: "password",
             message: "Incorrect password.",
+          },
+        ],
+      };
+    }
+
+    if (!user.isVerified) {
+      return {
+        errors: [
+          {
+            field: "usernameOrEmail",
+            message: "User's email is not verified",
           },
         ],
       };

@@ -8,8 +8,7 @@ import {
   useGetGroupInfoQuery,
   useMeQuery,
 } from "../generated/graphql";
-
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+import { socket } from "../utils/socket";
 
 const ChannelList: NextPage<{ groupId: number | undefined }> = props => {
   const { data: meData, loading: meLoading } = useMeQuery();
@@ -44,10 +43,13 @@ const ChannelList: NextPage<{ groupId: number | undefined }> = props => {
               key={channel.id}
               className="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-750 hover:cursor-pointer shadow-sm"
             >
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
                 <span className="overflow-hidden text-ellipsis">
                   {channel.name}
                 </span>
+                {channel.isPrivate && (
+                  <i className="fa-solid fa-lock dark:text-gray-300 text-sm"></i>
+                )}
               </div>
             </div>
           </Link>
@@ -88,6 +90,10 @@ const ChannelList: NextPage<{ groupId: number | undefined }> = props => {
   });
 
   socket.on("channel deleted", async () => {
+    refetch();
+  });
+
+  socket.on("visibility changed", async () => {
     refetch();
   });
 

@@ -23,6 +23,10 @@ export class Channel extends BaseEntity {
   @Column()
   public groupId!: number;
 
+  @Field()
+  @Column()
+  public isPrivate!: boolean;
+
   @ManyToOne(() => Group)
   public group!: Group;
 }

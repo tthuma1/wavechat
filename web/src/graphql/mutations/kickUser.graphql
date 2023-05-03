@@ -1,0 +1,12 @@
+mutation KickUser($userId: Float!, $groupId: Float!) {
+  kickUser(userId: $userId, groupId: $groupId) {
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+    }
+  }
+}

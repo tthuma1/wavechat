@@ -4,6 +4,7 @@ query GetChannelsInGroup($groupId: Float!) {
       id
       groupId
       name
+      isPrivate
     }
     errors {
       field
@@ -17,6 +18,7 @@ query GetChannelInfo($channelId: Float!) {
     channel {
       id
       name
+      isPrivate
     }
     errors {
       field

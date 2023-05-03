@@ -9,12 +9,10 @@ const cache = new InMemoryCache({
     Query: {
       fields: {
         retrieveDM: {
-          // Don't cache separate results based on
-          // any of this field's arguments.
-          keyArgs: false,
+          keyArgs: [],
           // Concatenate the incoming list items with
           // the existing list items.
-          merge(existing = [], incoming) {
+          merge(existing = [], incoming, { args }) {
             // console.log(existing);
             // console.log(incoming);
             // console.log([...existing, ...incoming.messages]);
@@ -30,9 +28,23 @@ const cache = new InMemoryCache({
                 if (!inMergedUsers) mergedUsers.push(user);
               }
 
+              let mergedMessages = [
+                ...(existing?.messages || []),
+                ...incoming.messages,
+              ];
+              if (args) {
+                // only retrieving the latest message due to websocket message received
+                if (args.offset == 0 && args.limit == 1) {
+                  mergedMessages = [
+                    ...incoming.messages,
+                    ...(existing?.messages || []),
+                  ];
+                }
+              }
+
               return {
                 ...incoming,
-                messages: [...(existing?.messages || []), ...incoming.messages],
+                messages: mergedMessages,
                 hasMore: incoming.hasMore,
                 users: mergedUsers,
                 newAmount: incoming.newAmount,
@@ -41,12 +53,10 @@ const cache = new InMemoryCache({
           },
         },
         retrieveInChannel: {
-          // Don't cache separate results based on
-          // any of this field's arguments.
-          keyArgs: false,
+          keyArgs: [],
           // Concatenate the incoming list items with
           // the existing list items.
-          merge(existing = [], incoming) {
+          merge(existing = [], incoming, { args }) {
             // console.log(existing);
             // console.log(incoming);
             // console.log([...existing, ...incoming.messages]);
@@ -62,41 +72,23 @@ const cache = new InMemoryCache({
                 if (!inMergedUsers) mergedUsers.push(user);
               }
 
-              return {
-                ...incoming,
-                messages: [...(existing?.messages || []), ...incoming.messages],
-                hasMore: incoming.hasMore,
-                users: mergedUsers,
-                newAmount: incoming.newAmount,
-              };
-            }
-          },
-        },
-        retrieveLastDM: {
-          // Don't cache separate results based on
-          // any of this field's arguments.
-          keyArgs: false,
-          // Concatenate the incoming list items with
-          // the existing list items.
-          merge(existing = [], incoming) {
-            // console.log(existing);
-            // console.log(incoming);
-            // console.log([...existing, ...incoming.messages]);
-            // return { messages: [...existing, ...incoming.messages] };
-            let mergedUsers = existing.users ? existing.users.slice(0) : [];
-            let inMergedUsers = false;
-            if (incoming.users) {
-              for (const user of incoming.users) {
-                for (const user2 of mergedUsers) {
-                  if (user.__ref == user2.__ref) inMergedUsers = true;
+              let mergedMessages = [
+                ...(existing?.messages || []),
+                ...incoming.messages,
+              ];
+              if (args) {
+                // only retrieving the latest message due to websocket message received
+                if (args.offset == 0 && args.limit == 1) {
+                  mergedMessages = [
+                    ...incoming.messages,
+                    ...(existing?.messages || []),
+                  ];
                 }
-
-                if (!inMergedUsers) mergedUsers.push(user);
               }
 
               return {
                 ...incoming,
-                messages: [...(existing?.messages || []), ...incoming.messages],
+                messages: mergedMessages,
                 hasMore: incoming.hasMore,
                 users: mergedUsers,
                 newAmount: incoming.newAmount,
@@ -128,7 +120,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       document.getElementById("main")!.classList.remove("dark");
       localStorage.theme = "light";
     }
-  });
+  }, []);
 
   return (
     <div id="main">

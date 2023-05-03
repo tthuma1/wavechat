@@ -53,7 +53,7 @@ const Login: NextPage = () => {
             // actions.setSubmitting(false);
           }}
         >
-          {({ handleSubmit, isSubmitting }) => (
+          {({ handleSubmit, isSubmitting, errors }) => (
             <Form onSubmit={handleSubmit}>
               {/* <label htmlFor="usernameOrEmail">Username or email</label> */}
               <Field
@@ -61,8 +61,13 @@ const Login: NextPage = () => {
                 placeholder="Username or email"
                 className="input-light dark:input"
               />
-              <ErrorMessage name="usernameOrEmail" />
-              <br />
+              {errors.usernameOrEmail && (
+                <div className="mt-2 text-red-500 text-sm">
+                  <ErrorMessage name="usernameOrEmail" />
+                </div>
+              )}
+
+              {!errors.usernameOrEmail && <br />}
 
               {/* <label htmlFor="password">Password</label> */}
               <Field
@@ -71,7 +76,11 @@ const Login: NextPage = () => {
                 placeholder="Password"
                 className="mt-4 input-light dark:input"
               />
-              <ErrorMessage name="password" />
+              {errors.password && (
+                <div className="mt-2 text-red-500 text-sm">
+                  <ErrorMessage name="password" />
+                </div>
+              )}
               <Link href="/forgot-password">
                 <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 w-fit">
                   Forgot password?

@@ -12,9 +12,9 @@ import {
 import { toErrorMap } from "../utils/toErrorMap";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
-import AWS from "aws-sdk";
+import { socket } from "../utils/socket";
 
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+// const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const Send: NextPage<{
   receiverId: string | string[] | undefined;
@@ -59,7 +59,10 @@ const Send: NextPage<{
               } else if (response.data?.sendDM.message) {
                 // worked
                 // router.push("/");
-                socket.emit("received");
+                socket.emit(
+                  "received dm",
+                  parseInt(props.receiverId as string)
+                );
                 resetForm();
               }
             } else if (fileSrc != "") {
@@ -100,7 +103,10 @@ const Send: NextPage<{
                 // worked
                 // router.push("/");
                 // console.log("worked");
-                socket.emit("received");
+                socket.emit(
+                  "received dm",
+                  parseInt(props.receiverId as string)
+                );
                 resetForm();
                 setFile(new File([""], ""));
                 setFileSrc("");
@@ -125,7 +131,10 @@ const Send: NextPage<{
                 // worked
                 // router.push("/");
                 // console.log("worked");
-                socket.emit("received");
+                socket.emit(
+                  "received channel",
+                  parseInt(props.receiverId as string)
+                );
                 resetForm();
               }
             } else if (fileSrc != "") {
@@ -165,7 +174,10 @@ const Send: NextPage<{
                 // worked
                 // router.push("/");
                 // console.log("worked");
-                socket.emit("received");
+                socket.emit(
+                  "received channel",
+                  parseInt(props.receiverId as string)
+                );
                 resetForm();
                 setFile(new File([""], ""));
                 setFileSrc("");

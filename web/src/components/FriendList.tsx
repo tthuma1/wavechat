@@ -28,6 +28,13 @@ const FriendList: NextPage<{ type: number }> = props => {
     refetch: refetchGroups,
   } = useGetUserGroupsCurrentQuery();
 
+  refetchFriends();
+  refetchGroups();
+
+  socket.on("group created", async () => {
+    refetchGroups();
+  });
+
   socket.on("group deleted", async () => {
     refetchGroups();
   });

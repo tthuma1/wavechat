@@ -1,0 +1,14 @@
+mutation ToggleVisibility($channelId: Float!) {
+  toggleVisibility(channelId: $channelId) {
+    errors {
+      field
+      message
+    }
+    channel {
+      id
+      name
+      groupId
+      isPrivate
+    }
+  }
+}

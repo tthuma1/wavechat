@@ -9,6 +9,7 @@ import {
   useIsCurrentInChannelQuery,
   useGetChannelsInGroupQuery,
   useGetChannelInfoQuery,
+  useIsCurrentOnWhitelistQuery,
 } from "../../generated/graphql";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
@@ -65,6 +66,11 @@ const Channel: NextPage = () => {
       variables: { channelId: parseFloat(qchannelId as string) },
     });
 
+  const { data: isOnWhitelist, loading: isOnWhitelistLoading } =
+    useIsCurrentOnWhitelistQuery({
+      variables: { channelId: parseFloat(qchannelId as string) },
+    });
+
   const [leaveGroup] = useLeaveGroupMutation();
 
   let allLoaded = false;
@@ -92,11 +98,18 @@ const Channel: NextPage = () => {
     !channelLoading &&
     channelData &&
     !isInChannelLoading &&
-    isInChannelData
+    isInChannelData &&
+    !isOnWhitelistLoading &&
+    isOnWhitelist
   ) {
     if (!isInChannelData.isCurrentInChannel) router.push("/app");
+    if (!isOnWhitelist.isCurrentOnWhitelist) router.push("/app");
 
-    if (data!.retrieveInChannel!.messages !== null) {
+    if (
+      data!.retrieveInChannel!.messages !== null &&
+      isOnWhitelist.isCurrentOnWhitelist &&
+      isInChannelData.isCurrentInChannel
+    ) {
       // console.log(data.retrieveInChannel?.messages);
       for (let i = 0; i < data!.retrieveInChannel!.messages!.length; i++) {
         let createdAt = new Date(
@@ -121,7 +134,7 @@ const Channel: NextPage = () => {
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                   sender.avatar
                 }
-                className="w-8 h-8 rounded-full mr-4"
+                className="w-8 h-8 rounded-full mr-4 mt-2"
               />
               <div>
                 <span className="font-semibold pr-2">{sender.username}</span>
@@ -138,7 +151,7 @@ const Channel: NextPage = () => {
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                   sender.avatar
                 }
-                className="w-8 h-8 rounded-full mr-4"
+                className="w-8 h-8 rounded-full mr-4 mt-2"
               />
               <div>
                 <span className="font-semibold pr-2">{sender.username}</span>
@@ -193,17 +206,36 @@ const Channel: NextPage = () => {
     }
   });
 
-  socket.on("received", async () => {
-    // console.log("received in [channel].tsx");
-    // if (qchannelId) {
-    //   refetch({
-    //     channelId: parseFloat(qchannelId as string),
-    //     offset: 0,
-    //     limit: currOffset,
-    //   });
-    // }
-    refetch();
-  });
+  useEffect(() => {
+    socket.on("received channel", async receiverId => {
+      // console.log("received in [channel].tsx");
+      // if (qchannelId) {
+      //   refetch({
+      //     channelId: parseFloat(qchannelId as string),
+      //     offset: 0,
+      //     limit: currOffset,
+      //   });
+      // }
+
+      // if (receiverId == qchannelId) {
+      //   refetch({
+      //     channelId: parseFloat(qchannelId as string),
+      //     offset: 0,
+      //     limit: 15,
+      //   });
+
+      //   setCurrOffset(15);
+      //   setFirstItemIndex(1e9);
+      //   setFirstLoad(true);
+      //   initial_item_count = 0;
+      // }
+
+      // refetch();
+
+      await fetchMore({ variables: { offset: 0, limit: 1 } });
+      setCurrOffset(() => currOffset + 1);
+    });
+  }, []);
 
   socket.on("group renamed", async () => {
     refetchGroupInfo();
@@ -309,29 +341,21 @@ const Channel: NextPage = () => {
 
         <div className="mt-10 flex-1 mx-8 flex flex-col h-[90vh]">
           <div className="bg-gray-100 dark:bg-gray-800 flex py-2 px-3 items-center rounded-t-md">
-            <div className="flex-1 flex justify-start">
-              {meData?.me?.id == groupData?.channelToGroup.group?.adminId && (
-                <div
-                  className="btn-secondary text-sm text-gray-800 dark:text-gray-300"
-                  onClick={showEditModal}
-                >
-                  <i className="fa-solid fa-pen-to-square"></i>
-                </div>
-              )}
-            </div>
+            <div className="flex-1"></div>
             <div>
               {groupData?.channelToGroup.group?.name} -{" "}
               {channelData?.getChannelInfo.channel?.name}
             </div>
             <div className="flex-1 flex justify-end">
-              <div
-                className="btn-secondary text-sm"
-                onClick={() => {
-                  handleLeave(groupData?.channelToGroup.group?.id as number);
-                }}
-              >
-                Leave Group
-              </div>
+              {meData?.me?.id == groupData?.channelToGroup.group?.adminId && (
+                <div
+                  className="btn-secondary text-sm text-gray-800 dark:text-gray-100"
+                  onClick={showEditModal}
+                >
+                  <span className="mr-3">Edit Channel</span>
+                  <i className="fa-solid fa-pen-to-square dark:text-gray-300"></i>
+                </div>
+              )}
             </div>
           </div>
           <div className="w-full h-px bg-gray-600"></div>
@@ -349,7 +373,7 @@ const Channel: NextPage = () => {
               }}
               followOutput
               itemContent={(index, message) => (
-                <div className="px-12">{message}</div>
+                <div className="px-8">{message}</div>
               )}
             />
           </div>
@@ -359,26 +383,32 @@ const Channel: NextPage = () => {
         </div>
 
         <div className="w-72 mr-10 mt-10">
-          <div className="flex w-60 mb-5">
-            <div className="h-10 w-14 mr-5 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
-              <Link href="/settings">
-                <a>
-                  <i className="fa-solid fa-gear p-4 text-lg"></i>
-                </a>
-              </Link>
-            </div>
-            <div className="h-10 w-14 mr-5 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
+          <div className="flex mb-5 justify-between">
+            {meData?.me?.id == groupData?.channelToGroup.group?.adminId && (
+              <div
+                className="btn-secondary text-sm w-fit flex justify-center"
+                onClick={showEditGroupModal}
+              >
+                Edit Group
+              </div>
+            )}
+
+            {meData?.me?.id != groupData?.channelToGroup.group?.adminId && (
+              <div
+                className="btn-secondary text-sm"
+                onClick={() => {
+                  handleLeave(groupData?.channelToGroup.group?.id as number);
+                }}
+              >
+                Leave Group
+              </div>
+            )}
+            <div className="h-10 w-14 bg-gray-100 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-200 dark:hover:bg-gray-700">
               <Link href="/app">
                 <a>
                   <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
                 </a>
               </Link>
-            </div>
-            <div
-              className="btn-secondary text-sm w-full flex justify-center"
-              onClick={showEditGroupModal}
-            >
-              Edit Group
             </div>
           </div>
           <UsersList groupId={groupData!.channelToGroup.group?.id} />

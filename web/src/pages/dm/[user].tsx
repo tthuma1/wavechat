@@ -6,8 +6,6 @@ import {
   useMeQuery,
   useRemoveFriendMutation,
   useRetrieveDmQuery,
-  useRetrieveLastDmLazyQuery,
-  useRetrieveLastDmQuery,
 } from "../../generated/graphql";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
@@ -17,8 +15,10 @@ import { NextPage } from "next";
 import FriendList from "../../components/FriendList";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import React from "react";
+import { makeVar, useReactiveVar } from "@apollo/client";
+import { socket } from "../../utils/socket";
 
-const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
+// const socket = io(process.env.NEXT_PUBLIC_DOMAIN!);
 
 const User: NextPage = () => {
   const router = useRouter();
@@ -44,17 +44,6 @@ const User: NextPage = () => {
     },
   });
   //   }
-
-  const {
-    data: dataLatest,
-    loading: loadingLatest,
-    refetch: refetchLatest,
-    fetchMore: fetchMoreLatest,
-  } = useRetrieveLastDmQuery({
-    variables: {
-      receiverId: parseFloat(quser as string),
-    },
-  });
 
   useEffect(() => {
     refetch({
@@ -131,7 +120,7 @@ const User: NextPage = () => {
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                   sender.avatar
                 }
-                className="w-8 h-8 rounded-full mr-4"
+                className="w-8 h-8 rounded-full mr-4 mt-2"
               />
               <div>
                 <span className="font-semibold pr-2">{sender.username}</span>
@@ -148,7 +137,7 @@ const User: NextPage = () => {
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                   sender.avatar
                 }
-                className="w-8 h-8 rounded-full mr-4"
+                className="w-8 h-8 rounded-full mr-4 mt-2"
               />
               <div>
                 <span className="font-semibold pr-2">{sender.username}</span>
@@ -208,30 +197,36 @@ const User: NextPage = () => {
     }
   });
 
-  socket.on("received", async () => {
-    // console.log("received in [user].tsx");
-    // console.log(currOffset);
-    // if (quser) {
-    //   await refetch({
-    //     receiverId: parseFloat(quser as string),
-    //     offset: 0,
-    //     limit: currOffset,
-    //   });
-    // }
-    refetch();
+  useEffect(() => {
+    socket.on("received dm", async receiverId => {
+      // console.log("received in [user].tsx");
+      // console.log(currOffset);
+      // if (quser) {
+      //   await refetch({
+      //     receiverId: parseFloat(quser as string),
+      //     offset: 0,
+      //     limit: currOffset,
+      //   });
+      // }
 
-    // await fetchMore({ variables: { offset: 10, limit: 10 } });
+      // if (quser == receiverId) {
+      //   refetch({
+      //     receiverId: parseFloat(quser as string),
+      //     offset: 0,
+      //     limit: 15,
+      //   });
+      //   setCurrOffset(15);
+      //   setFirstItemIndex(1e9);
+      //   setFirstLoad(true);
+      //   initial_item_count = 0;
+      // }
 
-    // refetchLatest();
-    // console.log(dataLatest);
-    // if (quser) {
-    //   await fetchMoreLatest({
-    //     variables: {
-    //       variables: { id: parseFloat(quser as string) },
-    //     },
-    //   });
-    // }
-  });
+      await fetchMore({
+        variables: { offset: 0, limit: 1, optionss: "abc" },
+      });
+      setCurrOffset(() => currOffset + 1);
+    });
+  }, []);
 
   /*
   if (!loadingLatest && dataLatest) {
@@ -391,7 +386,7 @@ const User: NextPage = () => {
               }}
               followOutput
               itemContent={(index, message) => (
-                <div className="px-12">
+                <div className="px-8">
                   {/* <div className="flex my-4">
                     <img
                       src="/avatar.jpg"
@@ -463,21 +458,12 @@ const User: NextPage = () => {
           )}
         /> */}
 
-        <div className="flex flex-col">
-          <div className="h-10 mr-10 mt-10 bg-gray-200 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
-            <Link href="/settings">
-              <a>
-                <i className="fa-solid fa-gear p-4 text-lg"></i>
-              </a>
-            </Link>
-          </div>
-          <div className="h-10 mr-10 mt-3 bg-gray-200 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
-            <Link href="/app">
-              <a>
-                <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
-              </a>
-            </Link>
-          </div>
+        <div className="h-10 mr-10 mt-10 bg-gray-200 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
+          <Link href="/app">
+            <a>
+              <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
+            </a>
+          </Link>
         </div>
       </div>
     );

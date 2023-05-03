@@ -3,21 +3,30 @@ Najprej je treba zdownloadati par programov:
 - yarn (https://classic.yarnpkg.com/lang/en/docs/install/)
 - mariadb
 - redis (https://redis.io/docs/getting-started/installation/)
+- forever (ukaz `npm install forever -g` ali `yarn global add forever`)
 
 Za mysql je nastavljen user mysql z geslom mysql, če ga želite spremeniti je treba nastaviti v /server/.env
 
-Preverite, da sta mariadb in redis prizgana
-Če želite uvoziti testne podatke v mysql bazo lahko kopirate ukaze iz /wavechatdump.sql. Gor so uporabniki tim, tom, luka, tilen, njihova gesla so enaka kot imena.
+Preverite, da sta mariadb in redis prižgana
+
+Ustvarite mysql bazo:
+CREATE DATABASE wavechat;
+
+Če želite uvoziti testne podatke v mysql bazo, lahko kopirate ukaze iz /wavechatdump.sql. Gor so uporabniki tim, tom, luka, tilen, njihova gesla so enaka kot imena.
 
 V mysql prekopirajte proceduro iz /server/src/levenshtein.sql
 
 V ukaznem pozivu navigirajte v /server in zaženite komande `yarn install`, `yarn build`, `yarn start`
+opomba: če `yarn start` ne dela, probaj `node dist/index.js`
 
 Če je do tu vse v redu, bi moral biti na http://localhost:4000/graphql dostopen "Apollo Playground"
 
 Nato navigirajte v /web in zaženite komande `yarn install`, `yarn gen`, `yarn build`, `yarn start`
 pomembno: ko v /web zaženete build, mora biti /server zagnan
+opomba: če `yarn start` ne dela, probaj `yarn next start`
 
 Če je vse v redu, je aplikacija dostopna na http://localhost:3000
 
-Če želite ustaviti aplikacijo napišete komando `yarn stop` v /web ali /server mapi (to ustavi tako kodo iz /web in /server)
+Če želite ustaviti aplikacijo, napišete komando `yarn stop` v /web ali /server mapi (to ustavi program iz /web in /server)
+
+opomba: če `yarn build` in `yarn start` iz nekega razloga ne delata, je možno zagnati razvijalsko različico z `yarn dev` v /server in /web (vsako posebej)

@@ -1,0 +1,25 @@
+mutation AddUserToWhitelist($channelId: Float!, $username: String!) {
+  addUserToWhitelist(channelId: $channelId, username: $username) {
+    errors {
+      field
+      message
+    }
+    whitelist {
+      userId
+      channelId
+    }
+  }
+}
+
+mutation RemoveUserFromWhitelist($channelId: Float!, $username: String!) {
+  removeUserFromWhitelist(channelId: $channelId, username: $username) {
+    errors {
+      field
+      message
+    }
+    whitelist {
+      userId
+      channelId
+    }
+  }
+}

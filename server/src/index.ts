@@ -23,6 +23,8 @@ import sharp from "sharp";
 import AWS from "aws-sdk";
 import { v4 } from "uuid";
 import cors from "cors";
+import { BlacklistResolver } from "./resolvers/blacklist";
+import { WhitelistResolver } from "./resolvers/whitelist";
 
 declare module "express-session" {
   export interface SessionData {
@@ -77,7 +79,7 @@ const main = async () => {
       disableTouch: true,
     }),
     cookie: {
-      maxAge: 1000 * 3600 * 24 * 365 * 10, // 10 years
+      maxAge: 1000 * 3600 * 24 * 3, // 3 days
       httpOnly: true,
       sameSite: "lax", // csrf
       secure: __prod__,
@@ -98,6 +100,8 @@ const main = async () => {
         MessageResolver,
         GroupResolver,
         ChannelResolver,
+        BlacklistResolver,
+        WhitelistResolver,
       ],
       validate: false,
     }),
@@ -142,9 +146,12 @@ const main = async () => {
       // console.log("user disconnected");
     });
 
-    socket.on("received", () => {
-      // console.log("received a message in index.ts");
-      io.sockets.emit("received");
+    socket.on("received dm", receiverId => {
+      io.sockets.emit("received dm", receiverId);
+    });
+
+    socket.on("received channel", receiverId => {
+      io.sockets.emit("received channel", receiverId);
     });
 
     socket.on("channel created", () => {
@@ -157,6 +164,10 @@ const main = async () => {
 
     socket.on("channel deleted", () => {
       io.sockets.emit("channel deleted");
+    });
+
+    socket.on("group created", () => {
+      io.sockets.emit("group created");
     });
 
     socket.on("group renamed", () => {
@@ -181,6 +192,22 @@ const main = async () => {
 
     socket.on("friend removed", () => {
       io.sockets.emit("friend removed");
+    });
+
+    socket.on("user kicked", () => {
+      io.sockets.emit("user kicked");
+    });
+
+    socket.on("visibility changed", () => {
+      io.sockets.emit("visibility changed");
+    });
+
+    socket.on("removed from whitelist", () => {
+      io.sockets.emit("removed from whitelist");
+    });
+
+    socket.on("added to whitelist", () => {
+      io.sockets.emit("added to whitelist");
     });
   });
 

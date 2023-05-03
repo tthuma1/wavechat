@@ -21,7 +21,7 @@ export class Group extends BaseEntity {
   public adminId!: number;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   public name!: string;
 
   @Field()

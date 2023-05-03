@@ -1,8 +1,15 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useMeQuery } from "../generated/graphql";
+import { useRouter } from "next/router";
 
 const Landing: NextPage = () => {
+  const router = useRouter();
+  const { data, loading, refetch } = useMeQuery();
+
+  if (!loading && data?.me) router.push("/app");
+
   return (
     <div className="flex items-center flex-col px-40 text-center">
       <Head>

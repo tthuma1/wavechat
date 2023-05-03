@@ -29,8 +29,20 @@ export class ChannelResolver {
   @Mutation(() => ChannelResponse)
   async createChannel(
     @Arg("name") name: string,
-    @Arg("groupId") groupId: number
+    @Arg("groupId") groupId: number,
+    @Ctx() { req }: MyContext
   ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
     if ((await Group.findBy({ id: groupId })).length == 0) {
       return {
         errors: [
@@ -42,12 +54,12 @@ export class ChannelResolver {
       };
     }
 
-    if (name == "") {
+    if (name.length <= 2) {
       return {
         errors: [
           {
             field: "name",
-            message: "Name cannot be empty.",
+            message: "Name length must be greater than 2",
           },
         ],
       };
@@ -132,12 +144,12 @@ WHERE g.id = ? AND g.type = 'group'
       };
     }
 
-    if (newName == "") {
+    if (newName.length <= 2) {
       return {
         errors: [
           {
             field: "name",
-            message: "Name cannot be empty.",
+            message: "Name length must be greater than 2",
           },
         ],
       };
@@ -228,5 +240,63 @@ WHERE c.id = ?;
     );
 
     return { users };
+  }
+
+  @Mutation(() => ChannelResponse)
+  async toggleVisibility(
+    @Arg("channelId") channelId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const channel = await Channel.findOneBy({ id: channelId });
+    if (!channel) {
+      return {
+        errors: [
+          {
+            field: "channelId",
+            message: "Channel doesn't exist",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    let adminId = await AppDataSource.query(
+      `
+SELECT g.adminId FROM \`group\` g
+INNER JOIN channel c ON c.groupId = g.id
+WHERE c.id = ? AND g.type = 'group';
+    `,
+      [channelId]
+    );
+
+    if (adminId.length == 0 || adminId[0].adminId != req.session.userId) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not group admin.",
+          },
+        ],
+      };
+    }
+
+    await Channel.update(
+      { id: channelId },
+      {
+        isPrivate: !channel.isPrivate,
+      }
+    );
+
+    return { channel: await Channel.findOneBy({ id: channelId }) };
   }
 }

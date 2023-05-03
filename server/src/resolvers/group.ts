@@ -15,7 +15,7 @@ import {
 import { FieldError } from "./FieldError";
 import { MyContext } from "../types";
 import { AppDataSource } from "../DataSource";
-import { UsersResponse } from "./user";
+import { UsersResponse, UserResponse } from "./user";
 
 @ObjectType()
 export class GroupResponse {
@@ -78,6 +78,17 @@ export class GroupResolver {
           {
             field: "userId",
             message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (name.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "name",
+            message: "Name length must be greater than 2",
           },
         ],
       };
@@ -146,12 +157,12 @@ export class GroupResolver {
       };
     }
 
-    if (newName == "") {
+    if (newName.length <= 2) {
       return {
         errors: [
           {
             field: "name",
-            message: "Name cannot be empty.",
+            message: "Name length must be greater than 2",
           },
         ],
       };
@@ -271,13 +282,11 @@ export class GroupResolver {
 
   @Mutation(() => GHUResponse)
   async leaveGroup(@Ctx() { req }: MyContext, @Arg("groupId") groupId: number) {
-    if (
-      (
-        await Group.findBy({
-          id: groupId,
-        })
-      ).length == 0
-    ) {
+    const group = await Group.findOneBy({
+      id: groupId,
+    });
+
+    if (!group) {
       return {
         errors: [
           {
@@ -312,6 +321,17 @@ export class GroupResolver {
           {
             field: "userId",
             message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (group.adminId === req.session.userId) {
+      return {
+        errors: [
+          {
+            field: "groupId",
+            message: "Admin cannot leave group",
           },
         ],
       };
@@ -440,8 +460,12 @@ ORDER BY u.username;
   }
 
   @Query(() => ChannelsResponse)
-  async getChannelsInGroup(@Arg("groupId") groupId: number) {
-    if ((await Group.findBy({ id: groupId })).length === 0) {
+  async getChannelsInGroup(
+    @Arg("groupId") groupId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const group = await Group.findOneBy({ id: groupId });
+    if (!group) {
       return {
         errors: [
           {
@@ -452,9 +476,32 @@ ORDER BY u.username;
       };
     }
 
-    let channels = await Channel.findBy({ groupId });
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
 
-    return { channels };
+    let publicChannels;
+    if (group.adminId == req.session.userId)
+      publicChannels = await Channel.findBy({ groupId });
+    else publicChannels = await Channel.findBy({ groupId, isPrivate: false });
+
+    let privateChannels = await AppDataSource.query(
+      `
+SELECT c.* from channel c
+INNER JOIN whitelist w ON w.channelId = c.id
+WHERE c.groupId = ? AND c.isPrivate = true AND w.userId = ?
+    `,
+      [groupId, req.session.userId]
+    );
+
+    return { channels: [...publicChannels, ...privateChannels] };
   }
 
   @Query(() => GroupResponse)
@@ -510,5 +557,74 @@ LIMIT 15;
       return {
         errors: [{ field: "groupId", message: "Group doesn't exist." }],
       };
+  }
+
+  @Mutation(() => UserResponse)
+  async kickUser(
+    @Ctx() { req }: MyContext,
+    @Arg("groupId") groupId: number,
+    @Arg("userId") userId: number
+  ) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const group = await Group.findOneBy({ id: groupId, type: "group" });
+
+    if (!group) {
+      return {
+        errors: [
+          {
+            field: "groupId",
+            message: "Group doesn't exist.",
+          },
+        ],
+      };
+    }
+
+    if (group.adminId != req.session.userId) {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "User is not group admin.",
+          },
+        ],
+      };
+    }
+
+    const user = await User.findOneBy({ id: userId });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User doesn't exist",
+          },
+        ],
+      };
+    }
+
+    if (!(await Group_Has_User.findOneBy({ groupId, userId }))) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not group member",
+          },
+        ],
+      };
+    }
+
+    await Group_Has_User.delete({ groupId, userId });
+
+    return { user };
   }
 }

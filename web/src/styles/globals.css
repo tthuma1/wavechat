@@ -54,3 +54,15 @@
 .btn-danger {
   @apply border-red-700 bg-gray-50 dark:bg-transparent border-2 py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer hover:text-gray-100;
 }
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .drop-btn {
+  @apply rounded-t-md rounded-b-none;
+}
+
+.drop-btn {
+  @apply rounded-md;
+}

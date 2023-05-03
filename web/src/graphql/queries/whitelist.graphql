@@ -1,0 +1,17 @@
+query GetWhitelist($channelId: Float!) {
+  getWhitelist(channelId: $channelId) {
+    errors {
+      field
+      message
+    }
+    users {
+      id
+      username
+      avatar
+    }
+  }
+}
+
+query isCurrentOnWhitelist($channelId: Float!) {
+  isCurrentOnWhitelist(channelId: $channelId)
+}
