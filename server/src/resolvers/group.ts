@@ -16,6 +16,7 @@ import { FieldError } from "./FieldError";
 import { MyContext } from "../types";
 import { AppDataSource } from "../DataSource";
 import { UsersResponse, UserResponse } from "./user";
+import { Message } from "../enitities/Message";
 
 @ObjectType()
 export class GroupResponse {
@@ -83,12 +84,23 @@ export class GroupResolver {
       };
     }
 
-    if (name.length <= 2) {
+    if (name.length == 0) {
       return {
         errors: [
           {
             field: "name",
-            message: "Name length must be greater than 2",
+            message: "Group name can't be empty",
+          },
+        ],
+      };
+    }
+
+    if (await Group.findOneBy({ name })) {
+      return {
+        errors: [
+          {
+            field: "name",
+            message: "Group name already exists",
           },
         ],
       };
@@ -215,7 +227,13 @@ export class GroupResolver {
       };
     }
 
+    const channels = await Channel.findBy({ groupId: id });
+
     // typeorm doesn't allow cascade delete on many to one relations
+    for (const channel of channels) {
+      await Message.delete({ channelId: channel.id });
+    }
+
     await Channel.delete({ groupId: id });
     await Group_Has_User.delete({ groupId: id });
     await Group.delete({ id });

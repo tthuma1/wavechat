@@ -14,6 +14,7 @@ import { UsersResponse } from "./user";
 import { AppDataSource } from "../DataSource";
 import { User } from "../enitities/User";
 import { MyContext } from "../types";
+import { Message } from "../enitities/Message";
 
 @ObjectType()
 export class ChannelResponse {
@@ -112,6 +113,7 @@ WHERE g.id = ? AND g.type = 'group'
 
     if (channels.length == 1) return -1;
 
+    await Message.delete({ channelId: id });
     await Channel.delete({ id });
 
     channels = await AppDataSource.query(

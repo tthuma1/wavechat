@@ -1,9 +1,10 @@
-import { Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { io } from "socket.io-client";
 import { useCreateGroupMutation } from "../generated/graphql";
 import { socket } from "../utils/socket";
+import { toErrorMap } from "../utils/toErrorMap";
 
 const CreateGroupModal: NextPage = props => {
   const router = useRouter();
@@ -38,7 +39,9 @@ const CreateGroupModal: NextPage = props => {
               variables: { name: values.name },
             });
 
-            if (response.data?.createGroup.group) {
+            if (response.data?.createGroup.errors) {
+              setErrors(toErrorMap(response.data.createGroup.errors));
+            } else if (response.data?.createGroup) {
               socket.emit("group created");
 
               // close modal
@@ -54,27 +57,31 @@ const CreateGroupModal: NextPage = props => {
             }
           }}
         >
-          {({ handleSubmit, isSubmitting, setFieldValue }) => (
-            <Form
-              onSubmit={handleSubmit}
-              className="flex items-center gap-3 w-full mt-4 mb-2"
-            >
-              {/* <label htmlFor="name">Channel name:</label> */}
-              <Field
-                id="createGroupInput"
-                type="name"
-                name="name"
-                placeholder="Group name"
-                className="input-settings flex-1"
-              />
+          {({ handleSubmit, isSubmitting, errors }) => (
+            <Form onSubmit={handleSubmit}>
+              <div className="flex items-center gap-3 w-full mt-4 mb-2">
+                {/* <label htmlFor="name">Channel name:</label> */}
+                <Field
+                  id="createGroupInput"
+                  type="name"
+                  name="name"
+                  placeholder="Group name"
+                  className="input-settings flex-1"
+                />
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500"
-              >
-                Create Group
-              </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500"
+                >
+                  Create Group
+                </button>
+              </div>
+              {errors.name && (
+                <div className="mt-2 text-red-500 text-sm">
+                  <ErrorMessage name="name" />
+                </div>
+              )}
             </Form>
           )}
         </Formik>

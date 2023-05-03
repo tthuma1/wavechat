@@ -110,10 +110,7 @@ const EditGroupModal: NextPage<{ groupId: number }> = props => {
         </Formik>
 
         <div className="flex justify-end w-full">
-          <div
-            className="mt-2 border-red-700 bg-gray-50 dark:bg-transparent border py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer hover:text-gray-100"
-            onClick={handleDeleteGroup}
-          >
+          <div className="btn-danger" onClick={handleDeleteGroup}>
             {deleteStage == 0 && (
               <>
                 Delete Group

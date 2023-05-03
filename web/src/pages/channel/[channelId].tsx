@@ -206,6 +206,8 @@ const Channel: NextPage = () => {
   });
 
   useEffect(() => {
+    socket.removeListener("received channel");
+
     socket.on("received channel", async channelId => {
       // console.log("received in [channel].tsx");
       // if (qchannelId) {
