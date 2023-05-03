@@ -85,7 +85,7 @@ const UsersList: NextPage<{ groupId: number | undefined }> = props => {
                   </button>
                   <div className="dropdown-content hidden absolute">
                     <button
-                      className="-ml-6 w-28 overflow-hidden text-ellipsis whitespace-nowrap dark:bg-gray-900 text-red-500 font-medium text-sm dark:border-gray-700 border-2 px-2 py-1 rounded-sm dark:hover:bg-gray-800"
+                      className="-ml-10 w-28 overflow-hidden text-ellipsis whitespace-nowrap bg-gray-100 dark:bg-gray-900 text-red-500 font-medium text-sm border-gray-300 dark:border-gray-700 border-2 px-2 py-1 rounded-sm hover:bg-gray-200 dark:hover:bg-gray-800"
                       onClick={() => handleKick(user.id)}
                     >
                       Kick {user.username}

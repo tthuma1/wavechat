@@ -124,7 +124,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <div id="main">
-      <div className="w-screen h-screen dark:bg-gray-900 dark:text-gray-100 bg-gray-50 text-gray-900">
+      <div className="w-screen h-screen overflow-x-hidden dark:bg-gray-900 dark:text-gray-100 bg-gray-50 text-gray-900">
         <Script
           src="https://kit.fontawesome.com/c5fdb8664c.js"
           crossOrigin="anonymous"

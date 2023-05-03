@@ -72,7 +72,7 @@ const FriendList: NextPage<{ type: number }> = props => {
                 key={friend.username}
                 className="text-lg bg-gray-50 dark:bg-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 shadow-sm hover:cursor-pointer"
               >
-                <div className="flex">
+                <div className="flex items-center h-8">
                   <img
                     src={
                       "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
@@ -170,7 +170,7 @@ const FriendList: NextPage<{ type: number }> = props => {
       <div className="flex justify-center items-center">
         <div className="bg-gray-200 dark:bg-gray-800 w-[80vw] px-16 py-8 mx-10 h-[80vh] rounded-md">
           <div className="flex justify-between h-full">
-            <div className="flex-1 mr-10">
+            <div className="flex flex-1 flex-col mr-10">
               {/* friend list */}
               <Link href="/search">
                 <div className="px-2 py-2 bg-gray-50 dark:bg-gray-850 w-fit btn-secondary text-sm mb-4">
@@ -179,8 +179,8 @@ const FriendList: NextPage<{ type: number }> = props => {
                 </div>
               </Link>
               <p className="mb-5">Friends:</p>
-              <div className="grid gap-8 grid-rows-4 grid-cols-2">
-                {friends}
+              <div className="overflow-y-scroll scrollbar-colored pr-2">
+                <div className="grid gap-8 grid-cols-2">{friends}</div>
               </div>
             </div>
             <div className="h-full w-px bg-gray-600"></div>
@@ -202,7 +202,7 @@ const FriendList: NextPage<{ type: number }> = props => {
               </div>
               <p className="mb-5">Groups:</p>
               <div className="overflow-y-scroll scrollbar-colored pr-2">
-                <div className="grid gap-8 grid-rows-4 grid-cols-2">
+                <div className="grid gap-8 grid-cols-2">
                   {/* <div className="flex flex-col"> */}
                   {groups}
                 </div>

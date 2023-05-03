@@ -48,7 +48,7 @@ const ChannelList: NextPage<{ groupId: number | undefined }> = props => {
                   {channel.name}
                 </span>
                 {channel.isPrivate && (
-                  <i className="fa-solid fa-lock dark:text-gray-300 text-sm"></i>
+                  <i className="fa-solid fa-lock text-gray-800 dark:text-gray-300 text-sm"></i>
                 )}
               </div>
             </div>

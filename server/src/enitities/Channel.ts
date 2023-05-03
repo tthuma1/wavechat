@@ -24,7 +24,7 @@ export class Channel extends BaseEntity {
   public groupId!: number;
 
   @Field()
-  @Column()
+  @Column({ default: false })
   public isPrivate!: boolean;
 
   @ManyToOne(() => Group)

@@ -50,18 +50,6 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
 
     if (response.data?.toggleVisibility.channel) {
       socket.emit("visibility changed");
-
-      if (channelData?.getChannelInfo.channel?.isPrivate) {
-        // channel is now public
-        let modal = document.getElementById("editChannelModal");
-        modal!.classList.remove("pt-[20vh]");
-        modal!.classList.add("pt-[40vh]");
-      } else {
-        // channel is now private
-        let modal = document.getElementById("editChannelModal");
-        modal!.classList.remove("pt-[40vh]");
-        modal!.classList.add("pt-[20vh]");
-      }
     }
   };
 
@@ -75,20 +63,6 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
           setDeleteStage(0);
         }
       };
-    }
-
-    if (!channelLoading && channelData) {
-      if (channelData?.getChannelInfo.channel?.isPrivate) {
-        // channel is public
-        let modal = document.getElementById("editChannelModal");
-        modal!.classList.remove("pt-[40vh]");
-        modal!.classList.add("pt-[20vh]");
-      } else {
-        // channel is private
-        let modal = document.getElementById("editChannelModal");
-        modal!.classList.remove("pt-[20vh]");
-        modal!.classList.add("pt-[40vh]");
-      }
     }
   }, []);
 
@@ -178,7 +152,7 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
 
           {channelData.getChannelInfo.channel?.isPrivate && (
             <div className="w-full">
-              <div className="w-5/6 h-px dark:bg-gray-600 mt-4 mb-4"></div>
+              <div className="w-full h-px bg-gray-600 mt-4 mb-4"></div>
               <div className="mb-2">Allowed users:</div>
               <Whitelist channelId={props.channelId} />
             </div>

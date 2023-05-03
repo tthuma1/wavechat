@@ -14,6 +14,7 @@ import { MyContext } from "../types";
 import { Whitelist } from "../enitities/Whitelist";
 import { UsersResponse } from "./user";
 import { User } from "../enitities/User";
+import { Group } from "../enitities/Group";
 
 @ObjectType()
 class WhitelistResponse {
@@ -244,6 +245,7 @@ WHERE w.channelId = ?;
     @Ctx() { req }: MyContext
   ) {
     const channel = await Channel.findOneBy({ id: channelId });
+    const group = await Group.findOneBy({ id: channel?.groupId });
 
     // channel doesn't exist
     if (!channel) return false;
@@ -251,7 +253,10 @@ WHERE w.channelId = ?;
     // channel is public
     if (channel.isPrivate == false) return true;
 
-    if (typeof req.session.userId === "undefined") return false;
+    if (!req.session.userId) return false;
+
+    // user is admin
+    if (group && group.adminId === req.session.userId) return true;
 
     const whitelist = await Whitelist.findOneBy({
       channelId,
