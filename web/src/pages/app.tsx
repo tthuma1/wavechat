@@ -26,7 +26,9 @@ const App: NextPage = () => {
 
   refetch();
 
-  if (!loading && !data?.me) router.push("/login");
+  useEffect(() => {
+    if (!loading && !data?.me) router.push("/login");
+  });
 
   const handleLogout = async () => {
     const response = await logout();

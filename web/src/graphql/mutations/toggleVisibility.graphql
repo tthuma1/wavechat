@@ -12,3 +12,21 @@ mutation ToggleVisibility($channelId: Float!) {
     }
   }
 }
+
+mutation ToggleGroupVisibility($groupId: Float!) {
+  toggleGroupVisibility(groupId: $groupId) {
+    errors {
+      field
+      message
+    }
+    group {
+      id
+      adminId
+      name
+      createdAt
+      type
+      isPrivate
+    }
+    firstChannelId
+  }
+}

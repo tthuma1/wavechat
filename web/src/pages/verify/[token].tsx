@@ -1,37 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NextPage } from "next";
-import { Formik, Form, ErrorMessage, Field } from "formik";
-import { toErrorMap } from "../../utils/toErrorMap";
-import {
-  MeDocument,
-  MeQuery,
-  useVerifyEmailMutation,
-} from "../../generated/graphql";
+import { useVerifyEmailMutation } from "../../generated/graphql";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 import Head from "next/head";
 
 const VerifyEmail: NextPage = () => {
   const router = useRouter();
+  const { token: qtoken } = router.query;
 
-  const [verifyEmail, { data, loading }] = useVerifyEmailMutation({
-    variables: {
-      token: typeof router.query.token === "string" ? router.query.token : "",
-    },
-  });
+  const [verifyEmail, { data, loading }] = useVerifyEmailMutation();
 
-  verifyEmail();
+  useEffect(() => {
+    (async () => {
+      const response = await verifyEmail({
+        variables: {
+          token: typeof qtoken === "string" ? qtoken : "",
+        },
+      });
 
-  if (!loading) {
-    if (!data?.verifyEmail.errors) {
-      return <div>Error verifying email</div>;
-    } else {
-      router.push("/app");
-      return <div>Email verified!</div>;
-    }
-  } else {
-    return <div>Loading...</div>;
-  }
+      if (!response.data?.verifyEmail.errors) {
+        router.push("/app");
+      }
+    })();
+  }, [qtoken]);
+
+  return (
+    <div className="h-screen flex justify-center items-center">
+      <Head>
+        <title>WaveChat - Verify Email</title>
+        <meta name="description" content="" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      {loading || !data?.verifyEmail ? (
+        <div>Verifying email...</div>
+      ) : data?.verifyEmail.errors ? (
+        <div>Error verifying email.</div>
+      ) : (
+        <div>Email verified!</div>
+      )}
+    </div>
+  );
 };
 
 export default VerifyEmail;

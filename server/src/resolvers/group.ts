@@ -17,6 +17,7 @@ import { MyContext } from "../types";
 import { AppDataSource } from "../DataSource";
 import { UsersResponse, UserResponse } from "./user";
 import { Message } from "../enitities/Message";
+import { v4 } from "uuid";
 
 @ObjectType()
 export class GroupResponse {
@@ -58,6 +59,18 @@ class GHUResponse {
 
   @Field(() => Group_Has_User, { nullable: true })
   ghu?: Group_Has_User;
+}
+
+@ObjectType()
+class GHUWithChannelResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => Group_Has_User, { nullable: true })
+  ghu?: Group_Has_User;
+
+  @Field(() => Number, { nullable: true })
+  firstChannelId?: Number;
 }
 
 @ObjectType()
@@ -243,13 +256,11 @@ export class GroupResolver {
 
   @Mutation(() => GHUResponse)
   async joinGroup(@Ctx() { req }: MyContext, @Arg("groupId") groupId: number) {
-    if (
-      (
-        await Group.findBy({
-          id: groupId,
-        })
-      ).length == 0
-    ) {
+    const group = await Group.findOneBy({
+      id: groupId,
+    });
+
+    if (!group) {
       return {
         errors: [
           {
@@ -260,19 +271,12 @@ export class GroupResolver {
       };
     }
 
-    if (
-      (
-        await Group_Has_User.findBy({
-          groupId,
-          userId: req.session.userId,
-        })
-      ).length > 0
-    ) {
+    if (group.type == "dm") {
       return {
         errors: [
           {
             field: "groupId",
-            message: "User is already in group.",
+            message: "Can't join DM.",
           },
         ],
       };
@@ -284,6 +288,22 @@ export class GroupResolver {
           {
             field: "userId",
             message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (
+      await Group_Has_User.findOneBy({
+        groupId,
+        userId: req.session.userId,
+      })
+    ) {
+      return {
+        errors: [
+          {
+            field: "groupId",
+            message: "User is already in group.",
           },
         ],
       };
@@ -548,7 +568,7 @@ WHERE c.groupId = ? AND c.isPrivate = true AND w.userId = ?
     const groups: Group[] = await AppDataSource.query(
       `
 SELECT * FROM \`group\`
-WHERE type = 'group' AND (LOWER(name) LIKE LOWER(CONCAT('%', ?, '%'))
+WHERE type = 'group' AND isPrivate = 0 AND (LOWER(name) LIKE LOWER(CONCAT('%', ?, '%'))
 OR levenshtein(name, ?) <= 2)
 ORDER BY levenshtein(name, ?)
 LIMIT 15;
@@ -644,5 +664,152 @@ LIMIT 15;
     await Group_Has_User.delete({ groupId, userId });
 
     return { user };
+  }
+
+  @Mutation(() => GroupResponse)
+  async toggleGroupVisibility(
+    @Arg("groupId") groupId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const group = await Group.findOneBy({ id: groupId });
+    if (!group) {
+      return {
+        errors: [
+          {
+            field: "groupId",
+            message: "Group doesn't exist",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (group.adminId != req.session.userId) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not group admin.",
+          },
+        ],
+      };
+    }
+
+    await Group.update(
+      { id: groupId },
+      {
+        isPrivate: !group.isPrivate,
+      }
+    );
+
+    group.isPrivate = !group.isPrivate;
+    group.type = group.type[0];
+
+    return { group };
+  }
+
+  @Mutation(() => String)
+  async generateInvite(
+    @Arg("groupId") groupId: number,
+    @Ctx() { redis, req }: MyContext
+  ) {
+    const group = await Group.findOneBy({ id: groupId });
+
+    if (!group || !req.session.userId || req.session.userId != group.adminId)
+      return "";
+
+    const token = v4();
+
+    await redis.set("invite:" + token, group.id, "EX", 60 * 60 * 24 * 7); // 7 days
+
+    return `${process.env.DOMAIN}/join/${token}`;
+  }
+
+  @Mutation(() => GHUWithChannelResponse)
+  async joinGroupWithToken(
+    @Ctx() { redis, req }: MyContext,
+    @Arg("token") token: string
+  ) {
+    const key = "invite:" + token;
+    const groupId = await redis.get(key);
+
+    if (!groupId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "Token expired.",
+          },
+        ],
+      };
+    }
+
+    const group = await Group.findOneBy({ id: parseInt(groupId) });
+
+    if (!group) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "Group no longer exists.",
+          },
+        ],
+      };
+    }
+
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not logged in.",
+          },
+        ],
+      };
+    }
+
+    if (
+      await Group_Has_User.findOneBy({
+        groupId: parseInt(groupId),
+        userId: req.session.userId,
+      })
+    ) {
+      const ghu = await Group_Has_User.findOneBy({
+        groupId: parseInt(groupId),
+        userId: req.session.userId,
+      });
+
+      let firstChannelId;
+      let channel = await Channel.findOneBy({ groupId: group.id });
+      if (channel) {
+        firstChannelId = channel.id;
+      }
+
+      return { ghu, firstChannelId };
+    }
+
+    let ghu = new Group_Has_User();
+    ghu.userId = req.session.userId;
+    ghu.groupId = parseInt(groupId);
+
+    await ghu.save();
+
+    let firstChannelId;
+    let channel = await Channel.findOneBy({ groupId: group.id });
+    if (channel) {
+      firstChannelId = channel.id;
+    }
+
+    return { ghu, firstChannelId };
   }
 }

@@ -36,6 +36,7 @@ const ChangePassword: NextPage = () => {
                     ? router.query.token
                     : "",
               },
+              // update cache instead of refetching meData
               update: (cache, { data }) => {
                 cache.writeQuery<MeQuery>({
                   query: MeDocument,

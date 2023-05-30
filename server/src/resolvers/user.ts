@@ -940,7 +940,7 @@ WHERE user1Id = ? AND user2Id = ?;
         errors: [
           {
             field: "token",
-            message: "token expired",
+            message: "Token expired.",
           },
         ],
       };
@@ -954,7 +954,7 @@ WHERE user1Id = ? AND user2Id = ?;
         errors: [
           {
             field: "token",
-            message: "user no longer exists",
+            message: "User no longer exists.",
           },
         ],
       };
@@ -1066,7 +1066,7 @@ LIMIT 15;
     const user = await User.findOne({ where: { email } });
     if (!user) {
       // the email is not in the db
-      return true;
+      return false;
     }
 
     const token = v4();

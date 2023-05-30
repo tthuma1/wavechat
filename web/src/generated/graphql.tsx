@@ -71,11 +71,19 @@ export type GhuResponse = {
   ghu?: Maybe<Group_Has_User>;
 };
 
+export type GhuWithChannelResponse = {
+  __typename?: 'GHUWithChannelResponse';
+  errors?: Maybe<Array<FieldError>>;
+  firstChannelId?: Maybe<Scalars['Float']>;
+  ghu?: Maybe<Group_Has_User>;
+};
+
 export type Group = {
   __typename?: 'Group';
   adminId: Scalars['Float'];
   createdAt: Scalars['String'];
   id: Scalars['Float'];
+  isPrivate: Scalars['Boolean'];
   name: Scalars['String'];
   type: Scalars['String'];
 };
@@ -148,7 +156,9 @@ export type Mutation = {
   deleteGroup: GroupResponse;
   deleteMessage: MessageResponse;
   forgotPassword: Scalars['Boolean'];
+  generateInvite: Scalars['String'];
   joinGroup: GhuResponse;
+  joinGroupWithToken: GhuWithChannelResponse;
   kickUser: UserResponse;
   leaveGroup: GhuResponse;
   login: UserResponse;
@@ -160,6 +170,7 @@ export type Mutation = {
   renameGroup: GroupResponse;
   sendDM: MessageResponse;
   sendInChannel: MessageResponse;
+  toggleGroupVisibility: GroupResponse;
   toggleVisibility: ChannelResponse;
   verifyEmail: UserResponse;
 };
@@ -240,8 +251,18 @@ export type MutationForgotPasswordArgs = {
 };
 
 
+export type MutationGenerateInviteArgs = {
+  groupId: Scalars['Float'];
+};
+
+
 export type MutationJoinGroupArgs = {
   groupId: Scalars['Float'];
+};
+
+
+export type MutationJoinGroupWithTokenArgs = {
+  token: Scalars['String'];
 };
 
 
@@ -301,6 +322,11 @@ export type MutationSendInChannelArgs = {
   channelId: Scalars['Float'];
   msg: Scalars['String'];
   type: Scalars['String'];
+};
+
+
+export type MutationToggleGroupVisibilityArgs = {
+  groupId: Scalars['Float'];
 };
 
 
@@ -531,6 +557,20 @@ export type JoinGroupMutationVariables = Exact<{
 
 export type JoinGroupMutation = { __typename?: 'Mutation', joinGroup: { __typename?: 'GHUResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, ghu?: { __typename?: 'Group_Has_User', groupId: number } | null } };
 
+export type GenerateInviteMutationVariables = Exact<{
+  groupId: Scalars['Float'];
+}>;
+
+
+export type GenerateInviteMutation = { __typename?: 'Mutation', generateInvite: string };
+
+export type JoinGroupWithTokenMutationVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type JoinGroupWithTokenMutation = { __typename?: 'Mutation', joinGroupWithToken: { __typename?: 'GHUWithChannelResponse', firstChannelId?: number | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, ghu?: { __typename?: 'Group_Has_User', userId: number, groupId: number, joinedAt: string } | null } };
+
 export type KickUserMutationVariables = Exact<{
   userId: Scalars['Float'];
   groupId: Scalars['Float'];
@@ -629,6 +669,13 @@ export type ToggleVisibilityMutationVariables = Exact<{
 
 export type ToggleVisibilityMutation = { __typename?: 'Mutation', toggleVisibility: { __typename?: 'ChannelResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, channel?: { __typename?: 'Channel', id: number, name: string, groupId: number, isPrivate: boolean } | null } };
 
+export type ToggleGroupVisibilityMutationVariables = Exact<{
+  groupId: Scalars['Float'];
+}>;
+
+
+export type ToggleGroupVisibilityMutation = { __typename?: 'Mutation', toggleGroupVisibility: { __typename?: 'GroupResponse', firstChannelId?: number | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, group?: { __typename?: 'Group', id: number, adminId: number, name: string, createdAt: string, type: string, isPrivate: boolean } | null } };
+
 export type VerifyEmailMutationVariables = Exact<{
   token: Scalars['String'];
 }>;
@@ -697,7 +744,7 @@ export type GetGroupInfoQueryVariables = Exact<{
 }>;
 
 
-export type GetGroupInfoQuery = { __typename?: 'Query', getGroupInfo: { __typename?: 'GroupResponse', group?: { __typename?: 'Group', id: number, name: string, adminId: number } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+export type GetGroupInfoQuery = { __typename?: 'Query', getGroupInfo: { __typename?: 'GroupResponse', group?: { __typename?: 'Group', id: number, name: string, adminId: number, isPrivate: boolean } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
 export type GetGroupUsersQueryVariables = Exact<{
   groupId: Scalars['Float'];
@@ -1170,6 +1217,79 @@ export function useJoinGroupMutation(baseOptions?: Apollo.MutationHookOptions<Jo
 export type JoinGroupMutationHookResult = ReturnType<typeof useJoinGroupMutation>;
 export type JoinGroupMutationResult = Apollo.MutationResult<JoinGroupMutation>;
 export type JoinGroupMutationOptions = Apollo.BaseMutationOptions<JoinGroupMutation, JoinGroupMutationVariables>;
+export const GenerateInviteDocument = gql`
+    mutation generateInvite($groupId: Float!) {
+  generateInvite(groupId: $groupId)
+}
+    `;
+export type GenerateInviteMutationFn = Apollo.MutationFunction<GenerateInviteMutation, GenerateInviteMutationVariables>;
+
+/**
+ * __useGenerateInviteMutation__
+ *
+ * To run a mutation, you first call `useGenerateInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateInviteMutation, { data, loading, error }] = useGenerateInviteMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useGenerateInviteMutation(baseOptions?: Apollo.MutationHookOptions<GenerateInviteMutation, GenerateInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GenerateInviteMutation, GenerateInviteMutationVariables>(GenerateInviteDocument, options);
+      }
+export type GenerateInviteMutationHookResult = ReturnType<typeof useGenerateInviteMutation>;
+export type GenerateInviteMutationResult = Apollo.MutationResult<GenerateInviteMutation>;
+export type GenerateInviteMutationOptions = Apollo.BaseMutationOptions<GenerateInviteMutation, GenerateInviteMutationVariables>;
+export const JoinGroupWithTokenDocument = gql`
+    mutation JoinGroupWithToken($token: String!) {
+  joinGroupWithToken(token: $token) {
+    errors {
+      field
+      message
+    }
+    ghu {
+      userId
+      groupId
+      joinedAt
+    }
+    firstChannelId
+  }
+}
+    `;
+export type JoinGroupWithTokenMutationFn = Apollo.MutationFunction<JoinGroupWithTokenMutation, JoinGroupWithTokenMutationVariables>;
+
+/**
+ * __useJoinGroupWithTokenMutation__
+ *
+ * To run a mutation, you first call `useJoinGroupWithTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useJoinGroupWithTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [joinGroupWithTokenMutation, { data, loading, error }] = useJoinGroupWithTokenMutation({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useJoinGroupWithTokenMutation(baseOptions?: Apollo.MutationHookOptions<JoinGroupWithTokenMutation, JoinGroupWithTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<JoinGroupWithTokenMutation, JoinGroupWithTokenMutationVariables>(JoinGroupWithTokenDocument, options);
+      }
+export type JoinGroupWithTokenMutationHookResult = ReturnType<typeof useJoinGroupWithTokenMutation>;
+export type JoinGroupWithTokenMutationResult = Apollo.MutationResult<JoinGroupWithTokenMutation>;
+export type JoinGroupWithTokenMutationOptions = Apollo.BaseMutationOptions<JoinGroupWithTokenMutation, JoinGroupWithTokenMutationVariables>;
 export const KickUserDocument = gql`
     mutation KickUser($userId: Float!, $groupId: Float!) {
   kickUser(userId: $userId, groupId: $groupId) {
@@ -1699,6 +1819,51 @@ export function useToggleVisibilityMutation(baseOptions?: Apollo.MutationHookOpt
 export type ToggleVisibilityMutationHookResult = ReturnType<typeof useToggleVisibilityMutation>;
 export type ToggleVisibilityMutationResult = Apollo.MutationResult<ToggleVisibilityMutation>;
 export type ToggleVisibilityMutationOptions = Apollo.BaseMutationOptions<ToggleVisibilityMutation, ToggleVisibilityMutationVariables>;
+export const ToggleGroupVisibilityDocument = gql`
+    mutation ToggleGroupVisibility($groupId: Float!) {
+  toggleGroupVisibility(groupId: $groupId) {
+    errors {
+      field
+      message
+    }
+    group {
+      id
+      adminId
+      name
+      createdAt
+      type
+      isPrivate
+    }
+    firstChannelId
+  }
+}
+    `;
+export type ToggleGroupVisibilityMutationFn = Apollo.MutationFunction<ToggleGroupVisibilityMutation, ToggleGroupVisibilityMutationVariables>;
+
+/**
+ * __useToggleGroupVisibilityMutation__
+ *
+ * To run a mutation, you first call `useToggleGroupVisibilityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleGroupVisibilityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleGroupVisibilityMutation, { data, loading, error }] = useToggleGroupVisibilityMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useToggleGroupVisibilityMutation(baseOptions?: Apollo.MutationHookOptions<ToggleGroupVisibilityMutation, ToggleGroupVisibilityMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleGroupVisibilityMutation, ToggleGroupVisibilityMutationVariables>(ToggleGroupVisibilityDocument, options);
+      }
+export type ToggleGroupVisibilityMutationHookResult = ReturnType<typeof useToggleGroupVisibilityMutation>;
+export type ToggleGroupVisibilityMutationResult = Apollo.MutationResult<ToggleGroupVisibilityMutation>;
+export type ToggleGroupVisibilityMutationOptions = Apollo.BaseMutationOptions<ToggleGroupVisibilityMutation, ToggleGroupVisibilityMutationVariables>;
 export const VerifyEmailDocument = gql`
     mutation VerifyEmail($token: String!) {
   verifyEmail(token: $token) {
@@ -2074,6 +2239,7 @@ export const GetGroupInfoDocument = gql`
       id
       name
       adminId
+      isPrivate
     }
     errors {
       field

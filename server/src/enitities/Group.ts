@@ -34,4 +34,8 @@ export class Group extends BaseEntity {
 
   @ManyToOne(() => User)
   public admin!: User;
+
+  @Field()
+  @Column({ default: true })
+  public isPrivate!: boolean;
 }

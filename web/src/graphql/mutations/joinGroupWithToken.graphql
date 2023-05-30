@@ -1,0 +1,18 @@
+mutation generateInvite($groupId: Float!) {
+  generateInvite(groupId: $groupId)
+}
+
+mutation JoinGroupWithToken($token: String!) {
+  joinGroupWithToken(token: $token) {
+    errors {
+      field
+      message
+    }
+    ghu {
+      userId
+      groupId
+      joinedAt
+    }
+    firstChannelId
+  }
+}

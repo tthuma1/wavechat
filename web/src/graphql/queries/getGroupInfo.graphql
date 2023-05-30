@@ -4,6 +4,7 @@ query GetGroupInfo($groupId: Float!) {
       id
       name
       adminId
+      isPrivate
     }
     errors {
       field
