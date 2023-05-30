@@ -111,6 +111,7 @@ export type Message = {
   __typename?: 'Message';
   channelId: Scalars['Float'];
   createdAt: Scalars['String'];
+  id: Scalars['Float'];
   msg: Scalars['String'];
   senderId: Scalars['Float'];
   type: Scalars['String'];
@@ -145,6 +146,7 @@ export type Mutation = {
   createGroup: GroupResponse;
   deleteChannel: Scalars['Float'];
   deleteGroup: GroupResponse;
+  deleteMessage: MessageResponse;
   forgotPassword: Scalars['Boolean'];
   joinGroup: GhuResponse;
   kickUser: UserResponse;
@@ -224,6 +226,11 @@ export type MutationDeleteChannelArgs = {
 
 
 export type MutationDeleteGroupArgs = {
+  id: Scalars['Float'];
+};
+
+
+export type MutationDeleteMessageArgs = {
   id: Scalars['Float'];
 };
 
@@ -652,6 +659,13 @@ export type ChannelToGroupQueryVariables = Exact<{
 
 export type ChannelToGroupQuery = { __typename?: 'Query', channelToGroup: { __typename?: 'GroupResponse', group?: { __typename?: 'Group', id: number, name: string, adminId: number } | null } };
 
+export type DeleteMessageMutationVariables = Exact<{
+  deleteMessageId: Scalars['Float'];
+}>;
+
+
+export type DeleteMessageMutation = { __typename?: 'Mutation', deleteMessage: { __typename?: 'MessageResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, message?: { __typename?: 'Message', senderId: number, channelId: number, msg: string, createdAt: string, type: string } | null } };
+
 export type GetChannelsInGroupQueryVariables = Exact<{
   groupId: Scalars['Float'];
 }>;
@@ -730,7 +744,7 @@ export type RetrieveDmQueryVariables = Exact<{
 }>;
 
 
-export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, newAmount?: number | null, messages?: Array<{ __typename?: 'Message', msg: string, senderId: number, channelId: number, createdAt: string, type: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number, avatar: string }> | null } | null };
+export type RetrieveDmQuery = { __typename?: 'Query', retrieveDM?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, newAmount?: number | null, messages?: Array<{ __typename?: 'Message', id: number, msg: string, senderId: number, channelId: number, createdAt: string, type: string }> | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, users?: Array<{ __typename?: 'User', username: string, id: number, avatar: string }> | null } | null };
 
 export type RetrieveInChannelQueryVariables = Exact<{
   limit: Scalars['Float'];
@@ -739,7 +753,7 @@ export type RetrieveInChannelQueryVariables = Exact<{
 }>;
 
 
-export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', msg: string, createdAt: string, senderId: number, channelId: number, type: string }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null } | null };
+export type RetrieveInChannelQuery = { __typename?: 'Query', retrieveInChannel?: { __typename?: 'MessagesResponse', hasMore?: boolean | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, messages?: Array<{ __typename?: 'Message', id: number, msg: string, createdAt: string, senderId: number, channelId: number, type: string }> | null, users?: Array<{ __typename?: 'User', id: number, username: string, avatar: string }> | null } | null };
 
 export type SearchGroupsQueryVariables = Exact<{
   name: Scalars['String'];
@@ -1846,6 +1860,49 @@ export function useChannelToGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type ChannelToGroupQueryHookResult = ReturnType<typeof useChannelToGroupQuery>;
 export type ChannelToGroupLazyQueryHookResult = ReturnType<typeof useChannelToGroupLazyQuery>;
 export type ChannelToGroupQueryResult = Apollo.QueryResult<ChannelToGroupQuery, ChannelToGroupQueryVariables>;
+export const DeleteMessageDocument = gql`
+    mutation DeleteMessage($deleteMessageId: Float!) {
+  deleteMessage(id: $deleteMessageId) {
+    errors {
+      field
+      message
+    }
+    message {
+      senderId
+      channelId
+      msg
+      createdAt
+      type
+    }
+  }
+}
+    `;
+export type DeleteMessageMutationFn = Apollo.MutationFunction<DeleteMessageMutation, DeleteMessageMutationVariables>;
+
+/**
+ * __useDeleteMessageMutation__
+ *
+ * To run a mutation, you first call `useDeleteMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMessageMutation, { data, loading, error }] = useDeleteMessageMutation({
+ *   variables: {
+ *      deleteMessageId: // value for 'deleteMessageId'
+ *   },
+ * });
+ */
+export function useDeleteMessageMutation(baseOptions?: Apollo.MutationHookOptions<DeleteMessageMutation, DeleteMessageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteMessageMutation, DeleteMessageMutationVariables>(DeleteMessageDocument, options);
+      }
+export type DeleteMessageMutationHookResult = ReturnType<typeof useDeleteMessageMutation>;
+export type DeleteMessageMutationResult = Apollo.MutationResult<DeleteMessageMutation>;
+export type DeleteMessageMutationOptions = Apollo.BaseMutationOptions<DeleteMessageMutation, DeleteMessageMutationVariables>;
 export const GetChannelsInGroupDocument = gql`
     query GetChannelsInGroup($groupId: Float!) {
   getChannelsInGroup(groupId: $groupId) {
@@ -2298,6 +2355,7 @@ export const RetrieveDmDocument = gql`
     query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
   retrieveDM(receiverId: $receiverId, offset: $offset, limit: $limit) {
     messages {
+      id
       msg
       senderId
       channelId
@@ -2357,6 +2415,7 @@ export const RetrieveInChannelDocument = gql`
       message
     }
     messages {
+      id
       msg
       createdAt
       senderId

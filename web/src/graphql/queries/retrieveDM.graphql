@@ -1,6 +1,7 @@
 query RetrieveDM($receiverId: Float!, $offset: Float!, $limit: Float!) {
   retrieveDM(receiverId: $receiverId, offset: $offset, limit: $limit) {
     messages {
+      id
       msg
       senderId
       channelId

@@ -28,10 +28,12 @@ const cache = new InMemoryCache({
                 if (!inMergedUsers) mergedUsers.push(user);
               }
 
+              // prepending items
               let mergedMessages = [
                 ...(existing?.messages || []),
                 ...incoming.messages,
               ];
+
               if (args) {
                 // only retrieving the latest message due to websocket message received
                 if (args.offset == 0 && args.limit == 1) {
@@ -39,6 +41,12 @@ const cache = new InMemoryCache({
                     ...incoming.messages,
                     ...(existing?.messages || []),
                   ];
+                }
+
+                // message was deleted
+                if (args.limit == 0) {
+                  mergedMessages = existing.messages.slice();
+                  mergedMessages.splice(args.offset, 1);
                 }
               }
 
@@ -83,6 +91,12 @@ const cache = new InMemoryCache({
                     ...incoming.messages,
                     ...(existing?.messages || []),
                   ];
+                }
+
+                // message was deleted
+                if (args.limit == 0) {
+                  mergedMessages = existing.messages.slice();
+                  mergedMessages.splice(args.offset, 1);
                 }
               }
 

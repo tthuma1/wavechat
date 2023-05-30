@@ -2,6 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
+  useDeleteMessageMutation,
   useGetUserQuery,
   useMeQuery,
   useRemoveFriendMutation,
@@ -30,6 +31,7 @@ const User: NextPage = () => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [firstItemIndex, setFirstItemIndex] = useState(1e9);
   const [currOffset, setCurrOffset] = useState(15);
+  const [topReached, setTopReached] = useState(false);
   // const [messagesState, setMessagesState] = useState<any[]>([]);
   // const [messages, setMessages] = useState<any[]>([]);
 
@@ -63,6 +65,7 @@ const User: NextPage = () => {
   });
 
   const [removeFriend] = useRemoveFriendMutation();
+  const [deleteMessage] = useDeleteMessageMutation();
 
   let allLoaded = false;
 
@@ -107,48 +110,70 @@ const User: NextPage = () => {
         // console.log(message);
         if (sender && message.type == "text") {
           messages.unshift(
-            // {
-            //   sender,
-            //   dateOut,
-            //   msg: message.msg,
-            // }
-            <div key={i} className="flex py-2">
-              <img
-                src={
-                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                  sender.avatar
-                }
-                className="w-8 h-8 rounded-full mr-4 mt-2"
-              />
-              <div>
-                <span className="font-semibold pr-2">{sender.username}</span>
-                <span className="text-gray-400 text-sm">{dateOut}</span>
-                <p>{message.msg}</p>
+            <div className="dropdown">
+              <div
+                key={i}
+                className="flex py-2 hover:bg-gray-150 dark:hover:bg-gray-850 rounded-md px-2"
+              >
+                <img
+                  src={
+                    "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                    sender.avatar
+                  }
+                  className="w-8 h-8 rounded-full mr-4 mt-2"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold pr-2">{sender.username}</span>
+                  <span className="text-gray-400 text-sm">{dateOut}</span>
+                  <p className="break-words m-0">{message.msg}</p>
+                </div>
+                {meData?.me.id == message.senderId && (
+                  <button
+                    className="dropdown-content invisible -mt-3 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-750 hover:cursor-pointer h-fit"
+                    onClick={() => handleDeleteMessage(message.id, i)}
+                  >
+                    <i className="fa-solid fa-trash text-red-500"></i>
+                  </button>
+                )}
               </div>
             </div>
           );
         } else if (sender && message.type == "image") {
           messages.unshift(
-            <div key={i} className="flex py-2">
-              <img
-                src={
-                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                  sender.avatar
-                }
-                className="w-8 h-8 rounded-full mr-4 mt-2"
-              />
-              <div>
-                <span className="font-semibold pr-2">{sender.username}</span>
-                <span className="text-gray-400 text-sm">{dateOut}</span>
-                <div className="pt-2">
-                  <img
-                    src={
-                      "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
-                      message.msg
-                    }
-                    className="max-h-72 rounded-md"
-                  />
+            <div className="dropdown">
+              <div
+                key={i}
+                className="flex py-2 hover:bg-gray-150 dark:hover:bg-gray-850 rounded-md px-2"
+              >
+                <img
+                  src={
+                    "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                    sender.avatar
+                  }
+                  className="w-8 h-8 rounded-full mr-4 mt-2"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold pr-2">{sender.username}</span>
+                  <span className="text-gray-400 text-sm">{dateOut}</span>
+                  <div className="pt-2">
+                    <img
+                      src={
+                        "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
+                        message.msg
+                      }
+                      className="max-h-72 rounded-md"
+                    />
+                  </div>
                 </div>
+
+                {meData?.me.id == message.senderId && (
+                  <button
+                    className="dropdown-content invisible -mt-3 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-750 hover:cursor-pointer h-fit"
+                    onClick={() => handleDeleteMessage(message.id, i)}
+                  >
+                    <i className="fa-solid fa-trash text-red-500"></i>
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -196,7 +221,9 @@ const User: NextPage = () => {
   });
 
   useEffect(() => {
-    socket.on("received dm", async receiverId => {
+    socket.removeListener("received dm");
+
+    socket.on("received dm", async (receiverId, senderId) => {
       // console.log("received in [user].tsx");
       // console.log(currOffset);
       // if (quser) {
@@ -219,84 +246,40 @@ const User: NextPage = () => {
       //   initial_item_count = 0;
       // }
 
-      await fetchMore({
-        variables: { offset: 0, limit: 1, optionss: "abc" },
-      });
-      setCurrOffset(() => currOffset + 1);
+      if (quser == receiverId || quser == senderId) {
+        await fetchMore({ variables: { offset: 0, limit: 1 } });
+        setCurrOffset(() => currOffset + 1);
+      }
     });
+
+    socket.on("dm message removed", async (offset, receiverId, senderId) => {
+      console.log(quser, receiverId, senderId);
+      if (quser == receiverId || quser == senderId) {
+        await fetchMore({ variables: { offset, limit: 0 } });
+        setCurrOffset(() => currOffset - 1);
+      }
+    });
+  }, [quser]);
+
+  // on unmount
+  useEffect(() => {
+    return () => {
+      socket.removeListener("received dm");
+      socket.removeListener("dm message removed");
+    };
   }, []);
 
-  /*
-  if (!loadingLatest && dataLatest) {
-    if (dataLatest!.retrieveLastDM!.messages !== null) {
-      console.log(dataLatest.retrieveLastDM?.messages);
-      // console.log(data);
-      for (let i = 0; i < dataLatest!.retrieveLastDM!.messages!.length; i++) {
-        let createdAt = new Date(
-          parseInt(dataLatest!.retrieveLastDM!.messages![0].createdAt)
-        );
-        const dateOut = formatDate(new Date(createdAt));
-
-        const senders = dataLatest!.retrieveLastDM!.users!;
-        const message = dataLatest!.retrieveLastDM!.messages![0];
-        let sender = senders.find(el => el.id == message.senderId)!;
-
-        // console.log(message);
-        if (sender && message.type == "text") {
-          newMessages.push(
-            <div key={i} className="flex py-2">
-              <img
-                src={
-                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                  sender.avatar
-                }
-                className="w-8 h-8 rounded-full mr-4"
-              />
-              <div>
-                <span className="font-semibold pr-2">{sender.username}</span>
-                <span className="text-gray-400 text-sm">{dateOut}</span>
-                <p>{message.msg}</p>
-              </div>
-            </div>
-          );
-        } else if (sender && message.type == "image") {
-          newMessages.push(
-            <div key={i} className="flex py-2">
-              <img
-                src={
-                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                  sender.avatar
-                }
-                className="w-8 h-8 rounded-full mr-4"
-              />
-              <div>
-                <span className="font-semibold pr-2">{sender.username}</span>
-                <span className="text-gray-400 text-sm">{dateOut}</span>
-                <div className="pt-2">
-                  <img
-                    src={
-                      "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
-                      message.msg
-                    }
-                    className="max-h-72 rounded-md"
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        }
-      }
-    }
-  }
-  */
-
   const prependItems = async () => {
-    if (data!.retrieveDM!.hasMore) {
+    // setCurrOffset(() => messages.length);
+
+    if (!topReached) {
       await fetchMore({ variables: { offset: currOffset, limit: 10 } });
       setCurrOffset(() => currOffset + 10);
 
-      setFirstItemIndex(() => firstItemIndex - 10);
+      // setFirstItemIndex(() => firstItemIndex - 10);
     }
+
+    if (!data?.retrieveDM?.hasMore) setTopReached(true);
   };
 
   // useEffect(() => {
@@ -312,6 +295,16 @@ const User: NextPage = () => {
     }
 
     socket.emit("friend removed");
+  };
+
+  const handleDeleteMessage = async (id: number, offset: number) => {
+    const response = await deleteMessage({
+      variables: { deleteMessageId: id },
+    });
+
+    if (response.data?.deleteMessage) {
+      socket.emit("dm message removed", offset, quser, meData?.me?.id);
+    }
   };
 
   if (allLoaded && router.isReady && quser) {
@@ -384,7 +377,7 @@ const User: NextPage = () => {
               }}
               followOutput
               itemContent={(index, message) => (
-                <div className="px-8">
+                <div className="px-6">
                   {/* <div className="flex my-4">
                     <img
                       src="/avatar.jpg"

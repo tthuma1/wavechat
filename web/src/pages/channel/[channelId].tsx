@@ -10,6 +10,7 @@ import {
   useGetChannelsInGroupQuery,
   useGetChannelInfoQuery,
   useIsCurrentOnWhitelistQuery,
+  useDeleteMessageMutation,
 } from "../../generated/graphql";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
@@ -35,6 +36,7 @@ const Channel: NextPage = () => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [firstItemIndex, setFirstItemIndex] = useState(1e9);
   const [currOffset, setCurrOffset] = useState(15);
+  const [topReached, setTopReached] = useState(false);
 
   const { data, loading, refetch, fetchMore } = useRetrieveInChannelQuery({
     variables: {
@@ -71,6 +73,7 @@ const Channel: NextPage = () => {
     });
 
   const [leaveGroup] = useLeaveGroupMutation();
+  const [deleteMessage] = useDeleteMessageMutation();
 
   let allLoaded = false;
 
@@ -122,48 +125,73 @@ const Channel: NextPage = () => {
 
         if (sender && message.type == "text") {
           messages.unshift(
-            // {
-            //   sender,
-            //   dateOut,
-            //   msg: message.msg,
-            // }
-            <div key={i} className="flex py-2">
-              <img
-                src={
-                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                  sender.avatar
-                }
-                className="w-8 h-8 rounded-full mr-4 mt-2"
-              />
-              <div>
-                <span className="font-semibold pr-2">{sender.username}</span>
-                <span className="text-gray-400 text-sm">{dateOut}</span>
-                <p>{message.msg}</p>
+            <div className="dropdown">
+              <div
+                key={i}
+                className="flex py-2 hover:bg-gray-150 dark:hover:bg-gray-850 rounded-md px-2"
+              >
+                <img
+                  src={
+                    "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                    sender.avatar
+                  }
+                  className="w-8 h-8 rounded-full mr-4 mt-2"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold pr-2">{sender.username}</span>
+                  <span className="text-gray-400 text-sm">{dateOut}</span>
+                  <p className="break-words m-0">{message.msg}</p>
+                </div>
+
+                {(meData?.me.id == message.senderId ||
+                  meData?.me.id == groupData.channelToGroup.group?.adminId) && (
+                  <button
+                    className="dropdown-content invisible -mt-3 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-750 hover:cursor-pointer h-fit"
+                    onClick={() => handleDeleteMessage(message.id, i)}
+                  >
+                    <i className="fa-solid fa-trash text-red-500"></i>
+                  </button>
+                )}
               </div>
             </div>
           );
         } else if (sender && message.type == "image") {
           messages.unshift(
-            <div key={i} className="flex py-2">
-              <img
-                src={
-                  "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
-                  sender.avatar
-                }
-                className="w-8 h-8 rounded-full mr-4 mt-2"
-              />
-              <div>
-                <span className="font-semibold pr-2">{sender.username}</span>
-                <span className="text-gray-400 text-sm">{dateOut}</span>
-                <div className="pt-2">
-                  <img
-                    src={
-                      "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
-                      message.msg
-                    }
-                    className="max-h-72 rounded-md"
-                  />
+            <div className="dropdown">
+              <div
+                key={i}
+                className="flex py-2 hover:bg-gray-150 dark:hover:bg-gray-850 rounded-md px-2"
+              >
+                <img
+                  src={
+                    "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
+                    sender.avatar
+                  }
+                  className="w-8 h-8 rounded-full mr-4 mt-2"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold pr-2">{sender.username}</span>
+                  <span className="text-gray-400 text-sm">{dateOut}</span>
+                  <div className="pt-2">
+                    <img
+                      src={
+                        "https://s3.eu-central-2.wasabisys.com/wavechat/attachments/" +
+                        message.msg
+                      }
+                      className="max-h-72 rounded-md"
+                    />
+                  </div>
                 </div>
+
+                {(meData?.me.id == message.senderId ||
+                  meData?.me.id == groupData.channelToGroup.group?.adminId) && (
+                  <button
+                    className="dropdown-content invisible -mt-3 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-750 hover:cursor-pointer h-fit"
+                    onClick={() => handleDeleteMessage(message.id, i)}
+                  >
+                    <i className="fa-solid fa-trash text-red-500"></i>
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -239,6 +267,13 @@ const Channel: NextPage = () => {
       }
     });
 
+    socket.on("channel message removed", async (offset, channelId) => {
+      if (qchannelId == channelId) {
+        await fetchMore({ variables: { offset, limit: 0 } });
+        setCurrOffset(() => currOffset - 1);
+      }
+    });
+
     socket.on("group renamed", async () => {
       refetchGroupInfo();
     });
@@ -248,6 +283,7 @@ const Channel: NextPage = () => {
   useEffect(() => {
     return () => {
       socket.removeListener("received channel");
+      socket.removeListener("channel message removed");
     };
   }, []);
 
@@ -265,6 +301,16 @@ const Channel: NextPage = () => {
     if (response.data?.leaveGroup) {
       router.push("/app");
       socket.emit("group left");
+    }
+  };
+
+  const handleDeleteMessage = async (id: number, offset: number) => {
+    const response = await deleteMessage({
+      variables: { deleteMessageId: id },
+    });
+
+    if (response.data?.deleteMessage) {
+      socket.emit("channel message removed", offset, qchannelId);
     }
   };
 

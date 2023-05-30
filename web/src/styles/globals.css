@@ -24,7 +24,7 @@
 }
 
 ::-webkit-scrollbar {
-  height: 12px;
+  height: 3px;
   width: 3px;
   background: transparent;
 }
@@ -57,6 +57,7 @@
 
 .dropdown:hover .dropdown-content {
   display: block;
+  visibility: visible;
 }
 
 .dropdown:hover .drop-btn {
@@ -65,4 +66,22 @@
 
 .drop-btn {
   @apply rounded-md;
+}
+
+.loader {
+  border: 0.15rem solid #d1d5db;
+  border-top: 0.15rem solid #3498db;
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

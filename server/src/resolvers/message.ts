@@ -408,4 +408,67 @@ LIMIT ?, ?;
 
     return { messages, users, hasMore };
   }
+
+  @Mutation(() => MessageResponse)
+  async deleteMessage(@Arg("id") id: number, @Ctx() { req }: MyContext) {
+    if (typeof req.session.userId === "undefined") {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Sender is not logged in.",
+          },
+        ],
+      };
+    }
+
+    const message = await Message.findOneBy({ id });
+
+    if (!message) {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "Message doesn't exist",
+          },
+        ],
+      };
+    }
+
+    const group = (
+      await AppDataSource.query(
+        `
+SELECT g.* FROM \`group\` g
+INNER JOIN channel c ON c.groupId = g.id
+INNER JOIN message m ON m.channelId = c.id
+WHERE m.id = ?
+    `,
+        [id]
+      )
+    )[0];
+
+    console.log(group);
+
+    if (
+      (group.type == "dm" && message.senderId != req.session.userId) ||
+      (group.type == "group" &&
+        message.senderId != req.session.userId &&
+        group.adminId != req.session.userId)
+    ) {
+      return {
+        errors: [
+          {
+            field: "senderId",
+            message: "Can't delete another user's message",
+          },
+        ],
+      };
+    }
+
+    await Message.delete({ id });
+
+    message.type = message.type[0];
+
+    return { message };
+  }
 }

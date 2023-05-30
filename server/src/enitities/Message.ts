@@ -13,6 +13,7 @@ import { Channel } from "./Channel";
 @ObjectType()
 @Entity()
 export class Message extends BaseEntity {
+  @Field()
   @PrimaryGeneratedColumn()
   id!: number;
 

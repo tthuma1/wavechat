@@ -140,18 +140,26 @@ const main = async () => {
   });
 
   io.on("connection", socket => {
-    console.log("a user connected");
+    // console.log("a user connected");
 
     socket.on("disconnect", () => {
       // console.log("user disconnected");
     });
 
-    socket.on("received dm", receiverId => {
-      io.sockets.emit("received dm", receiverId);
+    socket.on("received dm", (receiverId, senderId) => {
+      io.sockets.emit("received dm", receiverId, senderId);
     });
 
     socket.on("received channel", channelId => {
       io.sockets.emit("received channel", channelId);
+    });
+
+    socket.on("dm message removed", (offset, receiverId, senderId) => {
+      io.sockets.emit("dm message removed", offset, receiverId, senderId);
+    });
+
+    socket.on("channel message removed", (offset, channelId) => {
+      io.sockets.emit("channel message removed", offset, channelId);
     });
 
     socket.on("channel created", () => {
@@ -228,7 +236,9 @@ const main = async () => {
       credentials: true,
     }),
     async (req, res) => {
-      // console.log(req.body.path);
+      // user is not logged in
+      if (!req.session.userId) return res.sendStatus(400);
+
       if (req.files && req.files.image) {
         const image = req.files.image as UploadedFile;
 
@@ -282,6 +292,8 @@ const main = async () => {
             Key: req.body.path + "/" + filename,
             Body: image.data,
             ACL: "public-read",
+            ContentDisposition: "inline",
+            ContentType: "image",
           },
           service: s3,
         });

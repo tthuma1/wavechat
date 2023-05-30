@@ -1,0 +1,15 @@
+mutation DeleteMessage($deleteMessageId: Float!) {
+  deleteMessage(id: $deleteMessageId) {
+    errors {
+      field
+      message
+    }
+    message {
+      senderId
+      channelId
+      msg
+      createdAt
+      type
+    }
+  }
+}
