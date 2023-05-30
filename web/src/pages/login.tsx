@@ -93,7 +93,11 @@ const Login: NextPage = () => {
                 disabled={isSubmitting}
                 className="text-gray-100 mt-8 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
               >
-                Log In
+                {!isSubmitting ? (
+                  <span>Log In</span>
+                ) : (
+                  <div className="loader loader-big"></div>
+                )}
               </button>
               <Link href="/register">
                 <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">

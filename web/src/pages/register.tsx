@@ -92,9 +92,13 @@ const Register: NextPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="text-gray-100 mt-8 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
+                className="text-gray-100 mt-8 h-11 bg-blue-600 py-2 px-8 text-lg rounded-lg font-medium hover:bg-blue-700 cursor-pointer shadow-md"
               >
-                Register
+                {!isSubmitting ? (
+                  <span>Register</span>
+                ) : (
+                  <div className="loader loader-big"></div>
+                )}
               </button>
               <Link href="/login">
                 <div className="hover:cursor-pointer text-sm mt-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">

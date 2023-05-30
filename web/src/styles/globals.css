@@ -77,6 +77,13 @@
   animation: spin 2s linear infinite;
 }
 
+.loader-big {
+  border: 0.2rem solid #d1d5db;
+  border-top: 0.2rem solid #3498db;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

@@ -4,9 +4,7 @@ import { Message } from "./enitities/Message";
 import { Friendship } from "./enitities/Friendship";
 import { Group } from "./enitities/Group";
 import { Group_Has_User } from "./enitities/Group_Has_User";
-import { FriendshipCheck1674906699226 } from "./migrations/1674906699226-FriendshipCheck";
 import { Channel } from "./enitities/Channel";
-import { Cascade1680381411813 } from "./migrations/1680381411813-Cascade";
 import { Blacklist } from "./enitities/Blacklist";
 import { Whitelist } from "./enitities/Whitelist";
 require("dotenv").config();
@@ -28,7 +26,6 @@ export const AppDataSource = new DataSource({
     Blacklist,
     Whitelist,
   ],
-  migrations: [FriendshipCheck1674906699226, Cascade1680381411813],
   synchronize: true,
   logging: true,
 });

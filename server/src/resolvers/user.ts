@@ -542,9 +542,9 @@ export class UserResolver {
         {
           user1Id: userId,
         },
-        {
-          user2Id: userId,
-        },
+        // {
+        //   user2Id: userId,
+        // },
       ],
     });
 
@@ -620,8 +620,6 @@ export class UserResolver {
     let user1Id = req.session.userId;
     let user2Id = friendId;
 
-    if (user1Id > user2Id) [user1Id, user2Id] = [user2Id, user1Id];
-
     if (
       (
         await Friendship.findBy({
@@ -640,37 +638,13 @@ export class UserResolver {
       };
     }
 
-    // let user = (
-    //   await User.find({
-    //     where: {
-    //       id: req.session.userId,
-    //     },
-    //     relations: { friends: true },
-    //   })
-    // )[0];
-
-    // let friend = (await User.find({ where: { id: friendId } }))[0];
-
     let friendship = new Friendship();
     friendship.user1Id = user1Id;
     friendship.user2Id = user2Id;
 
     await friendship.save();
 
-    // let user = new User();
-    // user.id = req.session.userId;
-
-    // let friend = new User();
-    // friend.id = friendId;
-
-    // user.friends = [friend];
-
-    // user.friends.push(friend);
-
-    // await user.save();
-
-    return { friendship: friendship };
-    // return true;
+    return { friendship };
   }
 
   @Query(() => UserResponse)
@@ -720,8 +694,6 @@ export class UserResolver {
 
     let user1Id = req.session.userId;
     let user2Id = friendId;
-
-    if (user1Id > user2Id) [user1Id, user2Id] = [user2Id, user1Id];
 
     const friendship = await Friendship.findOneBy({
       user1Id,
