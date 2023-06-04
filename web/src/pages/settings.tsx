@@ -257,7 +257,10 @@ const Settings: NextPage = () => {
                 </span>
 
                 <br className="mb-7" />
-                <label htmlFor="email">Change email:</label>
+                <label htmlFor="email">
+                  Change email:{" "}
+                  <span className="text-gray-500">({meData?.me?.email})</span>
+                </label>
                 <br />
                 <Field
                   type="email"

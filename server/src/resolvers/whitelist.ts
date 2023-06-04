@@ -15,6 +15,7 @@ import { Whitelist } from "../enitities/Whitelist";
 import { UsersResponse } from "./user";
 import { User } from "../enitities/User";
 import { Group } from "../enitities/Group";
+import { Group_Has_User } from "../enitities/Group_Has_User";
 
 @ObjectType()
 class WhitelistResponse {
@@ -56,16 +57,27 @@ export class WhitelistResolver {
       };
     }
 
-    let adminId = await AppDataSource.query(
+    let groupInfo = await AppDataSource.query(
       `
-SELECT g.adminId FROM \`group\` g
+SELECT g.id, g.adminId FROM \`group\` g
 INNER JOIN channel c ON c.groupId = g.id
 WHERE c.id = ? AND g.type = 'group';
     `,
       [channelId]
     );
 
-    if (adminId.length == 0 || adminId[0].adminId != req.session.userId) {
+    if (groupInfo.length == 0) {
+      return {
+        errors: [
+          {
+            field: "channelId",
+            message: "Channel doesn't belong to a group",
+          },
+        ],
+      };
+    }
+
+    if (groupInfo[0].adminId != req.session.userId) {
       return {
         errors: [
           {
@@ -83,6 +95,33 @@ WHERE c.id = ? AND g.type = 'group';
           {
             field: "userId",
             message: "User doesn't exist",
+          },
+        ],
+      };
+    }
+
+    if (user.id == groupInfo[0].adminId) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "Can't add admin to whitelist",
+          },
+        ],
+      };
+    }
+
+    if (
+      !(await Group_Has_User.findOneBy({
+        groupId: groupInfo[0].id,
+        userId: user.id,
+      }))
+    ) {
+      return {
+        errors: [
+          {
+            field: "userId",
+            message: "User is not in group",
           },
         ],
       };
