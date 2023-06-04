@@ -15,10 +15,10 @@ const CreateGroupModal: NextPage = props => {
       id="createGroupModal"
       className="modal hidden fixed z-10 pt-[40vh] w-full h-full bg-[rgba(0,0,0,0.6)] justify-center"
     >
-      <div className="flex flex-col items-center bg-gray-200 dark:bg-gray-850 w-1/2 h-fit rounded-md py-3 px-6">
+      <div className="flex flex-col items-center w-1/2 px-6 py-3 bg-gray-200 rounded-md dark:bg-gray-850 h-fit">
         <div className="flex justify-end w-full">
           <div
-            className="w-6 h-6 text-xl text-gray-400 hover:cursor-pointer rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 flex justify-center items-center"
+            className="flex items-center justify-center w-6 h-6 text-xl text-gray-400 rounded-full hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700"
             onClick={() => {
               let modal = document.getElementById("createGroupModal");
 
@@ -58,31 +58,33 @@ const CreateGroupModal: NextPage = props => {
           }}
         >
           {({ handleSubmit, isSubmitting, errors }) => (
-            <Form onSubmit={handleSubmit}>
-              <div className="flex items-center gap-3 w-full mt-4 mb-2">
-                {/* <label htmlFor="name">Channel name:</label> */}
+            <>
+              <Form
+                onSubmit={handleSubmit}
+                className="flex items-center w-full gap-3 mt-4 mb-2"
+              >
                 <Field
                   id="createGroupInput"
                   type="name"
                   name="name"
                   placeholder="Group name"
-                  className="input-settings flex-1"
+                  className="flex-1 input-settings"
                 />
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500"
+                  className="px-4 py-2 text-sm text-gray-100 bg-blue-600 rounded-md hover:bg-blue-500"
                 >
                   Create Group
                 </button>
-              </div>
+              </Form>
               {errors.name && (
-                <div className="mt-2 text-red-500 text-sm">
+                <div className="flex w-full text-sm text-red-500">
                   <ErrorMessage name="name" />
                 </div>
               )}
-            </Form>
+            </>
           )}
         </Formik>
       </div>

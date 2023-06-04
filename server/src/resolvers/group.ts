@@ -193,6 +193,17 @@ export class GroupResolver {
       };
     }
 
+    if (await Group.findOneBy({ name: newName })) {
+      return {
+        errors: [
+          {
+            field: "name",
+            message: "Group name already exists",
+          },
+        ],
+      };
+    }
+
     await Group.update(
       { id },
       {

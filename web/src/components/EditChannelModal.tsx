@@ -52,18 +52,20 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
     }
   };
 
-  useEffect(() => {
-    let modal = document.getElementById("editChannelModal");
-    if (modal) {
-      modal.onclick = event => {
-        if (event.target == modal) {
-          modal!.classList.remove("flex");
-          modal!.classList.add("hidden");
-          setDeleteStage(0);
-        }
-      };
-    }
-  }, []);
+  if (!channelLoading && channelData) {
+    setTimeout(() => {
+      let modal = document.getElementById("editChannelModal");
+      if (modal) {
+        modal.onclick = event => {
+          if (event.target == modal) {
+            modal!.classList.remove("flex");
+            modal!.classList.add("hidden");
+            setDeleteStage(0);
+          }
+        };
+      }
+    }, 100);
+  }
 
   if (!channelLoading && channelData) {
     return (
@@ -71,10 +73,10 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
         id="editChannelModal"
         className="modal hidden fixed z-10 pt-[20vh] w-full h-full bg-[rgba(0,0,0,0.6)] justify-center"
       >
-        <div className="flex flex-col items-center bg-gray-200 dark:bg-gray-850 w-1/2 h-fit rounded-md py-3 px-6">
+        <div className="flex flex-col items-center w-1/2 px-6 py-3 bg-gray-200 rounded-md dark:bg-gray-850 h-fit">
           <div className="flex justify-end w-full">
             <div
-              className="w-6 h-6 text-xl text-gray-400 hover:cursor-pointer rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 flex justify-center items-center"
+              className="flex items-center justify-center w-6 h-6 text-xl text-gray-400 rounded-full hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700"
               onClick={() => {
                 let modal = document.getElementById("editChannelModal");
 
@@ -105,7 +107,7 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
             {({ handleSubmit, isSubmitting, setFieldValue }) => (
               <Form
                 onSubmit={handleSubmit}
-                className="flex items-center gap-3 w-full mt-4 mb-2"
+                className="flex items-center w-full gap-3 mt-4 mb-2"
               >
                 {/* <label htmlFor="name">Channel name:</label> */}
                 <Field
@@ -113,13 +115,13 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
                   type="name"
                   name="name"
                   placeholder="New channel name"
-                  className="input-settings flex-1"
+                  className="flex-1 input-settings"
                 />
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500"
+                  className="px-4 py-2 text-sm text-gray-100 bg-blue-600 rounded-md hover:bg-blue-500"
                 >
                   Edit Channel Name
                 </button>
@@ -127,18 +129,18 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
             )}
           </Formik>
 
-          <div className="flex items-end flex-col w-full">
+          <div className="flex flex-col items-end w-full">
             <button className="mt-2 btn-danger" onClick={deleteChannel}>
               {deleteStage == 0 && (
                 <>
                   Delete Channel
-                  <i className="fa-solid fa-trash ml-3 text-gray-800 dark:text-gray-300"></i>
+                  <i className="ml-3 text-gray-800 fa-solid fa-trash dark:text-gray-300"></i>
                 </>
               )}
               {deleteStage == 1 && <>Are you sure?</>}
             </button>
             <button
-              className="btn-secondary text-sm mt-2"
+              className="mt-2 text-sm btn-secondary"
               onClick={handleToggle}
             >
               {channelData.getChannelInfo.channel?.isPrivate ? (
@@ -151,7 +153,7 @@ const EditChannelModal: NextPage<{ channelId: number }> = props => {
 
           {channelData.getChannelInfo.channel?.isPrivate && (
             <div className="w-full">
-              <div className="w-full h-px bg-gray-600 mt-4 mb-4"></div>
+              <div className="w-full h-px mt-4 mb-4 bg-gray-600"></div>
               <div className="mb-2">Allowed users:</div>
               <Whitelist channelId={props.channelId} />
             </div>

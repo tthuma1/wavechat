@@ -16,15 +16,15 @@ const ChangePassword: NextPage = () => {
   const [changePassword] = useChangePasswordTokenMutation();
   const [tokenError, setTokenError] = useState("");
   return (
-    <div className="h-screen flex justify-center">
+    <div className="flex justify-center h-screen">
       <Head>
         <title>WaveChat - Change Password</title>
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex items-center flex-col px-28 text-center bg-gray-850 my-28 rounded-lg shadow-lg">
-        <h2 className="text-4xl font-medium mt-16 mb-16">Change Password</h2>
+      <main className="flex flex-col items-center text-center bg-gray-200 rounded-lg shadow-lg px-28 dark:bg-gray-850 my-28">
+        <h2 className="mt-16 mb-16 text-4xl font-medium">Change Password</h2>
         <Formik
           initialValues={{ newPassword: "" }}
           onSubmit={async (values, { setErrors }) => {
@@ -62,7 +62,7 @@ const ChangePassword: NextPage = () => {
           }}
         >
           {({ isSubmitting }) => (
-            <Form className="w-full flex flex-col justify-start">
+            <Form className="flex flex-col justify-start w-full">
               <label htmlFor="newPassword" className="w-fit">
                 New password:
               </label>
@@ -71,7 +71,7 @@ const ChangePassword: NextPage = () => {
                 name="newPassword"
                 placeholder="new password"
                 type="password"
-                className="input-settings my-3"
+                className="my-3 input-settings"
               />
 
               {tokenError ? <ErrorMessage name="newPassword" /> : null}
@@ -80,7 +80,7 @@ const ChangePassword: NextPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-blue-600 py-2 px-4 rounded-md text-sm mt-2 hover:bg-blue-500 disabled:text-gray-300 w-fit"
+                className="px-4 py-2 mt-2 text-sm text-gray-100 bg-blue-600 rounded-md hover:bg-blue-500 disabled:text-gray-300 w-fit"
               >
                 Change Password
               </button>

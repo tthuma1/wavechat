@@ -67,18 +67,18 @@ const Settings: NextPage = () => {
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="pt-10 flex flex-col items-center">
+        <div className="flex flex-col items-center pt-10">
           <div className="flex w-full">
-            <div className="flex-1 flex justify-start">
-              <div className="h-10 w-10 bg-gray-150 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
+            <div className="flex justify-start flex-1">
+              <div className="flex items-center justify-center w-10 h-10 text-center text-gray-800 rounded-md bg-gray-150 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700">
                 <Link href="/app">
                   <a>
-                    <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
+                    <i className="p-4 text-lg fa-solid fa-arrow-left"></i>
                   </a>
                 </Link>
               </div>
             </div>
-            <h2 className="text-4xl font-semibold mb-10">Settings</h2>
+            <h2 className="mb-10 text-4xl font-semibold">Settings</h2>
             <div className="flex-1"></div>
           </div>
           <Formik
@@ -121,7 +121,6 @@ const Settings: NextPage = () => {
               }
 
               if (values.newPassword && values.oldPassword) {
-                console.log("aa");
                 const response = await changePassword({
                   variables: {
                     oldPassword: values.oldPassword,
@@ -142,7 +141,7 @@ const Settings: NextPage = () => {
                   // 10 MB
                   alert("File is too big!");
                 }
-                var data = new FormData();
+                let data = new FormData();
                 data.append("image", file);
                 data.append("path", "avatars");
 
@@ -150,6 +149,7 @@ const Settings: NextPage = () => {
                   await (
                     await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/upload`, {
                       method: "POST",
+                      credentials: "include",
                       // headers: {
                       //     'Accept': 'application/json',
                       //     'Content-Type': 'application/json'
@@ -168,8 +168,8 @@ const Settings: NextPage = () => {
                   setErrors(toErrorMap(response.data.changeAvatar.errors));
                 } else {
                   resetForm();
-                  setFile(new File([""], ""));
-                  setFileSrc("");
+                  // setFile(new File([""], ""));
+                  // setFileSrc("");
                   setSaved(true);
                 }
               }
@@ -188,17 +188,17 @@ const Settings: NextPage = () => {
                         : "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                           meData?.me?.avatar
                     }
-                    className="h-20 w-20 object-cover rounded-full mr-3"
+                    className="object-cover w-20 h-20 mr-3 rounded-full"
                   />
-                  <label htmlFor="file" className="cursor-pointer mr-3 p-2">
-                    <div className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md text-sm hover:bg-blue-500">
-                      {/* <i className="fa-solid fa-circle-plus text-gray-300 pr-2"></i> */}
+                  <label htmlFor="file" className="p-2 mr-3 cursor-pointer">
+                    <div className="px-4 py-2 text-sm text-gray-100 bg-blue-600 rounded-md hover:bg-blue-500">
+                      {/* <i className="pr-2 text-gray-300 fa-solid fa-circle-plus"></i> */}
                       Change avatar
                     </div>
                   </label>
 
-                  <div className="flex flex-1 justify-between">
-                    <div className="border-red-700 bg-gray-50 dark:bg-transparent border-2 py-2 px-4 rounded-md text-sm hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer m-2 h-fit hover:text-gray-100">
+                  <div className="flex justify-between flex-1">
+                    <div className="px-4 py-2 m-2 text-sm border-2 border-red-700 rounded-md bg-gray-50 dark:bg-transparent hover:bg-red-700 dark:hover:bg-red-700 hover:cursor-pointer h-fit hover:text-gray-100">
                       Remove avatar
                     </div>
                     <input
@@ -217,18 +217,18 @@ const Settings: NextPage = () => {
                     />
                   </div>
                   <div
-                    className="h-10 w-10 bg-gray-50 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700 hover:cursor-pointer"
+                    className="flex items-center justify-center w-10 h-10 text-center text-gray-800 rounded-md bg-gray-50 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 hover:cursor-pointer"
                     onClick={changeTheme}
                   >
                     <a>
                       {currTheme == "dark" ? (
-                        // <i className="fa-solid fa-sun p-4 text-lg"></i>
+                        // <i className="p-4 text-lg fa-solid fa-sun"></i>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
-                          className="h-6 w-6 hidden dark:block"
+                          className="hidden w-6 h-6 dark:block"
                         >
                           <path
                             strokeLinecap="round"
@@ -238,7 +238,7 @@ const Settings: NextPage = () => {
                           ></path>
                         </svg>
                       ) : (
-                        <i className="fa-regular fa-moon p-4 text-lg"></i>
+                        <i className="p-4 text-lg fa-regular fa-moon"></i>
                       )}
                     </a>
                   </div>
@@ -291,7 +291,7 @@ const Settings: NextPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="text-gray-100 bg-blue-600 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500 disabled:text-gray-300"
+                  className="px-4 py-2 text-sm font-semibold text-gray-100 bg-blue-600 rounded-md hover:bg-blue-500 disabled:text-gray-300"
                 >
                   Save
                 </button>

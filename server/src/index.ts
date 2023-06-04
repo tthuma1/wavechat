@@ -87,6 +87,7 @@ const main = async () => {
     saveUninitialized: false,
     secret: process.env.COOKIE_SECRET as string,
     resave: false,
+    rolling: true,
   });
 
   app.use(appSession);

@@ -97,18 +97,18 @@ const Search: NextPage = () => {
           <meta name="description" content="" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="pt-20 flex flex-col items-center">
+        <div className="flex flex-col items-center pt-20">
           <div className="flex w-full">
-            <div className="flex-1 flex justify-start">
-              <div className="h-10 w-10 bg-gray-150 dark:bg-gray-800 rounded-md flex justify-center items-center text-gray-800 dark:text-gray-300 text-center hover:bg-gray-300 dark:hover:bg-gray-700">
+            <div className="flex justify-start flex-1">
+              <div className="flex items-center justify-center w-10 h-10 text-center text-gray-800 rounded-md bg-gray-150 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700">
                 <Link href="/app">
                   <a>
-                    <i className="fa-solid fa-arrow-left p-4 text-lg"></i>
+                    <i className="p-4 text-lg fa-solid fa-arrow-left"></i>
                   </a>
                 </Link>
               </div>
             </div>
-            <h2 className="text-4xl font-semibold mb-10">Search</h2>
+            <h2 className="mb-10 text-4xl font-semibold">Search</h2>
             <div className="flex-1"></div>
           </div>
           <Formik
@@ -141,8 +141,6 @@ const Search: NextPage = () => {
                   // setGroups(tmpGroups);
                   setGroups(groupsData.searchGroups);
                 }
-
-                resetForm();
               }
             }}
           >
@@ -163,7 +161,7 @@ const Search: NextPage = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="text-gray-100 bg-blue-700 py-2 px-4 rounded-md font-semibold text-sm hover:bg-blue-500 disabled:text-gray-300"
+                  className="px-4 py-2 text-sm font-semibold text-gray-100 bg-blue-700 rounded-md hover:bg-blue-500 disabled:text-gray-300"
                 >
                   Search
                 </button>
@@ -171,16 +169,16 @@ const Search: NextPage = () => {
             )}
           </Formik>
           <div className="mt-3 bg-gray-150 dark:bg-gray-850 rounded-md w-[70vw] h-[50vh] px-14 py-5 grid grid-cols-2 overflow-y-scroll scrollbar-colored">
-            <div className="border-r pr-4 border-gray-700">
+            <div className="pr-4 border-r border-gray-700">
               <p className="font-semibold">Users:</p>
               {users?.map(user => (
-                <div key={user.id} className="flex my-3 items-center">
+                <div key={user.id} className="flex items-center my-3">
                   <img
                     src={
                       "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                       user.avatar
                     }
-                    className="w-8 h-8 rounded-full mr-4"
+                    className="w-8 h-8 mr-4 rounded-full"
                   />
                   <span
                     className="w-40 overflow-hidden text-ellipsis"
@@ -190,9 +188,9 @@ const Search: NextPage = () => {
                   </span>
                   <div>
                     <Link href={`dm/${user.id}`}>
-                      <button className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm text-gray-100 hover:bg-blue-500 disabled:text-gray-300">
-                        {/* <button className="btn-secondary w-32 text-sm"> */}
-                        <i className="fa-solid fa-message text-gray-300 mr-2"></i>
+                      <button className="w-32 px-3 py-2 ml-4 text-sm text-gray-100 bg-blue-700 border-2 border-blue-700 rounded-md hover:bg-blue-500 disabled:text-gray-300">
+                        {/* <button className="w-32 text-sm btn-secondary"> */}
+                        <i className="mr-2 text-gray-300 fa-solid fa-message"></i>
                         Message
                       </button>
                     </Link>
@@ -200,19 +198,19 @@ const Search: NextPage = () => {
                   {addedFriends.includes(user.id) ||
                   addedFriendsStart.includes(user.id) ? (
                     // <Link href={`dm/${user.id}`}>
-                    //   <button className="w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300">
-                    //     <i className="fa-solid fa-message text-gray-300 mr-2"></i>
+                    //   <button className="w-32 px-3 py-2 ml-4 text-sm bg-blue-700 border-2 border-blue-700 rounded-md hover:bg-blue-500 disabled:text-gray-300">
+                    //     <i className="mr-2 text-gray-300 fa-solid fa-message"></i>
                     //     Message
                     //   </button>
                     // </Link>
                     <div className="w-12 ml-4"></div>
                   ) : (
                     <button
-                      // className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
-                      className="btn-secondary w-10 text-sm ml-4"
+                      // className="w-32 px-3 py-2 ml-4 text-sm border-2 rounded-md border-violet-700 hover:bg-gray-700 disabled:text-gray-300"
+                      className="w-10 ml-4 text-sm btn-secondary"
                       onClick={() => handleAddFriend(user.id)}
                     >
-                      <i className="fa-solid fa-circle-plus text-gray-800 dark:text-gray-300 mr-2"></i>
+                      <i className="mr-2 text-gray-800 fa-solid fa-circle-plus dark:text-gray-300"></i>
                       {/* Add Friend */}
                     </button>
                   )}
@@ -222,13 +220,13 @@ const Search: NextPage = () => {
             <div className="pl-4">
               <p className="font-semibold">Groups:</p>
               {groups?.map(g_w_c => (
-                <div key={g_w_c.group.id} className="flex my-3 items-center">
+                <div key={g_w_c.group.id} className="flex items-center my-3">
                   {/* <img
                 src={
                   "https://s3.eu-central-2.wasabisys.com/wavechat/avatars/" +
                   user.avatar
                 }
-                className="w-8 h-8 rounded-full mr-4"
+                className="w-8 h-8 mr-4 rounded-full"
               /> */}
                   <span
                     className="w-40 overflow-hidden text-ellipsis"
@@ -240,21 +238,21 @@ const Search: NextPage = () => {
                   joinedGroupsStart.includes(g_w_c.group.id) ? (
                     <Link href={`channel/${g_w_c.channel.id}`}>
                       <button
-                        className="text-gray-100 w-32 border-2 border-blue-700 bg-blue-700 py-2 px-3 ml-4 rounded-md text-sm hover:bg-blue-500 disabled:text-gray-300"
-                        // className="btn-secondary w-32 text-sm ml-4"
+                        className="w-32 px-3 py-2 ml-4 text-sm text-gray-100 bg-blue-700 border-2 border-blue-700 rounded-md hover:bg-blue-500 disabled:text-gray-300"
+                        // className="w-32 ml-4 text-sm btn-secondary"
                         onClick={() => handleJoinGroup(g_w_c.group.id)}
                       >
-                        {/* <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i> */}
+                        {/* <i className="mr-2 text-gray-300 fa-solid fa-circle-plus"></i> */}
                         Open Group
                       </button>
                     </Link>
                   ) : (
                     <button
-                      // className="w-32 border-violet-700 border-2 py-2 px-3 ml-4 rounded-md text-sm hover:bg-gray-700 disabled:text-gray-300"
-                      className="btn-secondary w-32 text-sm ml-4"
+                      // className="w-32 px-3 py-2 ml-4 text-sm border-2 rounded-md border-violet-700 hover:bg-gray-700 disabled:text-gray-300"
+                      className="w-32 ml-4 text-sm btn-secondary"
                       onClick={() => handleJoinGroup(g_w_c.group.id)}
                     >
-                      {/* <i className="fa-solid fa-circle-plus text-gray-300 mr-2"></i> */}
+                      {/* <i className="mr-2 text-gray-300 fa-solid fa-circle-plus"></i> */}
                       Join Group
                     </button>
                   )}
