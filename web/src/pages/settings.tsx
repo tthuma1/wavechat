@@ -245,7 +245,12 @@ const Settings: NextPage = () => {
                 </div>
 
                 <br />
-                <label htmlFor="newUsername">Change username:</label>
+                <label htmlFor="newUsername">
+                  Change username:{" "}
+                  <span className="text-gray-500">
+                    ({meData?.me?.username})
+                  </span>
+                </label>
                 <br />
                 <Field
                   name="newUsername"
