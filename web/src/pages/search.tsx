@@ -48,7 +48,9 @@ const Search: NextPage = () => {
   let joinedGroupsStart: any[] = [];
 
   useEffect(() => {
-    if (!meLoading && !meData?.me) router.push("/login");
+    if (!meLoading && meData?.me == null) {
+      router.push("/login");
+    }
   });
 
   const handleAddFriend = async (id: number) => {
